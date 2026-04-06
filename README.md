@@ -64,6 +64,6 @@ This project was created for academic purposes only and is not licensed for publ
 
 ## Authors
 
-**Raihan Akbar** — [GitHub](https://github.com/Samaele13) · [LinkedIn](https://www.linkedin.com/in/raihan-akbar-2b5820334/)
+**Raihan Akbar** — [GitHub](https://github.com/rhankbrguw) · [LinkedIn](https://www.linkedin.com/in/raihan-akbar-2b5820334/)
 
 **Ansya Rulloh Vini** — [GitHub](https://github.com/ansyarulloh) · [LinkedIn](https://www.linkedin.com/in/ansya-rulloh-vini-2414302a1/)
