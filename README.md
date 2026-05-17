@@ -1,138 +1,80 @@
-# 📚 RumahKosimBooks
+<div align="center">
 
-A full-stack web application for managing books, built with **SvelteKit**, featuring user authentication and a robust book management system.
+# RumahKosimBooks
 
-## 🚀 Technologies Used
+[![SvelteKit](https://img.shields.io/badge/SvelteKit-FF3E00?style=flat-square&logo=svelte&logoColor=white)](https://kit.svelte.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+[![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=flat-square&logo=mysql&logoColor=white)](https://www.mysql.com/)
+[![JWT](https://img.shields.io/badge/JWT-Auth-000000?style=flat-square&logo=jsonwebtokens&logoColor=white)](https://jwt.io/)
+[![Node.js](https://img.shields.io/badge/Node.js-v14+-5FA04E?style=flat-square&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
 
-### **Frontend**
+A full-stack book management web application built with SvelteKit, featuring user authentication and complete CRUD operations.
 
-- **SvelteKit** - Full-stack web application framework
-- **Tailwind CSS** - Utility-first CSS framework for styling
-- **Axios** - HTTP client for API requests
+</div>
 
-### **Backend**
+---
 
-- **SvelteKit API Routes**
-- **JWT** - JSON Web Tokens for secure authentication
-- **bcrypt** - Password hashing
-- **MySQL2** - Database connector and query builder
+## Tech Stack
 
-## ✨ Features
+| Layer | Technologies |
+|---|---|
+| Frontend | SvelteKit, Tailwind CSS, Axios |
+| Backend | SvelteKit API Routes, JWT, bcrypt, MySQL2 |
 
-- ✅ User authentication (Login & Register)
-- 🔒 JWT-based secure authentication
-- 📚 Book management system (CRUD operations)
-- 🔧 Admin Management (CRUD operations for administrative users)
+---
 
-## ⚙️ Prerequisites
+## Features
 
-Before running the project, make sure you have:
+- User authentication (Register & Login)
+- JWT-based session management
+- Book management (CRUD)
+- Admin panel (CRUD)
 
-- **Node.js** (v14 or higher)
-- **MySQL** installed
-- **npm**, **pnpm**, or **yarn**
+---
 
-## 🛠️ Installation
+## Getting Started
 
-1. Clone the repository:
+**Prerequisites:** Node.js v14+, MySQL, npm/pnpm/yarn
 
+1. Clone and install:
 ```bash
 git clone https://github.com/Samaele13/rumah-kosim-sveltekit.git
 cd rumah-kosim-sveltekit
-```
-
-2. Install dependencies:
-
-```bash
 npm install
-# or
-pnpm install
-# or
-yarn
 ```
 
-3. Set up your environment variables:  
-   Create a `.env` file in the root directory and add the following:
-
+2. Create a `.env` file:
 ```env
 DATABASE_URL="mysql://user:password@localhost:3306/database_name"
 JWT_SECRET="your_jwt_secret"
 ```
 
-4. Configure the database:
+3. Set up the MySQL database and import the provided SQL scripts.
 
-   - Create a **MySQL database**
-   - Update the `.env` file with your database credentials
-
-5. Initialize the database:
-   - Import the provided SQL scripts for database setup
-
-## 🚧 Development
-
-To start the development server:
-
+4. Run the development server:
 ```bash
 npm run dev
-# or
-npm run dev -- --open
 ```
 
-## 🏗️ Building for Production
+---
 
-1. Create a production build:
+## Build
 
 ```bash
 npm run build
-```
-
-2. Preview the production build:
-
-```bash
 npm run preview
 ```
 
-## 📂 Project Structure
+---
 
-```plaintext
-RumahKosimBooks/
-├── src/
-│   ├── lib/
-│   │   ├── components/
-│   │   ├── utils/
-│   │   └── db/
-│   ├── routes/
-│   │   ├── api/
-│   │   └── [...]
-│   └── app.html
-│       app.css
-│       app.d.ts
-├── static/
-├── tailwind.config.js
-├── svelte.config.js
-└── package.json
-```
+## License
 
-## ❗ Important
+This project was created for academic purposes only and is not licensed for public or commercial use.
 
-This project is **not under any license** and is created solely for academic purposes as part of coursework. Further development or usage of this project is strictly for learning and academic assignments only.
+---
 
-## 📞 Contact
+## Authors
 
-- **Instagram** : [@rhankbrguw\_](https://www.instagram.com/rhankbrguw_)
-                  [@ansyrllhv](https://www.instagram.com/ansyrllhv/)
-- **Facebook**  : [Samael](https://www.facebook.com/Rhakbr/)
-- **LinkedIn**  : [Raihan Akbar](https://www.linkedin.com/in/raihan-akbar-2b5820334/)
-                  [Ansya Rulloh Vini](https://www.linkedin.com/in/ansya-rulloh-vini-2414302a1/)
-- **GitHub**    : [@Samaele13](https://github.com/Samaele13)
-                  [@ansyarulloh](https://github.com/ansyarulloh)
+**Raihan Akbar** — [GitHub](https://github.com/rhankbrguw) · [LinkedIn](https://www.linkedin.com/in/raihan-akbar-2b5820334/)
 
-## 🌟 Project Link
-
-Find the repository here: [https://github.com/Samaele13/rumah-kosim-sveltekit]
-
-## 🙏 Acknowledgments
-
-- **SvelteKit** team for the amazing framework
-- **Tailwind CSS** for the utility-first CSS framework
-- All my mentor and friends in college that helped me to build this project
-- All other open-source contributors and libraries
+**Ansya Rulloh Vini** — [GitHub](https://github.com/ansyarulloh) · [LinkedIn](https://www.linkedin.com/in/ansya-rulloh-vini-2414302a1/)
