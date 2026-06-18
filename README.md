@@ -14,21 +14,27 @@ A full-stack book management web application built with SvelteKit, featuring use
 
 ---
 
-## Tech Stack
+## Architecture & Tech Stack
 
-| Layer    | Technologies                              |
-| -------- | ----------------------------------------- |
-| Frontend | SvelteKit, Tailwind CSS, Axios            |
-| Backend  | SvelteKit API Routes, JWT, bcrypt, MySQL2 |
+The application strictly adheres to a **Strict Layered Architecture** (`Controllers -> Services -> Repositories -> Database`) and is fully SSR-first.
+
+| Layer       | Technologies                                                                 |
+| ----------- | ---------------------------------------------------------------------------- |
+| Frontend    | SvelteKit, Tailwind CSS, Superforms (Zod), Lucide Svelte                     |
+| Backend     | SvelteKit Server-Side Rendering (SSR), Form Actions                          |
+| Services    | TypeScript, bcrypt, JWT (HTTP-Only Cookies)                                  |
+| Persistence | MySQL2 (Stored Procedures, Parameterized Queries)                            |
 
 ---
 
 ## Features
 
-- User authentication (Register & Login)
-- JWT-based session management
-- Book management (CRUD)
-- Admin panel (CRUD)
+- **SSR-First Approach:** Zero client-side data fetching (`onMount`), guaranteeing blazing-fast initial load times and robust SEO.
+- **SvelteKit Form Actions:** All data mutations (Checkout, Add to Cart, Login, Register, Admin Panel) are processed strictly via native HTML forms (`use:enhance`), eliminating the need for `axios` or client-side REST APIs.
+- **Secure Authentication:** Pure server-side session validation using HTTP-Only, Secure cookies for JWT.
+- **Strict Data Validation:** Integrated `sveltekit-superforms` paired with `Zod` for unbreakable client and server validation.
+- **E-Commerce Flow:** Complete shopping cart, checkout, and order history workflows.
+- **Admin Panel:** Comprehensive dashboard for tracking orders, updating stock, and product image uploads.
 
 ---
 
