@@ -1,23 +1,8 @@
-<script>
+<script lang="ts">
 	import Shop from '$lib/components/Shop.svelte';
-	import axios from 'axios';
+	import type { PageData } from './$types';
 
-	let books = [];
-
-	async function fetchBooks() {
-		try {
-			const response = await axios.get('/api/books');
-			if (response.status === 200) {
-				books = response.data;
-			} else {
-				console.error('Failed to fetch books:', response.statusText);
-			}
-		} catch (error) {
-			console.error('Error fetching books:', error.message);
-		}
-	}
-
-	fetchBooks();
+	export let data: PageData;
 </script>
 
-<Shop {books} />
+<Shop books={data.books} loading={false} />

@@ -1,5 +1,7 @@
-<script>
+<script lang="ts">
 	import CheckoutPayment from '$lib/components/CheckoutPayment.svelte';
+
+	export let data: any;
 </script>
 
-<CheckoutPayment />
+<CheckoutPayment data={data.paymentForm} cartItems={data.cartItems} />

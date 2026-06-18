@@ -1,29 +1,30 @@
-<script>
+<script lang="ts">
 	import '../app.css';
+	import { Toaster } from 'svelte-sonner';
 	import Header from '$lib/components/Header.svelte';
-	import { restoreAuth } from '$lib/stores/auth.js';
-
-	if (typeof window !== 'undefined') {
-		restoreAuth().catch((err) => {
-			console.error('Error during auth restoration:', err.message);
-		});
-	}
-
-	export async function load() {
-		if (browser) {
-			await restoreAuth();
-		}
-		return {};
-	}
 </script>
 
-<main>
+<Toaster position="top-right" richColors />
+
+<div
+	class="fixed inset-0 -z-50 bg-cover bg-center bg-no-repeat opacity-[0.05] bg-[url('/images/bg-ruko.png')]"
+></div>
+<div class="app">
 	<Header />
-	<slot />
-</main>
+	<main>
+		<slot />
+	</main>
+</div>
 
 <style>
+	.app {
+		display: flex;
+		flex-direction: column;
+		min-height: 100vh;
+	}
+
 	main {
-		background-color: white;
+		flex: 1;
+		width: 100%;
 	}
 </style>

@@ -1,145 +1,120 @@
-<script>
+<script lang="ts">
 	import { auth, logout } from '$lib/stores/auth';
 	import { goto } from '$app/navigation';
-	import { onMount } from 'svelte';
-	import axios from 'axios';
+	import { page } from '$app/stores';
+	import { STRINGS } from '$lib/constants/strings';
 
-	let cartCount = 0;
-	let isAuthenticated = false;
-	let user;
-	let isMobileMenuOpen = false;
+	let isAuthenticated = false,
+		user: { username: string, role: string } | null = null,
+		isMobileMenuOpen = false;
 
-	// Subscribe Auth
+	$: isHome = $page.url.pathname === '/';
+	$: cartCount = $page.data.cartCount || 0;
+
 	$: auth.subscribe(({ isAuthenticated: authState, user: userDetails }) => {
 		isAuthenticated = authState;
 		user = userDetails;
 	});
 
-	// Fetch Items
-	async function fetchCartCount() {
-		try {
-			const storedCartCount = localStorage.getItem('cartCount');
-			if (storedCartCount) {
-				cartCount = parseInt(storedCartCount);
-			}
-
-			if (isAuthenticated) {
-				const token = localStorage.getItem('authToken');
-				if (!token) {
-					console.warn('No auth token found');
-					return;
-				}
-
-				const res = await axios.get('/api/cart', {
-					headers: { Authorization: `Bearer ${token}` }
-				});
-
-				if (res.status === 200) {
-					const cart = res.data;
-					cartCount = cart.reduce((total, item) => total + item.quantity, 0);
-
-					localStorage.setItem('cartCount', cartCount);
-				}
-			}
-		} catch (error) {
-			console.error('Failed to fetch cart count:', error.response?.data || error.message);
-		}
-	}
-
-	onMount(fetchCartCount);
-
-	// Handle logout
 	function handleLogout() {
 		logout();
 		localStorage.clear();
 		goto('/client/login');
 	}
-
-	// Toggle mobile menu
-	function toggleMobileMenu() {
-		isMobileMenuOpen = !isMobileMenuOpen;
-	}
 </script>
 
 <header
-	class="bg-white/2 fixed top-0 z-[100] flex w-full flex-wrap items-center justify-between border-b px-4 py-3 shadow-md backdrop-blur-sm md:px-6 md:py-4"
+	class={`fixed top-0 z-[100] flex w-full flex-wrap items-center justify-between px-4 py-3 transition-colors md:px-6 md:py-4 ${
+		isHome && !isMobileMenuOpen
+			? 'border-b border-text-inverse/20 bg-transparent'
+			: 'border-b border-surface-alt bg-surface/90 shadow-sm backdrop-blur-md'
+	}`}
 >
-	<div class="flex items-center gap-x-2 text-yellow-500 md:gap-x-6">
+	<div class="flex items-center gap-x-2 text-primary md:gap-x-6">
 		<button
-			class="mr-2 block text-stone-500 hover:text-amber-400 md:hidden"
-			on:click={toggleMobileMenu}
-			aria-label="Toggle menu"
+			class={`mr-2 block md:hidden ${isHome ? 'text-text-inverse hover:text-primary' : 'text-text-muted hover:text-primary'}`}
+			on:click={() => (isMobileMenuOpen = !isMobileMenuOpen)}
+			aria-label="Toggle menu">☰</button
 		>
-			☰
-		</button>
-		<a href="/" class="text-xl font-bold md:text-2xl">RumahKosimBook</a>
+		<a href="/" class="text-xl font-bold text-primary md:text-2xl">RumahKosimBook</a>
 		<nav class="hidden gap-4 md:flex">
-			<a href="/client/about" class="text-sm text-stone-500 hover:text-amber-400">About</a>
-			<a href="/client/shop" class="text-sm text-stone-500 hover:text-amber-400">Shop</a>
+			<a
+				href="/client/about"
+				class={`text-sm ${isHome ? 'text-text-inverse/80 hover:text-text-inverse' : 'text-text-muted hover:text-primary'}`}
+				>About</a
+			>
+			<a
+				href="/client/shop"
+				class={`text-sm ${isHome ? 'text-text-inverse/80 hover:text-text-inverse' : 'text-text-muted hover:text-primary'}`}
+				>Shop</a
+			>
 		</nav>
 	</div>
 
 	<div class="flex items-center gap-2 md:gap-4">
 		{#if isAuthenticated && user?.role !== 'admin'}
-			<a href="/client/cart" class="text-stone-300 hover:text-amber-400">🛒 {cartCount}</a>
+			<a
+				href="/client/cart"
+				class={isHome ? 'text-text-inverse' : 'text-text-main hover:text-primary'}
+			>
+				🛒 {cartCount}
+			</a>
 		{/if}
 
 		{#if isAuthenticated}
 			<div class="group relative">
 				<div class="flex cursor-pointer items-center gap-1 group-hover:underline md:gap-2">
 					<img src="/images/profile.png" alt="Profile" class="h-6 w-6 rounded-full md:h-8 md:w-8" />
-					<span class="hidden text-stone-500 hover:text-amber-400 md:inline">{user?.username}</span>
+					<span
+						class={`hidden md:inline ${isHome ? 'text-text-inverse hover:text-primary' : 'text-text-muted hover:text-primary'}`}
+						>{user?.username}</span
+					>
 				</div>
-				<div class="absolute right-0 hidden w-48 rounded bg-white shadow-md group-hover:block">
-					{#if user?.role === 'admin'}
-						<a
-							href="/admin"
-							class="block px-4 py-2 text-sm text-stone-500 hover:bg-amber-50 hover:text-amber-400"
-						>
-							⚙️Settings
-						</a>
-					{:else}
-						<a
-							href="/client/profiles"
-							class="block px-4 py-2 text-sm text-stone-500 hover:bg-amber-50 hover:text-amber-400"
-						>
-							View Profiles
-						</a>
-					{/if}
+				<div
+					class="absolute right-0 hidden w-48 rounded-md border border-surface-alt bg-surface shadow-md group-hover:block"
+				>
 					<a
+						href={user?.role === 'admin' ? '/admin' : '/client/profiles'}
+						class="block px-4 py-2 text-sm text-text-muted hover:bg-surface-alt hover:text-primary"
+					>
+						{user?.role === 'admin' ? '⚙️Settings' : 'View Profiles'}
+					</a>
+					<button
 						on:click={handleLogout}
-						class="block cursor-pointer px-4 py-2 text-sm text-red-500 hover:bg-amber-50 hover:text-red-700"
+						class="block w-full cursor-pointer px-4 py-2 text-left text-sm text-danger hover:bg-danger-light hover:text-danger-hover"
 					>
 						Logout
-					</a>
+					</button>
 				</div>
 			</div>
 		{:else}
 			<div class="hidden gap-2 md:flex md:gap-4">
 				<a
 					href="/client/login"
-					class="text-sm font-semibold text-stone-500 hover:text-amber-400 md:text-base">Login</a
+					class={`text-sm font-semibold md:text-base ${isHome ? 'text-text-inverse/80 hover:text-text-inverse' : 'text-text-muted hover:text-primary'}`}
+					>{STRINGS.AUTH.LOGIN.TITLE}</a
 				>
 				<a
 					href="/client/signup"
-					class="text-sm font-semibold text-stone-500 hover:text-amber-400 md:text-base">Register</a
+					class={`text-sm font-semibold md:text-base ${isHome ? 'text-text-inverse/80 hover:text-text-inverse' : 'text-text-muted hover:text-primary'}`}
+					>{STRINGS.AUTH.SIGNUP.TITLE}</a
 				>
 			</div>
 		{/if}
 	</div>
 
-	<!-- Mobile Menu -->
-	<div class={`w-full border-t md:hidden ${isMobileMenuOpen ? 'block' : 'hidden'}`}>
+	<div
+		class={`w-full border-t border-surface-alt md:hidden ${isMobileMenuOpen ? 'block' : 'hidden'}`}
+	>
 		<nav class="flex flex-col py-2">
-			<a href="/client/about" class="px-4 py-2 text-sm text-stone-500 hover:text-amber-400">About</a
-			>
-			<a href="/client/shop" class="px-4 py-2 text-sm text-stone-500 hover:text-amber-400">Shop</a>
+			<a href="/client/about" class="px-4 py-2 text-sm text-text-muted hover:text-primary">About</a>
+			<a href="/client/shop" class="px-4 py-2 text-sm text-text-muted hover:text-primary">Shop</a>
 			{#if !isAuthenticated}
-				<a href="/client/login" class="px-4 py-2 text-sm text-stone-500 hover:text-amber-400"
-					>Login</a
+				<a href="/client/login" class="px-4 py-2 text-sm text-text-muted hover:text-primary"
+					>{STRINGS.AUTH.LOGIN.TITLE}</a
 				>
-				<a href="/client/signup" class="px-4 py-2 text-sm text-stone-500 hover:text-amber-400"
-					>Register</a
+				<a href="/client/signup" class="px-4 py-2 text-sm text-text-muted hover:text-primary"
+					>{STRINGS.AUTH.SIGNUP.TITLE}</a
 				>
 			{/if}
 		</nav>

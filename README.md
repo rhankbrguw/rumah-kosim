@@ -16,10 +16,10 @@ A full-stack book management web application built with SvelteKit, featuring use
 
 ## Tech Stack
 
-| Layer | Technologies |
-|---|---|
-| Frontend | SvelteKit, Tailwind CSS, Axios |
-| Backend | SvelteKit API Routes, JWT, bcrypt, MySQL2 |
+| Layer    | Technologies                              |
+| -------- | ----------------------------------------- |
+| Frontend | SvelteKit, Tailwind CSS, Axios            |
+| Backend  | SvelteKit API Routes, JWT, bcrypt, MySQL2 |
 
 ---
 
@@ -37,6 +37,7 @@ A full-stack book management web application built with SvelteKit, featuring use
 **Prerequisites:** Node.js v14+, MySQL, npm/pnpm/yarn
 
 1. Clone and install:
+
 ```bash
 git clone https://github.com/Samaele13/rumah-kosim-sveltekit.git
 cd rumah-kosim-sveltekit
@@ -44,6 +45,7 @@ npm install
 ```
 
 2. Create a `.env` file:
+
 ```env
 DATABASE_URL="mysql://user:password@localhost:3306/database_name"
 JWT_SECRET="your_jwt_secret"
@@ -52,6 +54,7 @@ JWT_SECRET="your_jwt_secret"
 3. Set up the MySQL database and import the provided SQL scripts.
 
 4. Run the development server:
+
 ```bash
 npm run dev
 ```

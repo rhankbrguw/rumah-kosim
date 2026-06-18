@@ -2,6 +2,32 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
+@layer base {
+	:root {
+		/* Premium Vintage Bookstore Theme (Yellow / Amber & Dark Stone) */
+		--color-primary: 43 96% 56%; /* Amber 400 */
+		--color-primary-hover: 43 96% 46%;
+		--color-primary-light: 43 100% 90%;
+
+		--color-secondary: 24 10% 10%; /* Stone 900 */
+		--color-secondary-hover: 24 10% 0%;
+
+		--color-danger: 0 84% 60%; /* Red 500 */
+		--color-danger-hover: 0 74% 50%;
+		--color-danger-light: 0 100% 95%;
+
+		/* Backgrounds & Surfaces */
+		--color-surface: 0 0% 100%;
+		--color-surface-alt: 30 20% 98%; /* Warm off-white */
+		--color-surface-dark: 222 47% 11%;
+
+		/* Typography */
+		--color-text-main: 222 47% 11%; /* Very dark blue gray */
+		--color-text-muted: 215 16% 47%; /* Slate 500 */
+		--color-text-inverse: 0 0% 100%;
+	}
+}
+
 @font-face {
 	font-family: 'Playfair Display';
 	src: url('/fonts/PlayfairDisplay-VariableFont_wght.ttf') format('truetype');
@@ -16,32 +42,23 @@
 	font-display: swap;
 }
 
-body,
-p {
+body {
 	font-family:
 		'Inter',
 		system-ui,
 		-apple-system,
-		BlinkMacSystemFont,
-		'Segoe UI',
-		Roboto,
-		Oxygen,
-		Ubuntu,
-		Cantarell,
-		'Open Sans',
-		'Helvetica Neue',
 		sans-serif;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
+	background-color: hsl(var(--color-surface-alt));
+	color: hsl(var(--color-text-main));
 }
 
-a,
-li,
 h1,
 h2,
 h3,
 h4,
 h5,
 h6 {
-	font-family: 'Playfair Display', 'Times New Roman', serif;
+	font-family: 'Playfair Display', serif;
 }
