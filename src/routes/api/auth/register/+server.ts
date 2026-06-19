@@ -49,5 +49,9 @@ export async function POST({ request, cookies }) {
 		maxAge: 60 * 60 * 24 // 1 day
 	});
 
-	return jsonResponse({ user: { username, email, role: 'user' } }, MESSAGES.SUCCESS.CREATE, HTTP_STATUS.CREATED);
+	return jsonResponse(
+		{ user: { username, email, role: 'user' } },
+		MESSAGES.SUCCESS.CREATE,
+		HTTP_STATUS.CREATED
+	);
 }

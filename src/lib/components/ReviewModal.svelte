@@ -80,7 +80,7 @@
 						bind:value={$form.comment}
 						class="mt-2 w-full rounded-lg border border-secondary p-3 text-text-main focus:border-primary focus:ring-2 focus:ring-primary"
 						rows="4"
-						placeholder="Share your thoughts about this product..."
+						placeholder={STRINGS.PRODUCT.REVIEW_PLACEHOLDER}
 					></textarea>
 					{#if $errors.comment}<span class="text-xs text-danger">{$errors.comment}</span>{/if}
 				</div>

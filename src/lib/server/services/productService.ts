@@ -10,11 +10,24 @@ export const ProductService = {
 	updateQuantity: async (id: number, quantity: number) => {
 		return await ProductRepository.updateQuantity(id, quantity);
 	},
-	create: async (title: string, price: number, image: string, description: string, quantity: number) => {
+	create: async (
+		title: string,
+		price: number,
+		image: string,
+		description: string,
+		quantity: number
+	) => {
 		return await ProductRepository.create(title, price, image, description, quantity);
 	},
-	update: async (id: number, title: string, description: string, price: number, quantity: number) => {
-		return await ProductRepository.update(id, title, description, price, quantity);
+	update: async (
+		id: number,
+		title: string,
+		description: string,
+		price: number,
+		quantity: number,
+		image: string
+	) => {
+		return await ProductRepository.update(id, title, description, price, quantity, image);
 	},
 	updateImage: async (id: number, image: string) => {
 		return await ProductRepository.updateImage(id, image);

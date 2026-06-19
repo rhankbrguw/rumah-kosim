@@ -3,7 +3,13 @@ import { pool } from '$lib/db.js';
 import { dbRepository as db } from '$lib/server/repositories/dbRepository.js';
 
 export const ReviewRepository = {
-	async createReviewTransaction(orderId: number, productId: number, userId: number, rating: number, comment: string) {
+	async createReviewTransaction(
+		orderId: number,
+		productId: number,
+		userId: number,
+		rating: number,
+		comment: string
+	) {
 		const conn = await pool.getConnection();
 
 		try {
@@ -54,5 +60,15 @@ export const ReviewRepository = {
             JOIN products p ON r.product_id = p.id
             WHERE r.user_id = ?`;
 		return await db.query(sql, [userId]);
+	},
+
+	async getByProductId(productId: number) {
+		const sql = `
+            SELECT r.*, u.username as user_name
+            FROM reviews r
+            JOIN users u ON r.user_id = u.id
+            WHERE r.product_id = ?
+			ORDER BY r.id DESC`;
+		return await db.query(sql, [productId]);
 	}
 };

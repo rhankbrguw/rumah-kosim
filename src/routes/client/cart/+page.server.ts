@@ -1,11 +1,11 @@
 import { redirect, fail } from '@sveltejs/kit';
 import { getCartItems, addToCart, deleteFromCart } from '$lib/server/services/cartService.js';
 
-export const load = async ({ locals }) => {
-	if (!locals.user) throw redirect(303, '/client/login');
-	
+export const load = async ({ locals }: any) => {
+	if (!locals.user) throw redirect(303, '/client/auth');
+
 	const cartItemsRaw = await getCartItems(locals.user.id);
-	const cartItems = (cartItemsRaw as unknown as any[]).map(item => ({
+	const cartItems = (cartItemsRaw as unknown as any[]).map((item) => ({
 		...item,
 		image: `/images/${item.image?.split('/').pop() || `buku${item.product_id}.jpg`}`
 	}));

@@ -3,6 +3,7 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { STRINGS } from '$lib/constants/strings';
+	import { UserCircle, LogIn } from 'lucide-svelte';
 
 	let isAuthenticated = false,
 		user: { username: string, role: string } | null = null,
@@ -16,10 +17,9 @@
 		user = userDetails;
 	});
 
-	function handleLogout() {
-		logout();
+	async function handleLogout() {
 		localStorage.clear();
-		goto('/client/login');
+		await logout();
 	}
 </script>
 
@@ -62,22 +62,20 @@
 		{/if}
 
 		{#if isAuthenticated}
-			<div class="group relative">
-				<div class="flex cursor-pointer items-center gap-1 group-hover:underline md:gap-2">
-					<img src="/images/profile.png" alt="Profile" class="h-6 w-6 rounded-full md:h-8 md:w-8" />
-					<span
-						class={`hidden md:inline ${isHome ? 'text-text-inverse hover:text-primary' : 'text-text-muted hover:text-primary'}`}
-						>{user?.username}</span
-					>
+			<div class="group relative hidden md:block">
+				<div class="flex cursor-pointer items-center transition-transform hover:scale-110">
+					<div class={isHome ? 'text-text-inverse/80 hover:text-text-inverse' : 'text-text-muted hover:text-primary'}>
+						<UserCircle size={28} strokeWidth={1.5} />
+					</div>
 				</div>
 				<div
 					class="absolute right-0 hidden w-48 rounded-md border border-surface-alt bg-surface shadow-md group-hover:block"
 				>
 					<a
-						href={user?.role === 'admin' ? '/admin' : '/client/profiles'}
+						href={user?.role === 'admin' ? '/admin' : '/client/profile/history'}
 						class="block px-4 py-2 text-sm text-text-muted hover:bg-surface-alt hover:text-primary"
 					>
-						{user?.role === 'admin' ? '⚙️Settings' : 'View Profiles'}
+						{user?.role === 'admin' ? '⚙️Settings' : '👤 Profile'}
 					</a>
 					<button
 						on:click={handleLogout}
@@ -90,15 +88,13 @@
 		{:else}
 			<div class="hidden gap-2 md:flex md:gap-4">
 				<a
-					href="/client/login"
-					class={`text-sm font-semibold md:text-base ${isHome ? 'text-text-inverse/80 hover:text-text-inverse' : 'text-text-muted hover:text-primary'}`}
-					>{STRINGS.AUTH.LOGIN.TITLE}</a
+					href="/client/auth"
+					class={`flex items-center gap-1 text-sm font-semibold md:text-base transition-transform hover:scale-110 ${isHome ? 'text-text-inverse/80 hover:text-text-inverse' : 'text-text-muted hover:text-primary'}`}
+					aria-label="Account"
+					title="Login or Register"
 				>
-				<a
-					href="/client/signup"
-					class={`text-sm font-semibold md:text-base ${isHome ? 'text-text-inverse/80 hover:text-text-inverse' : 'text-text-muted hover:text-primary'}`}
-					>{STRINGS.AUTH.SIGNUP.TITLE}</a
-				>
+					<LogIn size={28} strokeWidth={1.5} />
+				</a>
 			</div>
 		{/if}
 	</div>
@@ -110,12 +106,16 @@
 			<a href="/client/about" class="px-4 py-2 text-sm text-text-muted hover:text-primary">About</a>
 			<a href="/client/shop" class="px-4 py-2 text-sm text-text-muted hover:text-primary">Shop</a>
 			{#if !isAuthenticated}
-				<a href="/client/login" class="px-4 py-2 text-sm text-text-muted hover:text-primary"
-					>{STRINGS.AUTH.LOGIN.TITLE}</a
+				<a href="/client/auth" class="flex items-center gap-2 px-4 py-2 text-sm text-text-muted hover:text-primary"
+					><LogIn size={20} /> Auth</a
 				>
-				<a href="/client/signup" class="px-4 py-2 text-sm text-text-muted hover:text-primary"
-					>{STRINGS.AUTH.SIGNUP.TITLE}</a
-				>
+			{:else}
+				<a href={user?.role === 'admin' ? '/admin' : '/client/profile/history'} class="px-4 py-2 text-sm text-text-muted hover:text-primary">
+					{user?.role === 'admin' ? '⚙️ Settings' : '👤 Profile'}
+				</a>
+				<button on:click={handleLogout} class="w-full cursor-pointer px-4 py-2 text-left text-sm text-danger hover:text-danger-hover">
+					Logout
+				</button>
 			{/if}
 		</nav>
 	</div>

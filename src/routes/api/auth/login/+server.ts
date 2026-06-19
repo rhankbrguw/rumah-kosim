@@ -27,7 +27,9 @@ export async function POST({ request, locals, cookies }) {
 	try {
 		user = await getUserByUsername(username);
 	} catch (error) {
-		logger.error('Database error during login:', error as Error, { correlationId: locals?.correlationId });
+		logger.error('Database error during login:', error as Error, {
+			correlationId: locals?.correlationId
+		});
 		return errorResponse(
 			MESSAGES.ERROR.DB_CONNECTION,
 			HTTP_STATUS.INTERNAL_SERVER_ERROR,

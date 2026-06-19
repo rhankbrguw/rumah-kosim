@@ -105,7 +105,7 @@ export async function DELETE({ request, locals }: any) {
 		await deleteFromCart(userId, productId);
 		return jsonResponse(null, MESSAGES.SUCCESS.DELETE);
 	} catch (err) {
-		if ((err as {status?: number}).status === 404) {
+		if ((err as { status?: number }).status === 404) {
 			return errorResponse((err as Error).message, HTTP_STATUS.NOT_FOUND, ERROR_CODES.NOT_FOUND);
 		}
 		logger.error('Database error in DELETE /api/cart:', err as Error);

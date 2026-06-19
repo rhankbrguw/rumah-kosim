@@ -3,11 +3,23 @@ import { dbRepository as db } from '$lib/server/repositories/dbRepository.js';
 
 export const ProductRepository = {
 	async getAll() {
-		return await db.query('SELECT id, title, price, image, description, quantity FROM products');
+		return await db.query(`
+			SELECT 
+				p.id, p.title, p.price, p.image, p.description, p.quantity,
+				COALESCE((SELECT SUM(quantity) FROM order_items WHERE product_id = p.id), 0) AS sold_count,
+				COALESCE((SELECT AVG(rating) FROM reviews WHERE product_id = p.id), 0) AS average_rating
+			FROM products p
+		`);
 	},
 
 	async getById(id: number) {
-		const rows = (await db.query('SELECT * FROM products WHERE id = ?', [id])) as RowDataPacket[];
+		const rows = (await db.query(`
+			SELECT 
+				p.*,
+				COALESCE((SELECT SUM(quantity) FROM order_items WHERE product_id = p.id), 0) AS sold_count,
+				COALESCE((SELECT AVG(rating) FROM reviews WHERE product_id = p.id), 0) AS average_rating
+			FROM products p WHERE id = ?
+		`, [id])) as RowDataPacket[];
 		return rows[0] || null;
 	},
 
@@ -22,10 +34,10 @@ export const ProductRepository = {
 		);
 	},
 
-	async update(id: number, title: string, description: string, price: number, quantity: number) {
+	async update(id: number, title: string, description: string, price: number, quantity: number, image: string) {
 		return await db.query(
-			'UPDATE products SET title = ?, description = ?, price = ?, quantity = ? WHERE id = ?',
-			[title, description, price, quantity, id]
+			'UPDATE products SET title = ?, description = ?, price = ?, quantity = ?, image = ? WHERE id = ?',
+			[title, description, price, quantity, image, id]
 		);
 	},
 

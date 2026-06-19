@@ -23,10 +23,10 @@
 	};
 
 	async function handleUploadImage(e: CustomEvent) {
-		const { event, id } = e.detail;
+		const { event, id, onSuccess } = e.detail;
 		const file = (event.target as HTMLInputElement).files?.[0];
 		if (!file || !['image/jpeg', 'image/png', 'image/gif'].includes(file.type))
-			return toast.error('Invalid image');
+			return toast.error(STRINGS.TOAST.INVALID_IMAGE);
 
 		try {
 			const uploadData = new FormData();
@@ -51,17 +51,18 @@
 				});
 				if (!updateRes.ok) throw new Error('Failed to update image path');
 				await invalidateAll();
-				toast.success('Image updated');
+				toast.success(STRINGS.TOAST.IMAGE_UPDATED);
 			} else {
-				toast.success('Image uploaded: ' + path);
+				if (onSuccess) onSuccess(path);
+				toast.success("Image uploaded successfully");
 			}
 		} catch (err: any) {
-			toast.error(err.message || 'Upload failed');
+			toast.error(err.message || STRINGS.TOAST.UPLOAD_FAILED);
 		}
 	}
 </script>
 
-<div class="min-h-screen bg-surface-alt">
+<div class="min-h-screen py-10">
 	<div class="container mx-auto px-4 py-8 sm:px-8">
 		<div class="mb-6 mt-16 sm:mt-20"></div>
 
@@ -70,8 +71,8 @@
 				<button
 					class="rounded-md px-4 py-2 text-sm font-medium transition-colors sm:text-base {state.activeTab ===
 					tab.id
-						? 'bg-primary text-text-inverse'
-						: 'bg-surface text-text-main'}"
+						? 'bg-primary text-text-inverse shadow-md'
+						: 'bg-surface/80 text-text-main backdrop-blur-md hover:bg-surface'}"
 					on:click={() => {
 						state.activeTab = tab.id;
 					}}
@@ -91,7 +92,6 @@
 					state.editingProduct = e.detail;
 					state.modals.edit = true;
 				}}
-				on:deleteProduct={handleDeleteProduct}
 			/>
 		{:else}
 			<OrderTable
@@ -104,7 +104,7 @@
 			bind:editingProduct={state.editingProduct}
 			{handleUploadImage}
 			productForm={data.productForm}
-			stockForm={data.stockForm}
+			editProductForm={data.editProductForm}
 		/>
 	</div>
 </div>

@@ -4,8 +4,10 @@
 	import { formatIDR } from '$lib/utils/currency';
 	import { toast } from 'svelte-sonner';
 	import { enhance } from '$app/forms';
+	import { Star } from 'lucide-svelte';
 
-	export let product: { id: number, title: string, description: string, price: number, quantity: number, image: string, editorialReview?: { headline: string, body: string } };
+	export let product: { id: number, title: string, description: string, price: number, quantity: number, image: string, sold_count: number, average_rating: number, editorialReview?: { headline: string, body: string } };
+	export let reviews: { id: number, user_name: string, rating: number, comment: string, created_at: string }[] = [];
 	export let quantity: number = 1;
 
 	let user: { role: string } | null = null;
@@ -18,105 +20,138 @@
 <div class="min-h-screen w-full bg-surface px-4 pb-20 pt-24 md:pt-32">
 	<a
 		href="/client/shop"
-		class="mx-auto mb-6 block max-w-6xl text-sm font-semibold text-text-muted transition-colors hover:text-primary md:mb-8"
+		class="mx-auto mb-6 block max-w-5xl text-sm font-semibold text-text-muted transition-colors hover:text-primary md:mb-8"
 	>
 		&larr; Back to Shop
 	</a>
 
-	<div class="mx-auto flex max-w-6xl flex-col items-start gap-8 lg:flex-row lg:gap-12">
-		<div
-			class="flex w-full items-center justify-center overflow-hidden rounded-3xl border border-surface-alt/50 bg-surface/80 p-8 shadow-sm backdrop-blur-md transition-all hover:shadow-md lg:sticky lg:top-24 lg:w-5/12"
-		>
+	<div class="mx-auto grid max-w-5xl grid-cols-1 items-start gap-12 lg:grid-cols-2 lg:gap-16">
+		<div class="flex items-center justify-center lg:sticky lg:top-32">
 			<img
 				src={product.image ? product.image.replace('../', '/') : STRINGS.SHOP.FALLBACK_IMAGE}
 				alt={product.title}
-				class="max-h-96 object-contain transition-transform duration-500 hover:scale-105"
+				class="max-h-[28rem] object-contain transition-transform duration-500 hover:scale-105"
 			/>
 		</div>
 
-		<div
-			class="flex w-full flex-col justify-start space-y-6 rounded-2xl border border-surface-alt/50 bg-surface/80 p-6 shadow-sm backdrop-blur-md md:w-1/2 md:p-8"
-		>
-			<div>
-				<h1 class="text-2xl font-bold text-text-main sm:text-3xl"><i>{product.title}</i></h1>
-				<p class="mt-2 text-xl font-semibold text-danger">{formatIDR(product.price)}</p>
-			</div>
-			<p class="text-text-muted">{product.description}</p>
+		<div class="flex flex-col space-y-8">
+			<div class="space-y-5">
+				<div>
+					<h1 class="text-2xl font-bold text-text-main sm:text-3xl"><i>{product.title}</i></h1>
+					<p class="mt-2 text-xl font-semibold text-danger">{formatIDR(product.price)}</p>
+					
+					<div class="mt-3 flex items-center gap-3">
+						<div class="flex items-center text-primary">
+							<Star size={16} fill="currentColor" />
+							<span class="ml-1.5 font-bold text-text-main">{Number(product.average_rating || 0).toFixed(1)}</span>
+							<span class="ml-1 text-sm text-text-muted">({reviews.length} reviews)</span>
+						</div>
+						<span class="text-sm text-text-muted">• {product.sold_count || 0} sold</span>
+					</div>
+				</div>
+				<p class="leading-relaxed text-text-muted">{product.description}</p>
 
-			<div class="flex items-center gap-2">
-				<span class="text-text-muted">Stock:</span>
-				{#if isOutOfStock}
-					<span class="font-medium text-danger">{STRINGS.PRODUCT.OUT_OF_STOCK}</span>
-				{:else}
-					<span class="font-medium text-primary">{product.quantity}</span>
-				{/if}
+				<div class="flex items-center gap-2">
+					<span class="text-text-muted">Stock:</span>
+					{#if isOutOfStock}
+						<span class="font-medium text-danger">{STRINGS.PRODUCT.OUT_OF_STOCK}</span>
+					{:else}
+						<span class="font-medium text-primary">{product.quantity}</span>
+					{/if}
+				</div>
 			</div>
 
 			{#if !isAdmin}
-				<p class="text-sm text-text-muted">
-					<strong>Note:</strong> Agree to our Terms before purchase.
-				</p>
+				<div class="mt-6 border-t border-secondary/10 pt-6">
+					<form method="POST" action="?/addToCart" use:enhance={() => {
+						return async ({ result, update }) => {
+							if (result.type === 'redirect') {
+								window.location.href = result.location;
+							} else if (result.type === 'failure') {
+								toast.error(String(result.data?.error || STRINGS.COMMON.ERROR));
+								if (result.data && typeof result.data.redirectTo === 'string') {
+									const url = result.data.redirectTo;
+									setTimeout(() => window.location.href = url, 2500);
+								}
+							} else {
+								toast.success(STRINGS.TOAST.ADDED_TO_CART);
+								product.quantity -= quantity;
+								await update();
+							}
+						};
+					}}>
+						<input type="hidden" name="productId" value={product.id} />
+						<input type="hidden" name="quantity" value={quantity} />
 
-				<form method="POST" action="?/addToCart" use:enhance={() => {
-					return async ({ result, update }) => {
-						if (result.type === 'redirect') {
-							window.location.href = result.location;
-						} else if (result.type === 'failure') {
-							toast.error(String(result.data?.error || 'Error adding to cart'));
-						} else {
-							toast.success('Added to cart!');
-							product.quantity -= quantity;
-							await update();
-						}
-					};
-				}}>
-					<input type="hidden" name="productId" value={product.id} />
-					<input type="hidden" name="quantity" value={quantity} />
-					
-					<div class="mb-4 flex items-center gap-4">
-						<button type="button"
-							on:click={() => quantity > 1 && quantity--}
-							disabled={quantity <= 1 || isOutOfStock}
-							class="flex h-10 w-10 items-center justify-center rounded border border-secondary bg-surface text-text-main hover:bg-surface-alt disabled:opacity-50"
-							>-</button
-						>
-						<span class="text-lg font-medium text-text-main">{isOutOfStock ? 0 : quantity}</span>
-						<button type="button"
-							on:click={() => quantity < product.quantity && quantity++}
-							disabled={quantity >= product.quantity || isOutOfStock}
-							class="flex h-10 w-10 items-center justify-center rounded border border-secondary bg-surface text-text-main hover:bg-surface-alt disabled:opacity-50"
-							>+</button
-						>
-					</div>
+						<div class="mb-4 flex items-center gap-4">
+							<button type="button"
+								on:click={() => quantity > 1 && quantity--}
+								disabled={quantity <= 1 || isOutOfStock}
+								class="flex h-10 w-10 items-center justify-center rounded-xl border border-secondary/20 bg-surface-alt text-text-main transition-colors hover:border-primary disabled:opacity-50"
+								>-</button
+							>
+							<span class="min-w-[2rem] text-center text-lg font-medium text-text-main">{isOutOfStock ? 0 : quantity}</span>
+							<button type="button"
+								on:click={() => quantity < product.quantity && quantity++}
+								disabled={quantity >= product.quantity || isOutOfStock}
+								class="flex h-10 w-10 items-center justify-center rounded-xl border border-secondary/20 bg-surface-alt text-text-main transition-colors hover:border-primary disabled:opacity-50"
+								>+</button
+							>
+						</div>
 
-					<button
-						type="submit"
-						disabled={isOutOfStock}
-						class="w-full rounded-xl bg-primary py-3.5 font-bold text-text-inverse shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary-hover hover:shadow-md disabled:translate-y-0 disabled:opacity-50 disabled:shadow-none"
-					>
-						{STRINGS.PRODUCT.ADD_TO_CART}
-					</button>
-				</form>
+						<button
+							type="submit"
+							disabled={isOutOfStock}
+							class="w-full rounded-xl bg-primary py-3.5 font-bold text-text-inverse shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary-hover hover:shadow-md disabled:translate-y-0 disabled:opacity-50 disabled:shadow-none"
+						>
+							{STRINGS.PRODUCT.ADD_TO_CART}
+						</button>
+					</form>
+				</div>
 			{/if}
 		</div>
 	</div>
+
 	{#if product.editorialReview}
-		<div
-			class="mx-auto mt-12 max-w-6xl rounded-3xl border border-surface-alt/50 bg-surface/80 p-8 shadow-sm backdrop-blur-md md:mt-16 md:p-12"
-		>
-			<h2 class="mb-8 text-2xl font-bold text-text-main md:text-3xl">Editorial Reviews</h2>
-			<div class="flex flex-col gap-8 md:flex-row md:gap-12">
+		<div class="mx-auto mt-16 max-w-5xl border-t border-secondary/10 pt-12 md:mt-20 md:pt-16">
+			<h2 class="mb-6 text-2xl font-bold text-text-main md:text-3xl">Editorial Reviews</h2>
+			<div class="flex flex-col gap-6 md:flex-row md:gap-12">
 				<div class="md:w-1/3">
-					<p class="whitespace-pre-line text-lg font-bold text-primary">
-						{product.editorialReview.headline}
-					</p>
+					<p class="whitespace-pre-line text-lg font-bold text-primary">{product.editorialReview.headline}</p>
 				</div>
 				<div class="md:w-2/3">
-					<p class="whitespace-pre-line text-lg leading-relaxed text-text-muted">
-						{product.editorialReview.body}
-					</p>
+					<p class="whitespace-pre-line text-lg leading-relaxed text-text-muted">{product.editorialReview.body}</p>
 				</div>
 			</div>
 		</div>
 	{/if}
+
+	<div class="mx-auto mt-16 max-w-5xl border-t border-secondary/10 pt-12 md:mt-20 md:pt-16">
+		<h2 class="mb-8 text-2xl font-bold text-text-main md:text-3xl">Customer Reviews</h2>
+		
+		{#if reviews.length === 0}
+			<div class="rounded-2xl border border-secondary/10 bg-surface-alt/30 p-12 text-center text-text-muted">
+				No reviews yet. Buy this product to be the first to review!
+			</div>
+		{:else}
+			<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+				{#each reviews as review}
+					<div class="rounded-2xl border border-secondary/20 bg-surface/80 p-6 shadow-sm backdrop-blur-md">
+						<div class="mb-4 flex items-start justify-between">
+							<div>
+								<p class="font-bold text-text-main">{review.user_name}</p>
+								<p class="text-xs text-text-muted">{new Date(review.created_at).toLocaleDateString()}</p>
+							</div>
+							<div class="flex text-primary">
+								{#each Array(5) as _, i}
+									<Star size={14} fill={i < review.rating ? 'currentColor' : 'none'} class={i < review.rating ? 'text-primary' : 'text-secondary'} />
+								{/each}
+							</div>
+						</div>
+						<p class="text-sm leading-relaxed text-text-muted">"{review.comment}"</p>
+					</div>
+				{/each}
+			</div>
+		{/if}
+	</div>
 </div>

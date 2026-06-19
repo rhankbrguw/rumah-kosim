@@ -26,9 +26,11 @@ const createCheckoutStore = () => {
 	return {
 		subscribe,
 		setAddress: (address: string) => update((store) => ({ ...store, address })),
-		setShipping: (shipping: Record<string, unknown> | null) => update((store) => ({ ...store, shipping })),
+		setShipping: (shipping: Record<string, unknown> | null) =>
+			update((store) => ({ ...store, shipping })),
 		setPayment: (payment: string) => update((store) => ({ ...store, payment })),
-		setCoupon: (coupon: Record<string, unknown> | null) => update((store) => ({ ...store, coupon })),
+		setCoupon: (coupon: Record<string, unknown> | null) =>
+			update((store) => ({ ...store, coupon })),
 		update,
 		reset: () =>
 			set({

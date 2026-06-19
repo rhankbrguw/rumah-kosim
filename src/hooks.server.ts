@@ -23,7 +23,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 			const user = jwt.verify(token, JWT_SECRET);
 			event.locals.user = user;
 		} catch (err) {
-			console.error('JWT Verification Error:', err);
+			logger.error('JWT Verification Error:', err as Error);
 			event.cookies.delete('authToken', { path: '/' });
 		}
 	}
@@ -37,4 +37,4 @@ export const handle: Handle = async ({ event, resolve }) => {
 	});
 
 	return response;
-}
+};

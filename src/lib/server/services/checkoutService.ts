@@ -24,6 +24,8 @@ interface CartItem {
 	price: number;
 }
 
+import { sendOrderConfirmationEmail } from '$lib/server/utils/mailer.js';
+
 export const processPayment = async (
 	userId: number,
 	cartItems: CartItem[],
@@ -42,5 +44,24 @@ export const processPayment = async (
 		shippingMethod,
 		trackingNumber
 	);
+	
+	const user = await UserRepository.getById(userId);
+	if (user && user.email) {
+		sendOrderConfirmationEmail(user.email, total, trackingNumber).catch((e) => {
+			console.error('Failed to send invoice email:', e);
+		});
+		
+		// Notify admins
+		UserRepository.getAdminEmails().then((adminEmails) => {
+			if (adminEmails.length > 0) {
+				import('$lib/server/utils/mailer.js').then(({ sendAdminNotificationEmail }) => {
+					sendAdminNotificationEmail(adminEmails, orderId, total, user.username).catch((e) => {
+						console.error('Failed to send admin notification:', e);
+					});
+				});
+			}
+		}).catch((e) => console.error('Failed to get admin emails:', e));
+	}
+	
 	return { orderId, trackingNumber };
 };

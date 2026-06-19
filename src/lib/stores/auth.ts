@@ -15,7 +15,7 @@ export const auth = derived(page, ($page) => {
 export async function logout() {
 	if (browser) {
 		await fetch('/api/auth/logout', { method: 'POST' });
-		window.location.href = '/client/login';
+		window.location.href = '/client/auth';
 	}
 }
 

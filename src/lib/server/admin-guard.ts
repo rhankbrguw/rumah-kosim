@@ -6,7 +6,7 @@ import type { RequestEvent } from '@sveltejs/kit';
 export function requireAdmin(request: Request) {
 	const authHeader = request.headers.get('authorization');
 	if (!authHeader?.startsWith('Bearer ')) {
-		throw redirect(302, '/client/login');
+		throw redirect(302, '/client/auth');
 	}
 
 	try {
@@ -14,7 +14,7 @@ export function requireAdmin(request: Request) {
 		const decoded = jwt.verify(token, JWT_SECRET);
 		return decoded?.role === 'admin';
 	} catch {
-		throw redirect(302, '/client/login');
+		throw redirect(302, '/client/auth');
 	}
 }
 

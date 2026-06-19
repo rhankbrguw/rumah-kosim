@@ -18,12 +18,12 @@ A full-stack book management web application built with SvelteKit, featuring use
 
 The application strictly adheres to a **Strict Layered Architecture** (`Controllers -> Services -> Repositories -> Database`) and is fully SSR-first.
 
-| Layer       | Technologies                                                                 |
-| ----------- | ---------------------------------------------------------------------------- |
-| Frontend    | SvelteKit, Tailwind CSS, Superforms (Zod), Lucide Svelte                     |
-| Backend     | SvelteKit Server-Side Rendering (SSR), Form Actions                          |
-| Services    | TypeScript, bcrypt, JWT (HTTP-Only Cookies)                                  |
-| Persistence | MySQL2 (Stored Procedures, Parameterized Queries)                            |
+| Layer       | Technologies                                             |
+| ----------- | -------------------------------------------------------- |
+| Frontend    | SvelteKit, Tailwind CSS, Superforms (Zod), Lucide Svelte |
+| Backend     | SvelteKit Server-Side Rendering (SSR), Form Actions      |
+| Services    | TypeScript, bcrypt, JWT (HTTP-Only Cookies)              |
+| Persistence | MySQL2 (Stored Procedures, Parameterized Queries)        |
 
 ---
 

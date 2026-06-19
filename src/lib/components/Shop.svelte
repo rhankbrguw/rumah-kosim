@@ -1,13 +1,13 @@
 <script lang="ts">
 		import { goto } from '$app/navigation';
-	import { Search, X } from 'lucide-svelte';
+	import { Search, X, Star } from 'lucide-svelte';
 	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
 	import { auth } from '$lib/stores/auth';
 	import { STRINGS } from '$lib/constants/strings.js';
 	import { formatIDR } from '$lib/utils/currency.js';
 
-	export let books: { id: number, title: string, description: string, price: number, image: string }[] = [];
+	export let books: { id: number, title: string, description: string, price: number, image: string, sold_count: number, average_rating: number }[] = [];
 	export let loading: boolean = true;
 	let searchTerm = '';
 	let showModal = false;
@@ -119,9 +119,13 @@
 							<p class="mt-1 text-sm font-semibold text-danger sm:text-base">
 								{formatIDR(book.price)}
 							</p>
-							<p class="mt-2 line-clamp-2 text-xs text-text-muted sm:text-sm">
-								{book.description}
-							</p>
+							<div class="mt-2 flex items-center gap-1.5">
+								<div class="flex items-center text-primary">
+									<Star size={14} fill="currentColor" />
+									<span class="ml-1 text-xs font-bold text-text-main">{Number(book.average_rating || 0).toFixed(1)}</span>
+								</div>
+								<span class="text-xs text-text-muted">• {book.sold_count || 0} sold</span>
+							</div>
 						</div>
 
 						<div class="mt-4 border-t border-surface-alt/50 pt-4">

@@ -5,6 +5,6 @@
 	export let data: PageData;
 </script>
 
-<div class="container mx-auto mt-20 px-4 py-6">
+<div>
 	<OrderHistory data={data} />
 </div>

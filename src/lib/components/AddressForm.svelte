@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
 	import { checkoutStore } from '$lib/stores/checkoutStore';
 	import { STRINGS } from '$lib/constants/strings';
 	import CheckoutSummary from './CheckoutSummary.svelte';
+	import CheckoutProgressBar from './CheckoutProgressBar.svelte';
 	import AddressFields from './AddressFields.svelte';
 	import { superForm } from 'sveltekit-superforms';
 
@@ -16,12 +16,11 @@
 
 	const { form, errors, enhance, message } = superForm(data, {
 		onResult: async ({ result }) => {
-			if (result.type === 'success') {
+			if (result.type === 'success' || result.type === 'redirect') {
 				loading = true;
 				try {
 					checkoutStore.update(s => ({ ...s, items: cartItems, subtotal, shippingCost, total, address: $form.address as string }));
 					onSubmitSuccess?.();
-					goto('/client/checkout/shipping');
 				} catch (err) {
 					error = (err as Error).message;
 				} finally {
@@ -35,23 +34,29 @@
 		shippingCost = 0,
 		loading = false,
 		error = '';
-
 </script>
 
-<div class="min-h-screen bg-surface">
-	<main class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-16 lg:py-10">
-		<h1 class="mb-6 mt-16 text-xl font-semibold text-text-main sm:mb-8 sm:text-2xl">
-			{STRINGS.CHECKOUT.ADDRESS.TITLE}
-		</h1>
-		<div class="flex flex-col gap-8 lg:flex-row">
-			<div class="flex-1">
-				{#if error || $message}<div class="mb-4 text-sm text-danger">{error || $message}</div>{/if}
-				<form method="POST" use:enhance class="space-y-4 sm:space-y-6">
+<div class="min-h-screen w-full bg-surface pb-20 pt-24 md:pt-32">
+	<div class="mx-auto max-w-5xl px-4 sm:px-8">
+	<h1 class="mb-6 text-xl font-semibold text-text-main sm:text-2xl">
+		{STRINGS.CHECKOUT.TITLE}
+	</h1>
+
+	<CheckoutProgressBar activeStep={0} />
+
+	<div class="grid grid-cols-1 gap-12 lg:grid-cols-[1fr,26rem] lg:gap-16">
+		<div class="flex flex-col">
+			{#if error || $message}
+				<div class="mb-4 rounded-xl bg-danger-light p-3 text-sm text-danger">{error || $message}</div>
+			{/if}
+			<div class="pt-2">
+				<form method="POST" use:enhance class="space-y-4 sm:space-y-5">
 					<AddressFields bind:form={$form as Record<string, string>} saveInfo={saveInfo} {loading} />
 				</form>
 			</div>
-
-			<CheckoutSummary {cartItems} {subtotal} {total} />
 		</div>
-	</main>
+
+		<CheckoutSummary {cartItems} {subtotal} {total} />
+	</div>
+	</div>
 </div>

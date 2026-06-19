@@ -4,7 +4,14 @@
 	import Header from '$lib/components/Header.svelte';
 </script>
 
-<Toaster position="top-right" richColors />
+<Toaster 
+	position="top-center" 
+	duration={3500}
+	richColors 
+	toastOptions={{
+		style: 'border-radius: 12px; font-family: inherit; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); border: 1px solid var(--color-surface-alt);'
+	}}
+/>
 
 <div
 	class="fixed inset-0 -z-50 bg-cover bg-center bg-no-repeat opacity-[0.05] bg-[url('/images/bg-ruko.png')]"
