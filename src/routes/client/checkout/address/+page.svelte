@@ -6,8 +6,10 @@
 	import type { PageData } from './$types';
 	export let data: PageData;
 
-	function handleSuccess() {
-		toast.success(STRINGS.TOAST.ADDRESS_SUCCESS);
+	function handleSuccess(saved: boolean) {
+		if (saved) {
+			toast.success(STRINGS.TOAST.ADDRESS_SUCCESS);
+		}
 	}
 </script>
 
