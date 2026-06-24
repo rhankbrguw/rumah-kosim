@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { fail, redirect } from '@sveltejs/kit';
 import { STRINGS } from '$lib/constants/strings.js';
 import { logger } from '$lib/server/utils/logger.js';
+import type { RequestEvent } from '@sveltejs/kit';
 
 const paymentFormSchema = z.object({
 	cartItemsJson: z.string().min(1, 'Cart items cannot be empty'),
@@ -16,7 +17,7 @@ const paymentFormSchema = z.object({
 	paymentMethod: z.string().optional()
 });
 
-export const load = async ({ locals }: any) => {
+export const load = async ({ locals }: RequestEvent) => {
 	if (!locals.user) {
 		throw redirect(303, '/client/auth');
 	}
@@ -35,7 +36,7 @@ export const load = async ({ locals }: any) => {
 };
 
 export const actions = {
-	default: async ({ request, locals }: any) => {
+	default: async ({ request, locals }: RequestEvent) => {
 		if (!locals.user) {
 			return fail(401, { error: STRINGS.COMMON.UNAUTHORIZED });
 		}
@@ -59,7 +60,8 @@ export const actions = {
 			);
 
 			return message(paymentForm, STRINGS.CHECKOUT.MESSAGES.PAYMENT_SUCCESS);
-		} catch (error: any) {
+		} catch (err) {
+			const error = err as Error;
 			logger.error('Payment processing error:', error);
 			return message(paymentForm, error.message || STRINGS.CHECKOUT.MESSAGES.PAYMENT_FAILED, {
 				status: 500

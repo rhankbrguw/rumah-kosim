@@ -4,6 +4,7 @@ import { superValidate, message } from 'sveltekit-superforms';
 import { zod4 as zod } from 'sveltekit-superforms/adapters';
 import { z } from 'zod';
 import { fail } from '@sveltejs/kit';
+import type { RequestEvent } from '@sveltejs/kit';
 import { logger } from '$lib/server/utils/logger.js';
 import { STRINGS } from '$lib/constants/strings.js';
 
@@ -74,7 +75,7 @@ export const load = async () => {
 };
 
 export const actions = {
-	addProduct: async ({ request }: any) => {
+	addProduct: async ({ request }: RequestEvent) => {
 		const form = await superValidate(request, zod(productSchema));
 		if (!form.valid) return fail(422, { form });
 		try {
@@ -86,11 +87,12 @@ export const actions = {
 				form.data.quantity
 			);
 			return message(form, STRINGS.ADMIN.MESSAGES.ADD_SUCCESS);
-		} catch (error: any) {
+		} catch (err) {
+			const error = err as Error;
 			return message(form, error.message || STRINGS.ADMIN.MESSAGES.ADD_FAIL, { status: 500 });
 		}
 	},
-	editProduct: async ({ request }: any) => {
+	editProduct: async ({ request }: RequestEvent) => {
 		const form = await superValidate(request, zod(editProductSchema));
 		if (!form.valid) return fail(422, { form });
 		try {
@@ -103,31 +105,34 @@ export const actions = {
 				form.data.image
 			);
 			return message(form, STRINGS.ADMIN.MESSAGES.STOCK_UPDATED);
-		} catch (error: any) {
+		} catch (err) {
+			const error = err as Error;
 			return message(form, error.message || STRINGS.ADMIN.MESSAGES.STOCK_FAIL, { status: 500 });
 		}
 	},
-	updateOrderStatus: async ({ request }: any) => {
+	updateOrderStatus: async ({ request }: RequestEvent) => {
 		const form = await superValidate(request, zod(orderStatusSchema));
 		if (!form.valid) return fail(422, { form });
 		try {
 			await updateOrderStatus(form.data.id, form.data.status);
 			return message(form, STRINGS.ADMIN.MESSAGES.STATUS_UPDATED);
-		} catch (error: any) {
+		} catch (err) {
+			const error = err as Error;
 			return message(form, error.message || STRINGS.ADMIN.MESSAGES.STATUS_FAIL, { status: 500 });
 		}
 	},
-	deleteProduct: async ({ request }: any) => {
+	deleteProduct: async ({ request }: RequestEvent) => {
 		const form = await superValidate(request, zod(deleteSchema));
 		if (!form.valid) return fail(422, { form });
 		try {
 			await ProductService.delete(form.data.id);
 			return message(form, STRINGS.ADMIN.MESSAGES.DELETE_SUCCESS);
-		} catch (error: any) {
+		} catch (err) {
+			const error = err as Error;
 			return message(form, error.message || STRINGS.ADMIN.MESSAGES.DELETE_FAIL, { status: 500 });
 		}
 	},
-	updateImage: async ({ request }: any) => {
+	updateImage: async ({ request }: RequestEvent) => {
 		const data = await request.formData();
 		const id = Number(data.get('id'));
 		const image = data.get('image');
@@ -135,7 +140,8 @@ export const actions = {
 		try {
 			await ProductService.updateImage(id, image as string);
 			return { success: true };
-		} catch (error: any) {
+		} catch (err) {
+			const error = err as Error;
 			return fail(500, { error: error.message });
 		}
 	}

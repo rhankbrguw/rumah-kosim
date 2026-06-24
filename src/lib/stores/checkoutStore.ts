@@ -7,7 +7,7 @@ interface CheckoutState {
 	loading: boolean;
 	error: string | null;
 	coupon: Record<string, unknown> | null;
-	items?: any[];
+	items?: Record<string, unknown>[];
 	subtotal?: number;
 	shippingCost?: number;
 	total?: number;

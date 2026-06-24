@@ -42,18 +42,8 @@ export const actions = {
 			const payload = { id: user.id, username: user.username, email: user.email, role: user.role };
 			const token = jwt.sign(payload, JWT_SECRET, { expiresIn: APP_CONFIG.JWT_EXPIRES_IN });
 
-			cookies.set('authToken', token, {
-				path: '/',
-				httpOnly: true,
-				secure: process.env.NODE_ENV === 'production',
-				sameSite: 'strict',
-				maxAge: 60 * 60 * 24 // 1 day
-			});
-			
-			if (user.role === 'admin') {
-				throw redirect(303, '/admin');
-			}
-			throw redirect(303, '/client/shop');
+			cookies.set('authToken', token, { path: '/', httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', maxAge: 86400 });
+			throw redirect(303, user.role === 'admin' ? '/admin' : '/client/shop');
 		} catch (error) {
 			if (isRedirect(error)) throw error;
 			logger.error('Login error:', error as Error);
@@ -76,13 +66,7 @@ export const actions = {
 				const payload = { id: user?.id, username, email, role: 'admin' };
 				const token = jwt.sign(payload, JWT_SECRET, { expiresIn: APP_CONFIG.JWT_EXPIRES_IN });
 
-				cookies.set('authToken', token, {
-					path: '/',
-					httpOnly: true,
-					secure: process.env.NODE_ENV === 'production',
-					sameSite: 'strict',
-					maxAge: 60 * 60 * 24 // 1 day
-				});
+				cookies.set('authToken', token, { path: '/', httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', maxAge: 86400 });
 				throw redirect(303, '/admin');
 			} else {
 				// Require OTP
@@ -115,13 +99,7 @@ export const actions = {
 			const payload = { id: user.id, username: user.username, email: user.email, role: user.role };
 			const token = jwt.sign(payload, JWT_SECRET, { expiresIn: APP_CONFIG.JWT_EXPIRES_IN });
 
-			cookies.set('authToken', token, {
-				path: '/',
-				httpOnly: true,
-				secure: process.env.NODE_ENV === 'production',
-				sameSite: 'strict',
-				maxAge: 60 * 60 * 24 // 1 day
-			});
+			cookies.set('authToken', token, { path: '/', httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', maxAge: 86400 });
 			
 			throw redirect(303, '/client/shop');
 		} catch (error) {

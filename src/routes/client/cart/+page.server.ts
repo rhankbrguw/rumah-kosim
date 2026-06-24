@@ -1,11 +1,12 @@
 import { redirect, fail } from '@sveltejs/kit';
 import { getCartItems, addToCart, deleteFromCart } from '$lib/server/services/cartService.js';
+import type { RequestEvent } from '@sveltejs/kit';
 
-export const load = async ({ locals }: any) => {
+export const load = async ({ locals }: RequestEvent) => {
 	if (!locals.user) throw redirect(303, '/client/auth');
 
 	const cartItemsRaw = await getCartItems(locals.user.id);
-	const cartItems = (cartItemsRaw as unknown as any[]).map((item) => ({
+	const cartItems = (cartItemsRaw as unknown as { product_id: number; price: number; quantity: number; title: string; image: string; }[]).map((item) => ({
 		...item,
 		image: `/images/${item.image?.split('/').pop() || `buku${item.product_id}.jpg`}`
 	}));

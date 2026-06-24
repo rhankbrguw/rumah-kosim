@@ -84,19 +84,9 @@
 						<input type="hidden" name="quantity" value={quantity} />
 
 						<div class="mb-4 flex items-center gap-4">
-							<button type="button"
-								on:click={() => quantity > 1 && quantity--}
-								disabled={quantity <= 1 || isOutOfStock}
-								class="flex h-10 w-10 items-center justify-center rounded-xl border border-secondary/20 bg-surface-alt text-text-main transition-colors hover:border-primary disabled:opacity-50"
-								>-</button
-							>
+							<button type="button" on:click={() => quantity > 1 && quantity--} disabled={quantity <= 1 || isOutOfStock} class="flex h-10 w-10 items-center justify-center rounded-xl border border-secondary/20 bg-surface-alt text-text-main transition-colors hover:border-primary disabled:opacity-50">-</button>
 							<span class="min-w-[2rem] text-center text-lg font-medium text-text-main">{isOutOfStock ? 0 : quantity}</span>
-							<button type="button"
-								on:click={() => quantity < product.quantity && quantity++}
-								disabled={quantity >= product.quantity || isOutOfStock}
-								class="flex h-10 w-10 items-center justify-center rounded-xl border border-secondary/20 bg-surface-alt text-text-main transition-colors hover:border-primary disabled:opacity-50"
-								>+</button
-							>
+							<button type="button" on:click={() => quantity < product.quantity && quantity++} disabled={quantity >= product.quantity || isOutOfStock} class="flex h-10 w-10 items-center justify-center rounded-xl border border-secondary/20 bg-surface-alt text-text-main transition-colors hover:border-primary disabled:opacity-50">+</button>
 						</div>
 
 						<button

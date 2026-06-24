@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { fail, redirect } from '@sveltejs/kit';
 import { STRINGS } from '$lib/constants/strings.js';
 import { logger } from '$lib/server/utils/logger.js';
+import type { RequestEvent } from '@sveltejs/kit';
 
 const reviewSchema = z.object({
 	orderId: z.coerce.number(),
@@ -14,7 +15,7 @@ const reviewSchema = z.object({
 	comment: z.string().min(1, 'Review cannot be empty').max(1000, 'Review is too long')
 });
 
-export const load = async ({ locals }: any) => {
+export const load = async ({ locals }: RequestEvent) => {
 	if (!locals.user) {
 		throw redirect(303, '/client/auth');
 	}
@@ -28,7 +29,7 @@ export const load = async ({ locals }: any) => {
 		total: number;
 		shipping_method: string;
 		shipping_address: string;
-		items: any[];
+		items: Record<string, unknown>[];
 	}[];
 
 	const reviewForm = await superValidate(zod(reviewSchema));
@@ -37,7 +38,7 @@ export const load = async ({ locals }: any) => {
 };
 
 export const actions = {
-	review: async ({ request, locals }: any) => {
+	review: async ({ request, locals }: RequestEvent) => {
 		if (!locals.user) {
 			return fail(401, { error: STRINGS.COMMON.UNAUTHORIZED });
 		}
@@ -54,7 +55,8 @@ export const actions = {
 				reviewForm.data.comment as string
 			);
 			return message(reviewForm, STRINGS.PROFILE.MESSAGES.REVIEW_SUCCESS);
-		} catch (error: any) {
+		} catch (err) {
+			const error = err as Error & { code?: string };
 			logger.error('Error submitting review:', error);
 			if (error.code === 'ER_DUP_ENTRY') {
 				return message(reviewForm, STRINGS.PROFILE.MESSAGES.REVIEW_DUPLICATE, { status: 409 });

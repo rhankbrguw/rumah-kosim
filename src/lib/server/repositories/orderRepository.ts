@@ -33,9 +33,23 @@ export const OrderRepository = {
 			const orderId = orderResult.insertId;
 
 			for (const item of cartItems) {
+				const [updateResult] = await connection.execute(
+					'UPDATE products SET quantity = quantity - ? WHERE id = ? AND quantity >= ?',
+					[item.quantity, item.product_id, item.quantity]
+				) as [ResultSetHeader, any];
+
+				if (updateResult.affectedRows === 0) {
+					throw new Error(`Insufficient stock for product ID ${item.product_id}. It might have just sold out.`);
+				}
+
 				await connection.execute(
 					'INSERT INTO order_items (order_id, product_id, quantity, price_at_time) VALUES (?, ?, ?, ?)',
 					[orderId, item.product_id, item.quantity, item.price]
+				);
+				
+				await connection.execute(
+					'UPDATE products SET sold_count = sold_count + ? WHERE id = ?',
+					[item.quantity, item.product_id]
 				);
 			}
 
@@ -68,17 +82,23 @@ export const OrderRepository = {
             ORDER BY o.date DESC`;
 		const orders = (await db.query(ordersSql, [userId])) as RowDataPacket[];
 
+		if (orders.length === 0) return orders;
+
+		const orderIds = orders.map(o => o.id);
+		const itemsSql = `
+			SELECT
+				oi.order_id, oi.quantity, oi.price_at_time, oi.product_id,
+				p.title, p.image,
+				r.id as review_id, r.comment as review_comment, r.rating as review_rating
+			FROM order_items oi
+			JOIN products p ON p.id = oi.product_id
+			LEFT JOIN reviews r ON r.order_id = oi.order_id AND r.product_id = oi.product_id
+			WHERE oi.order_id IN (${orderIds.map(() => '?').join(',')})`;
+		
+		const allItems = (await db.query(itemsSql, orderIds)) as RowDataPacket[];
+
 		for (let order of orders) {
-			const itemsSql = `
-                SELECT
-                    oi.quantity, oi.price_at_time, oi.product_id,
-                    p.title, p.image,
-					r.id as review_id, r.comment as review_comment, r.rating as review_rating
-                FROM order_items oi
-                JOIN products p ON p.id = oi.product_id
-				LEFT JOIN reviews r ON r.order_id = oi.order_id AND r.product_id = oi.product_id
-                WHERE oi.order_id = ?`;
-			const items = (await db.query(itemsSql, [order.id])) as RowDataPacket[];
+			const items = allItems.filter(item => item.order_id === order.id);
 			
 			// Map review data into the nested structure expected by the frontend
 			order.items = items.map(item => {
@@ -109,16 +129,21 @@ export const OrderRepository = {
             ORDER BY o.date DESC`;
 		const orders = (await db.query(ordersSql)) as RowDataPacket[];
 
+		if (orders.length === 0) return orders;
+
+		const orderIds = orders.map(o => o.id);
+		const itemsSql = `
+			SELECT
+				oi.order_id, oi.quantity, oi.price_at_time, oi.product_id,
+				p.title, p.image
+			FROM order_items oi
+			JOIN products p ON p.id = oi.product_id
+			WHERE oi.order_id IN (${orderIds.map(() => '?').join(',')})`;
+		
+		const allItems = (await db.query(itemsSql, orderIds)) as RowDataPacket[];
+
 		for (let order of orders) {
-			const itemsSql = `
-                SELECT
-                    oi.quantity, oi.price_at_time, oi.product_id,
-                    p.title, p.image
-                FROM order_items oi
-                JOIN products p ON p.id = oi.product_id
-                WHERE oi.order_id = ?`;
-			const items = await db.query(itemsSql, [order.id]);
-			order.items = items;
+			order.items = allItems.filter(item => item.order_id === order.id);
 		}
 
 		return orders;

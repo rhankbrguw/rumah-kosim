@@ -3,7 +3,21 @@ import { UserRepository } from '$lib/server/repositories/userRepository.js';
 import { dbRepository } from '$lib/server/repositories/dbRepository.js';
 import { sendStatusUpdateEmail } from '$lib/server/utils/mailer.js';
 
-function mapOrderItems(order: any) {
+export interface OrderItemRaw {
+	title?: string;
+	quantity?: number | string;
+	price_at_time?: number | string;
+}
+
+export interface OrderRaw {
+	items?: OrderItemRaw[];
+	title?: string;
+	quantity?: number;
+	price_at_time?: number;
+	[key: string]: unknown;
+}
+
+function mapOrderItems(order: OrderRaw) {
 	if (order.items && order.items.length > 0) {
 		if (order.items.length === 1) {
 			order.title = order.items[0].title;
@@ -11,7 +25,7 @@ function mapOrderItems(order: any) {
 			order.price_at_time = Number(order.items[0].price_at_time) || 0;
 		} else {
 			order.title = 'Multiple Items';
-			order.quantity = order.items.reduce((sum: number, item: any) => sum + (Number(item.quantity) || 0), 0);
+			order.quantity = order.items.reduce((sum: number, item: OrderItemRaw) => sum + (Number(item.quantity) || 0), 0);
 			order.price_at_time = 0; // The total reflects the sum
 		}
 	} else {

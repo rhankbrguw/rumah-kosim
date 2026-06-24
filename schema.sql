@@ -7,7 +7,12 @@ CREATE TABLE IF NOT EXISTS users (
     password VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     role ENUM('user', 'admin') DEFAULT 'user',
-    address TEXT
+    address TEXT,
+    is_verified BOOLEAN DEFAULT FALSE,
+    otp VARCHAR(10),
+    otp_expires_at DATETIME,
+    reset_token VARCHAR(255),
+    reset_expires_at DATETIME
 );
 
 CREATE TABLE IF NOT EXISTS products (
@@ -64,9 +69,6 @@ CREATE TABLE IF NOT EXISTS reviews (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
--- Insert a default admin user
-INSERT INTO users (username, password, email, role) VALUES 
-('admin', '$2b$10$3nS9/d9f/YtZtOaJ2sA8yO8iV2w/Q2n2r6k5h/T9x4h1aV4b2oWzW', 'admin@example.com', 'admin'); -- password is 'admin'
 
 -- Insert 8 books
 INSERT INTO products (title, price, image, description, quantity) VALUES 

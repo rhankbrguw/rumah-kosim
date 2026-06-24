@@ -4,8 +4,9 @@ import { jsonResponse, errorResponse } from '$lib/server/utils/response.js';
 import { MESSAGES } from '$lib/constants/messages.js';
 import { addToCartSchema, deleteFromCartSchema } from '$lib/server/validations/cart.js';
 import { addToCart, getCartItems, deleteFromCart } from '$lib/server/services/cartService.js';
+import type { RequestEvent } from '@sveltejs/kit';
 
-export async function POST({ request, locals }: any) {
+export async function POST({ request, locals }: RequestEvent) {
 	if (!locals.user) {
 		return errorResponse(
 			MESSAGES.ERROR.UNAUTHORIZED,
@@ -53,7 +54,7 @@ export async function POST({ request, locals }: any) {
 	}
 }
 
-export async function GET({ locals }: any) {
+export async function GET({ locals }: RequestEvent) {
 	if (!locals.user) {
 		return errorResponse(
 			MESSAGES.ERROR.UNAUTHORIZED,
@@ -77,7 +78,7 @@ export async function GET({ locals }: any) {
 	}
 }
 
-export async function DELETE({ request, locals }: any) {
+export async function DELETE({ request, locals }: RequestEvent) {
 	if (!locals.user) {
 		return errorResponse(
 			MESSAGES.ERROR.UNAUTHORIZED,

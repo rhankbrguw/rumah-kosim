@@ -7,7 +7,7 @@
 	import AuthOtpForm from './AuthOtpForm.svelte';
 	import AuthForgotPasswordForm from './AuthForgotPasswordForm.svelte';
 	import type { SuperValidated } from 'sveltekit-superforms';
-	import { fade } from 'svelte/transition';
+	import { fade, fly } from 'svelte/transition';
 	
 	export let data: { 
 		loginForm: SuperValidated<Record<string, unknown>>, 
@@ -34,48 +34,48 @@
 </script>
 
 <div class="flex min-h-screen w-full items-center justify-center bg-surface-alt px-4 py-20">
-	<div class="w-full max-w-sm rounded-lg border border-surface-alt/50 bg-surface/80 px-8 py-10 shadow-md backdrop-blur-md md:max-w-md" transition:fade>
+	<div class="w-full max-w-sm rounded-2xl border border-secondary/20 bg-surface/90 px-8 py-10 shadow-2xl shadow-primary/5 backdrop-blur-xl md:max-w-md" in:fade={{ duration: 400 }}>
 		<div class="mb-6 flex flex-col items-center">
-			<div class="mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
+			<div class="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 text-primary shadow-inner">
 				<BookOpen size={32} />
 			</div>
-			<h2 class="text-2xl font-bold text-text-main text-center">
+			<h2 class="grid text-2xl font-bold text-text-main text-center tracking-tight" style="grid-template-columns: 1fr;">
 				{#if viewMode === 'login'}
-					{STRINGS.AUTH.LOGIN.TITLE}
+					<span class="col-start-1 row-start-1" in:fly={{ y: 10, duration: 300, delay: 150 }} out:fade={{ duration: 150 }}>{STRINGS.AUTH.LOGIN.TITLE}</span>
 				{:else if viewMode === 'signup'}
-					{STRINGS.AUTH.SIGNUP.TITLE}
+					<span class="col-start-1 row-start-1" in:fly={{ y: 10, duration: 300, delay: 150 }} out:fade={{ duration: 150 }}>{STRINGS.AUTH.SIGNUP.TITLE}</span>
 				{:else if viewMode === 'otp'}
-					{STRINGS.AUTH.OTP.TITLE}
+					<span class="col-start-1 row-start-1" in:fly={{ y: 10, duration: 300, delay: 150 }} out:fade={{ duration: 150 }}>{STRINGS.AUTH.OTP.TITLE}</span>
 				{:else if viewMode === 'forgot_password'}
-					{STRINGS.AUTH.FORGOT_PASSWORD.TITLE}
+					<span class="col-start-1 row-start-1" in:fly={{ y: 10, duration: 300, delay: 150 }} out:fade={{ duration: 150 }}>{STRINGS.AUTH.FORGOT_PASSWORD.TITLE}</span>
 				{/if}
 			</h2>
-			<p class="mt-2 text-sm text-text-muted text-center">
+			<p class="grid mt-2 text-sm text-text-muted text-center leading-relaxed" style="grid-template-columns: 1fr;">
 				{#if viewMode === 'login'}
-					{STRINGS.AUTH.LOGIN.SUBTITLE}
+					<span class="col-start-1 row-start-1" in:fly={{ y: 10, duration: 300, delay: 150 }} out:fade={{ duration: 150 }}>{STRINGS.AUTH.LOGIN.SUBTITLE}</span>
 				{:else if viewMode === 'signup'}
-					{STRINGS.AUTH.SIGNUP.SUBTITLE}
+					<span class="col-start-1 row-start-1" in:fly={{ y: 10, duration: 300, delay: 150 }} out:fade={{ duration: 150 }}>{STRINGS.AUTH.SIGNUP.SUBTITLE}</span>
 				{:else if viewMode === 'otp'}
-					{STRINGS.AUTH.OTP.SUBTITLE}
+					<span class="col-start-1 row-start-1" in:fly={{ y: 10, duration: 300, delay: 150 }} out:fade={{ duration: 150 }}>{STRINGS.AUTH.OTP.SUBTITLE}</span>
 				{:else if viewMode === 'forgot_password'}
-					{STRINGS.AUTH.FORGOT_PASSWORD.SUBTITLE}
+					<span class="col-start-1 row-start-1" in:fly={{ y: 10, duration: 300, delay: 150 }} out:fade={{ duration: 150 }}>{STRINGS.AUTH.FORGOT_PASSWORD.SUBTITLE}</span>
 				{/if}
 			</p>
 		</div>
 		
 		{#if viewMode === 'login' || viewMode === 'signup'}
 			<!-- TABS -->
-			<div class="mb-8 flex rounded-lg bg-surface-alt p-1">
+			<div class="mb-8 flex rounded-xl bg-surface-alt p-1.5 shadow-inner" in:fade={{ duration: 300 }}>
 				<button 
 					type="button"
-					class={`w-1/2 rounded-md py-2 text-sm font-medium transition-all ${viewMode === 'login' ? 'bg-surface text-primary shadow-sm' : 'text-text-muted hover:text-text-main'}`}
+					class={`relative w-1/2 rounded-lg py-2.5 text-sm font-semibold transition-all duration-300 ${viewMode === 'login' ? 'bg-surface text-primary shadow-sm ring-1 ring-secondary/10' : 'text-text-muted hover:text-text-main'}`}
 					on:click={() => { viewMode = 'login'; }}
 				>
 					{STRINGS.AUTH.LOGIN.TITLE}
 				</button>
 				<button 
 					type="button"
-					class={`w-1/2 rounded-md py-2 text-sm font-medium transition-all ${viewMode === 'signup' ? 'bg-surface text-primary shadow-sm' : 'text-text-muted hover:text-text-main'}`}
+					class={`relative w-1/2 rounded-lg py-2.5 text-sm font-semibold transition-all duration-300 ${viewMode === 'signup' ? 'bg-surface text-primary shadow-sm ring-1 ring-secondary/10' : 'text-text-muted hover:text-text-main'}`}
 					on:click={() => { viewMode = 'signup'; }}
 				>
 					{STRINGS.AUTH.SIGNUP.TITLE}
@@ -83,14 +83,24 @@
 			</div>
 		{/if}
 
-		{#if viewMode === 'login'}
-			<AuthLoginForm form={loginForm} errors={loginErrors} enhance={loginEnhance} message={loginMessage} on:forgotPassword={() => viewMode = 'forgot_password'} />
-		{:else if viewMode === 'signup'}
-			<AuthSignupForm form={signupForm} errors={signupErrors} enhance={signupEnhance} message={signupMessage} />
-		{:else if viewMode === 'otp'}
-			<AuthOtpForm form={otpForm} errors={otpErrors} enhance={otpEnhance} message={otpMessage} userId={pendingUserId} />
-		{:else if viewMode === 'forgot_password'}
-			<AuthForgotPasswordForm form={forgotForm} errors={forgotErrors} enhance={forgotEnhance} message={forgotMessage} onBack={() => viewMode = 'login'} />
-		{/if}
+		<div class="grid" style="grid-template-columns: 1fr;">
+			{#if viewMode === 'login'}
+				<div class="col-start-1 row-start-1" in:fly={{ y: 20, duration: 300, delay: 150 }} out:fade={{ duration: 150 }}>
+					<AuthLoginForm form={loginForm} errors={loginErrors} enhance={loginEnhance} message={loginMessage} on:forgotPassword={() => viewMode = 'forgot_password'} />
+				</div>
+			{:else if viewMode === 'signup'}
+				<div class="col-start-1 row-start-1" in:fly={{ y: 20, duration: 300, delay: 150 }} out:fade={{ duration: 150 }}>
+					<AuthSignupForm form={signupForm} errors={signupErrors} enhance={signupEnhance} message={signupMessage} />
+				</div>
+			{:else if viewMode === 'otp'}
+				<div class="col-start-1 row-start-1" in:fly={{ y: 20, duration: 300, delay: 150 }} out:fade={{ duration: 150 }}>
+					<AuthOtpForm form={otpForm} errors={otpErrors} enhance={otpEnhance} message={otpMessage} userId={pendingUserId} />
+				</div>
+			{:else if viewMode === 'forgot_password'}
+				<div class="col-start-1 row-start-1" in:fly={{ y: 20, duration: 300, delay: 150 }} out:fade={{ duration: 150 }}>
+					<AuthForgotPasswordForm form={forgotForm} errors={forgotErrors} enhance={forgotEnhance} message={forgotMessage} onBack={() => viewMode = 'login'} />
+				</div>
+			{/if}
+		</div>
 	</div>
 </div>
