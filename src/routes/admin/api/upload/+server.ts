@@ -24,7 +24,7 @@ export async function POST({ request }) {
 			);
 		}
 
-		// Validate file type
+
 		const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
 		if (!allowedTypes.includes(image.type)) {
 			return json(
@@ -33,15 +33,15 @@ export async function POST({ request }) {
 			);
 		}
 
-		// Create unique filename
+
 		const extension = image.name.split('.').pop();
 		const filename = `${Date.now()}-${Math.random().toString(36).substring(7)}.${extension}`;
 
-		// Ensure the upload directory exists
+
 		const uploadDir = join(process.cwd(), 'static', 'images');
 		await ensureDir(uploadDir);
 
-		// Write the file
+
 		const arrayBuffer = await image.arrayBuffer();
 		const buffer = Buffer.from(arrayBuffer);
 		const filePath = join(uploadDir, filename);

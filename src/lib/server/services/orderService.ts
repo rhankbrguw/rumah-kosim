@@ -26,7 +26,7 @@ function mapOrderItems(order: OrderRaw) {
 		} else {
 			order.title = 'Multiple Items';
 			order.quantity = order.items.reduce((sum: number, item: OrderItemRaw) => sum + (Number(item.quantity) || 0), 0);
-			order.price_at_time = 0; // The total reflects the sum
+			order.price_at_time = 0;
 		}
 	} else {
 		order.title = 'No Items';
@@ -50,7 +50,7 @@ export const updateOrderStatus = async (id: number, status: string) => {
 	const result = await OrderRepository.updateStatus(id, status);
 	
 	try {
-		// Fetch order to get user ID and tracking number
+
 		const sql = 'SELECT user_id, tracking_number FROM orders WHERE id = ?';
 		const rows = await dbRepository.query(sql, [id]) as any[];
 		

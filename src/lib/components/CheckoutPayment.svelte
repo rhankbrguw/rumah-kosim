@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { PUBLIC_MIDTRANS_CLIENT_KEY } from '$env/static/public';
 	import { checkoutStore } from '$lib/stores/checkoutStore';
 	import { cartStore } from '$lib/stores/cartStore';
 	import { STRINGS } from '$lib/constants/strings';
@@ -25,26 +26,7 @@
 				cancel();
 				return;
 			}
-			if (paymentMethod === 'credit_card') {
-				if (!cardHolder || !cardNumber || !month || !year || !cvv) {
-					loading = false;
-					toast.error(STRINGS.VALIDATION.FILL_ALL_DETAILS);
-					cancel();
-					return;
-				}
-				if (cardNumber.replace(/\s/g, '').length !== 16) {
-					loading = false;
-					toast.error(STRINGS.VALIDATION.CARD_16_DIGITS);
-					cancel();
-					return;
-				}
-				if (cvv.length !== 3) {
-					loading = false;
-					toast.error(STRINGS.VALIDATION.CVV_3_DIGITS);
-					cancel();
-					return;
-				}
-			}
+
 			formData.set('cartItemsJson', JSON.stringify(cartItems));
 			formData.set('total', total.toString());
 			formData.set('shippingAddress', $checkoutStore.address);
@@ -53,16 +35,36 @@
 			formData.set('paymentMethod', paymentMethod);
 		},
 		onResult: async ({ result }) => {
-			if (result.type === 'success') {
-				isRedirecting = true;
-				await cartStore.reset();
-				checkoutStore.setAddress('');
-				toast.success(STRINGS.TOAST.PAYMENT_SUCCESS);
-				setTimeout(() => {
-					goto('/client/profile/history');
-				}, 2000);
+			if (result.type === 'success' && result.data?.form?.message?.snapToken) {
+				const snapToken = result.data.form.message.snapToken;
+				
+				// @ts-ignore - Midtrans snap global
+				window.snap.pay(snapToken, {
+					onSuccess: async function(snapResult: any) {
+						isRedirecting = true;
+						await cartStore.reset();
+						checkoutStore.setAddress('');
+						toast.success(STRINGS.TOAST.PAYMENT_SUCCESS);
+						setTimeout(() => goto('/client/profile/history'), 2000);
+					},
+					onPending: async function(snapResult: any) {
+						await cartStore.reset();
+						checkoutStore.setAddress('');
+						toast.success('Order placed. Waiting for payment!');
+						setTimeout(() => goto('/client/profile/history'), 2000);
+					},
+					onError: function(snapResult: any) {
+						loading = false;
+						toast.error('Payment failed!');
+					},
+					onClose: function() {
+						loading = false;
+						toast.error('Payment cancelled');
+					}
+				});
 			} else {
 				loading = false;
+				toast.error('Failed to initialize payment');
 			}
 		}
 	});
@@ -82,6 +84,10 @@
 	$: subtotal = cartItems.reduce((s, i) => s + i.price * i.quantity, 0);
 	$: total = subtotal + shippingCost;
 </script>
+
+<svelte:head>
+	<script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key={PUBLIC_MIDTRANS_CLIENT_KEY}></script>
+</svelte:head>
 
 <div class="min-h-screen w-full bg-surface pb-20 pt-24 md:pt-32">
 	<div class="mx-auto max-w-5xl px-4 sm:px-8">
@@ -108,14 +114,10 @@
 				<input type="hidden" name="shippingMethod" value={$form.shippingMethod} />
 				<input type="hidden" name="paymentMethod" value={$form.paymentMethod} />
 
-				{#if showQR}
-					<div class="py-4 text-center">
-						<img src="/images/qr-code.png" alt="QR" class="mx-auto h-40 w-40 rounded-xl border border-secondary/20 p-2" />
-						<p class="mt-4 text-sm text-text-muted">{STRINGS.TOAST.SCAN_TO_PAY}</p>
-					</div>
-				{:else}
-					<CardForm bind:cardHolder bind:cardNumber bind:month bind:year bind:cvv {loading} />
-				{/if}
+				<div class="py-4 text-center">
+					<img src="/images/midtrans-logo.png" alt="Midtrans" onerror="this.src='/images/applePay.png'" class="mx-auto h-16 object-contain mb-4" />
+					<p class="mt-4 text-sm text-text-muted">You will be securely redirected to Midtrans to complete your payment.</p>
+				</div>
 
 				<button
 					type="submit"

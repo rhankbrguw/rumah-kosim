@@ -42,6 +42,7 @@
 		"express": "^4.21.2",
 		"jsonwebtoken": "^9.0.2",
 		"lucide-svelte": "^0.471.0",
+		"midtrans-client": "^1.4.3",
 		"mysql2": "^3.11.5",
 		"nodemailer": "^9.0.1",
 		"svelte-sonner": "^1.1.1",

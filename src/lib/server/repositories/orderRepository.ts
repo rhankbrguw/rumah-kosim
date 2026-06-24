@@ -26,7 +26,7 @@ export const OrderRepository = {
 				`INSERT INTO orders (
                     user_id, total, shipping_address, shipping_price,
                     shipping_method, tracking_number, date, status
-                ) VALUES (?, ?, ?, ?, ?, ?, NOW(), 'Processing')`,
+                ) VALUES (?, ?, ?, ?, ?, ?, NOW(), 'Pending Payment')`,
 				[userId, total, shippingAddress, shippingPrice, shippingMethod, trackingNumber]
 			)) as [ResultSetHeader, any];
 
@@ -67,9 +67,7 @@ export const OrderRepository = {
 	},
 
 	async getOrdersWithItems(userId: number) {
-		const userRows = (await db.query('SELECT username FROM users WHERE id = ?', [
-			userId
-		])) as RowDataPacket[];
+		const userRows = (await db.query('SELECT username FROM users WHERE id = ?', [userId])) as RowDataPacket[];
 		const username = userRows[0]?.username;
 
 		const ordersSql = `
@@ -92,15 +90,11 @@ export const OrderRepository = {
 				r.id as review_id, r.comment as review_comment, r.rating as review_rating
 			FROM order_items oi
 			JOIN products p ON p.id = oi.product_id
-			LEFT JOIN reviews r ON r.order_id = oi.order_id AND r.product_id = oi.product_id
-			WHERE oi.order_id IN (${orderIds.map(() => '?').join(',')})`;
-		
+		const itemsSql = `SELECT oi.order_id, oi.quantity, oi.price_at_time, oi.product_id, p.title, p.image, r.id as review_id, r.comment as review_comment, r.rating as review_rating FROM order_items oi JOIN products p ON p.id = oi.product_id LEFT JOIN reviews r ON r.order_id = oi.order_id AND r.product_id = oi.product_id WHERE oi.order_id IN (${orderIds.map(() => '?').join(',')})`;
 		const allItems = (await db.query(itemsSql, orderIds)) as RowDataPacket[];
 
 		for (let order of orders) {
 			const items = allItems.filter(item => item.order_id === order.id);
-			
-			// Map review data into the nested structure expected by the frontend
 			order.items = items.map(item => {
 				if (item.review_id) {
 					return {

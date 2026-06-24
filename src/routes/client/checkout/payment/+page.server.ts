@@ -59,7 +59,7 @@ export const actions = {
 				shippingMethod as string
 			);
 
-			return message(paymentForm, STRINGS.CHECKOUT.MESSAGES.PAYMENT_SUCCESS);
+			return message(paymentForm, { status: 'success', text: STRINGS.CHECKOUT.MESSAGES.PAYMENT_SUCCESS, snapToken: result.snapToken });
 		} catch (err) {
 			const error = err as Error;
 			logger.error('Payment processing error:', error);

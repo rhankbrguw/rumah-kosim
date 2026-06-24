@@ -46,12 +46,29 @@ export const processPayment = async (
 	);
 	
 	const user = await UserRepository.getById(userId);
+	
+
+	const { snap } = await import('$lib/server/utils/midtrans.js');
+	const parameters = {
+		transaction_details: {
+			order_id: trackingNumber,
+			gross_amount: total
+		},
+		customer_details: {
+			first_name: user?.username || 'Customer',
+			email: user?.email || 'customer@example.com'
+		}
+	};
+	
+	const transaction = await snap.createTransaction(parameters);
+	const snapToken = transaction.token;
+
 	if (user && user.email) {
 		sendOrderConfirmationEmail(user.email, total, trackingNumber).catch((e) => {
 			console.error('Failed to send invoice email:', e);
 		});
 		
-		// Notify admins
+
 		UserRepository.getAdminEmails().then((adminEmails) => {
 			if (adminEmails.length > 0) {
 				import('$lib/server/utils/mailer.js').then(({ sendAdminNotificationEmail }) => {
@@ -63,5 +80,5 @@ export const processPayment = async (
 		}).catch((e) => console.error('Failed to get admin emails:', e));
 	}
 	
-	return { orderId, trackingNumber };
+	return { orderId, trackingNumber, snapToken };
 };

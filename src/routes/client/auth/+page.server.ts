@@ -62,14 +62,14 @@ export const actions = {
 			const user = await getUserByUsername(username as string);
 			
 			if (result.isFirstUser) {
-				// Bypass OTP for first user
+
 				const payload = { id: user?.id, username, email, role: 'admin' };
 				const token = jwt.sign(payload, JWT_SECRET, { expiresIn: APP_CONFIG.JWT_EXPIRES_IN });
 
 				cookies.set('authToken', token, { path: '/', httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', maxAge: 86400 });
 				throw redirect(303, '/admin');
 			} else {
-				// Require OTP
+
 				const otp = Math.floor(100000 + Math.random() * 900000).toString();
 				await setOTP(user!.id, otp);
 				await sendOTP(email as string, otp);

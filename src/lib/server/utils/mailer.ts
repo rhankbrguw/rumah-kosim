@@ -86,7 +86,7 @@ export const sendAdminNotificationEmail = async (adminEmails: string[], orderId:
 		</div></div>
 	`;
 	
-	// Send to all admin emails
+
 	const promises = adminEmails.map((email) => send(email, STRINGS.EMAIL.ADMIN.SUBJECT, html));
 	await Promise.allSettled(promises);
 };
