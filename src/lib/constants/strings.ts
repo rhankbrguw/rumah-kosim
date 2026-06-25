@@ -68,7 +68,10 @@ export const STRINGS = {
 		NO_REVIEWS: 'No reviews yet.',
 		WRITE_REVIEW: 'Write a Review',
 		REVIEW_PLACEHOLDER: 'Share your thoughts about this product...',
-		QTY: 'Quantity'
+		QTY: 'Quantity',
+		EDITORIAL_REVIEWS: 'Editorial Reviews',
+		CUSTOMER_REVIEWS: 'Customer Reviews',
+		NO_REVIEWS_YET: 'No reviews yet. Buy this product to be the first to review!'
 	},
 	ORDER_HISTORY: {
 		TITLE: 'Order History',
@@ -105,7 +108,7 @@ export const STRINGS = {
 		},
 		ADDRESS_BOOK: {
 			SAVED_ADDRESS: 'Pilih Alamat Tersimpan',
-			SELECT_PLACEHOLDER: '-- Pilih alamat dari Address Book --',
+			SELECT_PLACEHOLDER: 'Pilih alamat dari Address Book',
 			MAIN: 'Utama'
 		},
 		BUTTON_UPDATE: 'Update Profile'
@@ -128,16 +131,9 @@ export const STRINGS = {
 			'Please check your input. Address must be at least 10 characters and Postal Code at least 5 digits.'
 	},
 	TOAST: {
-		PAYMENT_SUCCESS: 'Payment Successful!',
-		SCAN_TO_PAY: 'Scan to pay',
-		ADDRESS_SUCCESS: 'Address saved successfully',
-		SHIPPING_METHOD_REQUIRED: 'Please select a shipping method',
-		INVALID_COUPON: 'Invalid coupon code',
-		ADDED_TO_CART: 'Added to cart!',
-		INVALID_IMAGE: 'Invalid image',
-		IMAGE_UPDATED: 'Image updated',
-		IMAGE_UPLOADED: 'Image uploaded: ',
-		UPLOAD_FAILED: 'Upload failed'
+		PAYMENT_SUCCESS: 'Payment Successful!', SCAN_TO_PAY: 'Scan to pay', ADDRESS_SUCCESS: 'Address saved successfully',
+		SHIPPING_METHOD_REQUIRED: 'Please select a shipping method', INVALID_COUPON: 'Invalid coupon code', ADDED_TO_CART: 'Added to cart!',
+		INVALID_IMAGE: 'Invalid image', IMAGE_UPDATED: 'Image updated', IMAGE_UPLOADED: 'Image uploaded: ', UPLOAD_FAILED: 'Upload failed'
 	},
 	AI_CS: {
 		TITLE: 'Rumah Kosim AI',

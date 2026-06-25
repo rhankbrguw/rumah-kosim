@@ -11,6 +11,7 @@
 	export let quantity: number = 1;
 
 	let user: { role: string } | null = null;
+	let isSubmitting = false;
 	auth.subscribe(({ user: u }) => (user = u));
 
 	$: isOutOfStock = product?.quantity === 0;
@@ -64,37 +65,40 @@
 			{#if !isAdmin}
 				<div class="mt-6 border-t border-secondary/10 pt-6">
 					<form method="POST" action="?/addToCart" use:enhance={() => {
+						isSubmitting = true;
 						return async ({ result, update }) => {
-							if (result.type === 'redirect') {
-								window.location.href = result.location;
-							} else if (result.type === 'failure') {
+							if (result.type === 'redirect') window.location.href = result.location;
+							else if (result.type === 'failure') {
 								toast.error(String(result.data?.error || STRINGS.COMMON.ERROR));
-								if (result.data && typeof result.data.redirectTo === 'string') {
-									const url = result.data.redirectTo;
-									setTimeout(() => window.location.href = url, 2500);
-								}
+								if (typeof result.data?.redirectTo === 'string') setTimeout(() => window.location.href = result.data.redirectTo, 2500);
 							} else {
 								toast.success(STRINGS.TOAST.ADDED_TO_CART);
 								product.quantity -= quantity;
 								await update();
 							}
+							isSubmitting = false;
 						};
 					}}>
 						<input type="hidden" name="productId" value={product.id} />
 						<input type="hidden" name="quantity" value={quantity} />
 
 						<div class="mb-4 flex items-center gap-4">
-							<button type="button" on:click={() => quantity > 1 && quantity--} disabled={quantity <= 1 || isOutOfStock} class="flex h-10 w-10 items-center justify-center rounded-xl border border-secondary/20 bg-surface-alt text-text-main transition-colors hover:border-primary disabled:opacity-50">-</button>
+							<button type="button" on:click={() => quantity > 1 && quantity--} disabled={quantity <= 1 || isOutOfStock || isSubmitting} class="flex h-10 w-10 items-center justify-center rounded-xl border border-secondary/20 bg-surface-alt text-text-main transition-colors hover:border-primary disabled:opacity-50">-</button>
 							<span class="min-w-[2rem] text-center text-lg font-medium text-text-main">{isOutOfStock ? 0 : quantity}</span>
-							<button type="button" on:click={() => quantity < product.quantity && quantity++} disabled={quantity >= product.quantity || isOutOfStock} class="flex h-10 w-10 items-center justify-center rounded-xl border border-secondary/20 bg-surface-alt text-text-main transition-colors hover:border-primary disabled:opacity-50">+</button>
+							<button type="button" on:click={() => quantity < product.quantity && quantity++} disabled={quantity >= product.quantity || isOutOfStock || isSubmitting} class="flex h-10 w-10 items-center justify-center rounded-xl border border-secondary/20 bg-surface-alt text-text-main transition-colors hover:border-primary disabled:opacity-50">+</button>
 						</div>
 
 						<button
 							type="submit"
-							disabled={isOutOfStock}
-							class="w-full rounded-xl bg-primary py-3.5 font-bold text-text-inverse shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary-hover hover:shadow-md disabled:translate-y-0 disabled:opacity-50 disabled:shadow-none"
+							disabled={isOutOfStock || isSubmitting}
+							class="w-full rounded-xl bg-primary py-3.5 font-bold text-text-inverse shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary-hover hover:shadow-md disabled:translate-y-0 disabled:opacity-50 disabled:shadow-none flex items-center justify-center gap-2"
 						>
-							{STRINGS.PRODUCT.ADD_TO_CART}
+							{#if isSubmitting}
+								<div class="h-5 w-5 animate-spin rounded-full border-2 border-text-inverse border-t-transparent"></div>
+								{STRINGS.COMMON.LOADING}
+							{:else}
+								{STRINGS.PRODUCT.ADD_TO_CART}
+							{/if}
 						</button>
 					</form>
 				</div>
@@ -104,24 +108,20 @@
 
 	{#if product.editorialReview}
 		<div class="mx-auto mt-16 max-w-5xl border-t border-secondary/10 pt-12 md:mt-20 md:pt-16">
-			<h2 class="mb-6 text-2xl font-bold text-text-main md:text-3xl">Editorial Reviews</h2>
+			<h2 class="mb-6 text-2xl font-bold text-text-main md:text-3xl">{STRINGS.PRODUCT.EDITORIAL_REVIEWS}</h2>
 			<div class="flex flex-col gap-6 md:flex-row md:gap-12">
-				<div class="md:w-1/3">
-					<p class="whitespace-pre-line text-lg font-bold text-primary">{product.editorialReview.headline}</p>
-				</div>
-				<div class="md:w-2/3">
-					<p class="whitespace-pre-line text-lg leading-relaxed text-text-muted">{product.editorialReview.body}</p>
-				</div>
+				<div class="md:w-1/3"><p class="whitespace-pre-line text-lg font-bold text-primary">{product.editorialReview.headline}</p></div>
+				<div class="md:w-2/3"><p class="whitespace-pre-line text-lg leading-relaxed text-text-muted">{product.editorialReview.body}</p></div>
 			</div>
 		</div>
 	{/if}
 
 	<div class="mx-auto mt-16 max-w-5xl border-t border-secondary/10 pt-12 md:mt-20 md:pt-16">
-		<h2 class="mb-8 text-2xl font-bold text-text-main md:text-3xl">Customer Reviews</h2>
+		<h2 class="mb-8 text-2xl font-bold text-text-main md:text-3xl">{STRINGS.PRODUCT.CUSTOMER_REVIEWS}</h2>
 		
 		{#if reviews.length === 0}
 			<div class="rounded-2xl border border-secondary/10 bg-surface-alt/30 p-12 text-center text-text-muted">
-				No reviews yet. Buy this product to be the first to review!
+				{STRINGS.PRODUCT.NO_REVIEWS_YET}
 			</div>
 		{:else}
 			<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">

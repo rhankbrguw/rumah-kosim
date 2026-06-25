@@ -23,3 +23,7 @@ Thumbs.db
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .agent/
+
+# Uploads
+static/uploads/*
+!static/uploads/.gitkeep

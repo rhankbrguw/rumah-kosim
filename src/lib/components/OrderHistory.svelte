@@ -39,12 +39,12 @@
 		<div class="space-y-6">
 			{#each data.history as order}
 				<div class="overflow-hidden rounded-2xl border border-secondary/10 bg-surface shadow-sm transition-all hover:shadow-md">
-					<div class="flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
+					<div class="flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between border-l-4 border-l-primary bg-gradient-to-r from-primary/5 to-transparent">
 						<div class="flex-1 space-y-1.5">
 							<p class="text-sm font-medium text-text-muted">{new Date(order.date).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</p>
 							<p class="flex items-center gap-2 text-sm text-text-main">
 								<span class="text-text-muted">{STRINGS.ORDER_HISTORY.TRACKING}</span>
-								<span class="font-mono font-bold text-primary">{order.tracking_number}</span>
+								<span class="font-mono font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-md">{order.tracking_number}</span>
 							</p>
 							<div class="pt-1">
 								<span class={`inline-block rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${getStatusColor(order.status)}`}>

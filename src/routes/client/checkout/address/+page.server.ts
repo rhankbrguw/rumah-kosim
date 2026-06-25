@@ -3,7 +3,7 @@ import { zod4 as zod } from 'sveltekit-superforms/adapters';
 import { z } from 'zod';
 import { redirect, fail } from '@sveltejs/kit';
 import { getCartItems } from '$lib/server/services/cartService.js';
-import { getUserAddresses, saveUserAddress } from '$lib/server/services/authService.js';
+import { getUserAddresses, saveUserAddress, getUserById } from '$lib/server/services/authService.js';
 import { STRINGS } from '$lib/constants/strings';
 
 const addressSchema = z.object({
@@ -34,14 +34,19 @@ export const load = async ({ locals }) => {
 	}));
 
 	const userAddresses = await getUserAddresses(locals.user.id);
-
 	const form = await superValidate(zod(addressSchema));
+
 	if (userAddresses.length > 0 && userAddresses[0].address_text) {
 		try {
 			const primary = userAddresses.find(a => a.is_primary) || userAddresses[0];
 			const parsed = JSON.parse(primary.address_text);
 			Object.assign(form.data, parsed);
 		} catch (e) {}
+	} else {
+		const user = await getUserById(locals.user.id);
+		if (user && user.address) {
+			form.data.address = user.address;
+		}
 	}
 
 	return { form, cartItems, userAddresses };

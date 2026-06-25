@@ -11,12 +11,26 @@
 
 	export let data: any;
 
+	import { onMount } from 'svelte';
 	let selectedShipping = '';
 	$: cartItems = data.cartItems;
 	$: subtotal = cartItems.reduce((sum: number, item: any) => sum + item.price * item.quantity, 0);
 
 	let couponCode = '';
 	let isValidCoupon = false;
+
+	onMount(() => {
+		if (!$checkoutStore.address) {
+			toast.error(STRINGS.VALIDATION.ADDRESS_REQUIRED || 'Please fill in your address first');
+			goto('/client/checkout/address');
+			return;
+		}
+		if ($checkoutStore.shipping) {
+			selectedShipping = $checkoutStore.shipping.id as string;
+			isValidCoupon = $checkoutStore.shipping.price === 0 && selectedShipping !== '';
+			if (isValidCoupon) couponCode = STORE_CONSTANTS.PROMO_SHIPPING_CODE;
+		}
+	});
 
 	const shippingOptions = [
 		{

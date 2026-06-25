@@ -31,6 +31,37 @@
 	const { form: otpForm, errors: otpErrors, enhance: otpEnhance, message: otpMessage } = superForm(data.verifyOtpForm);
 	const { form: forgotForm, errors: forgotErrors, enhance: forgotEnhance, message: forgotMessage } = superForm(data.forgotPasswordForm);
 
+	import { onMount } from 'svelte';
+	
+	onMount(() => {
+		if (typeof window !== 'undefined') {
+			const load = (key: string, store: any, omit: string[] = []) => {
+				const saved = localStorage.getItem(key);
+				if (saved) {
+					try {
+						const data = JSON.parse(saved);
+						omit.forEach(k => delete data[k]);
+						Object.assign(store, data);
+					} catch {}
+				}
+			};
+			load('loginForm', $loginForm, ['password']);
+			load('signupForm', $signupForm, ['password', 'confirmPassword']);
+			load('forgotForm', $forgotForm);
+		}
+	});
+
+	$: if ($loginForm && typeof window !== 'undefined') {
+		const data = { ...$loginForm }; delete data.password;
+		localStorage.setItem('loginForm', JSON.stringify(data));
+	}
+	$: if ($signupForm && typeof window !== 'undefined') {
+		const data = { ...$signupForm }; delete data.password; delete data.confirmPassword;
+		localStorage.setItem('signupForm', JSON.stringify(data));
+	}
+	$: if ($forgotForm && typeof window !== 'undefined') {
+		localStorage.setItem('forgotForm', JSON.stringify($forgotForm));
+	}
 </script>
 
 <div class="flex min-h-screen w-full items-center justify-center bg-surface-alt px-4 py-20">

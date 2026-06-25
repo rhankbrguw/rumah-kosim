@@ -18,10 +18,33 @@
 			if (result.type === 'success') {
 				toast.success(STRINGS.PROFILE.MESSAGES.UPDATE_SUCCESS);
 				avatarPreview = null;
+				localStorage.removeItem('profileForm');
 				await invalidateAll();
 			}
 		}
 	});
+
+	import { onMount } from 'svelte';
+	onMount(() => {
+		if (typeof window !== 'undefined') {
+			const saved = localStorage.getItem('profileForm');
+			if (saved) {
+				try {
+					const data = JSON.parse(saved);
+					delete data.password;
+					delete data.confirmPassword;
+					Object.assign($form, data);
+				} catch {}
+			}
+		}
+	});
+
+	$: if ($form && typeof window !== 'undefined') {
+		const data = { ...$form };
+		delete data.password;
+		delete data.confirmPassword;
+		localStorage.setItem('profileForm', JSON.stringify(data));
+	}
 </script>
 
 <div class="mx-auto w-full max-w-4xl px-4 pt-24 pb-12 sm:px-6 sm:pt-28 sm:pb-16 lg:px-8">

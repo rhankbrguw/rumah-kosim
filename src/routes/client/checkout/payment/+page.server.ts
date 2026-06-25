@@ -13,8 +13,7 @@ const paymentFormSchema = z.object({
 	total: z.coerce.number().positive(),
 	shippingAddress: z.string().min(1, 'Shipping address is required'),
 	shippingPrice: z.coerce.number().min(0),
-	shippingMethod: z.string().min(1, 'Shipping method is required'),
-	paymentMethod: z.string().optional()
+	shippingMethod: z.string().min(1, 'Shipping method is required')
 });
 
 export const load = async ({ locals }: RequestEvent) => {

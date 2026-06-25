@@ -2,6 +2,7 @@ import { writable } from 'svelte/store';
 
 interface CheckoutState {
 	address: string;
+	addressDetails: Record<string, unknown> | null;
 	shipping: Record<string, unknown> | null;
 	payment: string;
 	loading: boolean;
@@ -14,18 +15,41 @@ interface CheckoutState {
 }
 
 const createCheckoutStore = () => {
-	const { subscribe, set, update } = writable<CheckoutState>({
+	const defaultState: CheckoutState = {
 		address: '',
+		addressDetails: null,
 		shipping: null,
 		payment: '',
 		loading: false,
 		error: null,
 		coupon: null
-	});
+	};
+
+	let initialState = defaultState;
+	if (typeof window !== 'undefined') {
+		const stored = localStorage.getItem('checkoutStore');
+		if (stored) {
+			try {
+				initialState = { ...defaultState, ...JSON.parse(stored) };
+			} catch (e) {
+				// Failed to parse, ignore
+			}
+		}
+	}
+
+	const { subscribe, set, update } = writable<CheckoutState>(initialState);
+
+	if (typeof window !== 'undefined') {
+		subscribe((state) => {
+			localStorage.setItem('checkoutStore', JSON.stringify(state));
+		});
+	}
 
 	return {
 		subscribe,
 		setAddress: (address: string) => update((store) => ({ ...store, address })),
+		setAddressDetails: (addressDetails: Record<string, unknown> | null) =>
+			update((store) => ({ ...store, addressDetails })),
 		setShipping: (shipping: Record<string, unknown> | null) =>
 			update((store) => ({ ...store, shipping })),
 		setPayment: (payment: string) => update((store) => ({ ...store, payment })),
@@ -33,14 +57,7 @@ const createCheckoutStore = () => {
 			update((store) => ({ ...store, coupon })),
 		update,
 		reset: () =>
-			set({
-				address: '',
-				shipping: null,
-				payment: '',
-				loading: false,
-				error: null,
-				coupon: null
-			})
+			set(defaultState)
 	};
 };
 

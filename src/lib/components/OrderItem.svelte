@@ -13,16 +13,13 @@
 	<img src={item.image || STRINGS.SHOP.FALLBACK_IMAGE} alt={item.title} class="h-20 w-20 rounded-lg object-cover shadow-sm" />
 	
 	<div class="flex flex-1 flex-col justify-between gap-3">
-		<div class="flex flex-col justify-between sm:flex-row sm:items-start">
+		<div class="flex flex-col justify-between sm:flex-row sm:items-start gap-4">
 			<div>
 				<h5 class="font-bold text-text-main line-clamp-2">{item.title}</h5>
 				<p class="mt-1 text-sm font-medium text-text-muted">
 					{item.quantity} × {formatIDR(item.price_at_time)}
 				</p>
 			</div>
-			<p class="mt-2 text-base font-bold text-primary sm:mt-0">
-				{formatIDR(item.quantity * item.price_at_time)}
-			</p>
 		</div>
 
 		{#if orderStatus === 'Delivered'}

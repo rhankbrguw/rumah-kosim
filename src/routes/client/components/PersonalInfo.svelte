@@ -107,6 +107,7 @@
 					name="email"
 					bind:value={form.email}
 					{...constraints.email}
+					pattern="[^@\s]+@[^@\s]+\.[^@\s]+"
 					class="w-full rounded-lg border-2 border-surface-alt/80 bg-surface px-4 py-2.5 pl-10 text-text-main transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
 				/>
 			</div>

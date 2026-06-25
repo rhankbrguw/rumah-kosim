@@ -52,7 +52,7 @@ export const processPayment = async (
 	const parameters = {
 		transaction_details: {
 			order_id: trackingNumber,
-			gross_amount: total
+			gross_amount: Math.round(total)
 		},
 		customer_details: {
 			first_name: user?.username || 'Customer',
@@ -65,7 +65,7 @@ export const processPayment = async (
 
 	if (user && user.email) {
 		sendOrderConfirmationEmail(user.email, total, trackingNumber).catch((e) => {
-			console.error('Failed to send invoice email:', e);
+			logger.error('Failed to send invoice email:', e);
 		});
 		
 
@@ -73,11 +73,11 @@ export const processPayment = async (
 			if (adminEmails.length > 0) {
 				import('$lib/server/utils/mailer.js').then(({ sendAdminNotificationEmail }) => {
 					sendAdminNotificationEmail(adminEmails, orderId, total, user.username).catch((e) => {
-						console.error('Failed to send admin notification:', e);
+						logger.error('Failed to send admin notification:', e);
 					});
 				});
 			}
-		}).catch((e) => console.error('Failed to get admin emails:', e));
+		}).catch((e) => logger.error('Failed to get admin emails:', e));
 	}
 	
 	return { orderId, trackingNumber, snapToken };

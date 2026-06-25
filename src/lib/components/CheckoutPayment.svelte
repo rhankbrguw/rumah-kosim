@@ -18,6 +18,17 @@
 	export let data: SuperValidated<Record<string, unknown>>;
 	export let cartItems: { price: number, quantity: number, title?: string, image?: string }[] = [];
 
+	import { onMount } from 'svelte';
+	onMount(() => {
+		if (!$checkoutStore.address) {
+			toast.error(STRINGS.VALIDATION.ADDRESS_REQUIRED || 'Please fill in your address first');
+			goto('/client/checkout/address');
+		} else if (!$checkoutStore.shipping) {
+			toast.error('Please select a shipping method first');
+			goto('/client/checkout/shipping');
+		}
+	});
+
 	const { form, enhance, message } = superForm(data, {
 		onSubmit: ({ formData, cancel }) => {
 			loading = true;
@@ -32,8 +43,7 @@
 			formData.set('total', total.toString());
 			formData.set('shippingAddress', $checkoutStore.address);
 			formData.set('shippingPrice', shippingCost.toString());
-			formData.set('shippingMethod', paymentMethod);
-			formData.set('paymentMethod', paymentMethod);
+			formData.set('shippingMethod', $checkoutStore.shipping?.method || 'GOSEND');
 		},
 		onResult: async ({ result }) => {
 			if (result.type === 'success' && result.data?.form?.message?.snapToken) {
@@ -41,44 +51,20 @@
 				
 				// @ts-ignore - Midtrans snap global
 				window.snap.pay(snapToken, {
-					onSuccess: async function(snapResult: any) {
-						isRedirecting = true;
-						await cartStore.reset();
-						checkoutStore.setAddress('');
-						toast.success(STRINGS.TOAST.PAYMENT_SUCCESS);
-						setTimeout(() => goto('/client/profile/history'), 2000);
-					},
-					onPending: async function(snapResult: any) {
-						await cartStore.reset();
-						checkoutStore.setAddress('');
-						toast.success('Order placed. Waiting for payment!');
-						setTimeout(() => goto('/client/profile/history'), 2000);
-					},
-					onError: function(snapResult: any) {
-						loading = false;
-						toast.error('Payment failed!');
-					},
-					onClose: function() {
-						loading = false;
-						toast.error('Payment cancelled');
-					}
+					onSuccess: async () => { isRedirecting = true; await cartStore.reset(); checkoutStore.reset(); toast.success(STRINGS.TOAST.PAYMENT_SUCCESS); setTimeout(() => goto('/client/profile/history'), 2000); },
+					onPending: async () => { await cartStore.reset(); checkoutStore.reset(); toast.success('Order placed. Waiting for payment!'); setTimeout(() => goto('/client/profile/history'), 2000); },
+					onError: () => { loading = false; toast.error('Payment failed!'); },
+					onClose: () => { loading = false; toast.error('Payment cancelled'); }
 				});
 			} else {
 				loading = false;
-				toast.error('Failed to initialize payment');
+				toast.error(typeof result.data?.form?.message === 'string' ? result.data.form.message : result.data?.form?.message?.text || 'Failed to initialize payment');
 			}
 		}
 	});
 
 	let loading = false;
 	let isRedirecting = false;
-	let paymentMethod = 'apple', cardNumber = '', cardHolder = '', month = '', year = '', cvv = '', showQR = false;
-
-	const methods = [
-		{ id: 'apple', label: 'Apple Pay', icon: '/images/applePay.png', type: 'card' },
-		{ id: 'paypal', label: 'PayPal', icon: '/images/paypal.png', type: 'card' },
-		{ id: 'ewallet', label: 'E-Wallet', icon: '/images/ewallet.png', type: 'qr' }
-	];
 
 	$: hasFreeShipping = $checkoutStore.shipping?.price === 0;
 	$: shippingCost = hasFreeShipping ? 0 : ($checkoutStore.shipping?.price as number) || STORE_CONSTANTS.SHIPPING_RATES.GOSEND;
@@ -107,38 +93,38 @@
 	<div class="grid grid-cols-1 gap-12 lg:grid-cols-[1fr,26rem] lg:gap-16">
 		<div class="pt-2">
 			<form method="POST" use:enhance class="space-y-5">
-				<PaymentMethodSelector {methods} bind:paymentMethod bind:showQR />
-				<input type="hidden" name="cartItemsJson" value={$form.cartItemsJson} />
-				<input type="hidden" name="total" value={$form.total} />
-				<input type="hidden" name="shippingAddress" value={$form.shippingAddress} />
-				<input type="hidden" name="shippingPrice" value={$form.shippingPrice} />
+				<input type="hidden" name="cartItemsJson" value={$form.cartItemsJson} /><input type="hidden" name="total" value={$form.total} />
+				<input type="hidden" name="shippingAddress" value={$form.shippingAddress} /><input type="hidden" name="shippingPrice" value={$form.shippingPrice} />
 				<input type="hidden" name="shippingMethod" value={$form.shippingMethod} />
-				<input type="hidden" name="paymentMethod" value={$form.paymentMethod} />
 
-				<div class="rounded-2xl border border-surface-alt/80 bg-surface-alt/20 p-6 text-center backdrop-blur-md transition-all hover:bg-surface-alt/40">
-					<div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-surface-alt shadow-sm">
-						<Lock size={24} class="text-primary" />
+				<div class="group relative overflow-hidden rounded-3xl border border-primary/20 bg-gradient-to-br from-surface-alt/40 to-surface/40 p-8 text-center backdrop-blur-xl transition-all duration-300 hover:border-primary/40 hover:shadow-[0_0_40px_-15px_rgba(var(--color-primary),0.3)]">
+					<div class="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-primary/10 blur-3xl transition-transform duration-500 group-hover:scale-150"></div>
+					<div class="absolute -bottom-10 -left-10 h-40 w-40 rounded-full bg-secondary/10 blur-3xl transition-transform duration-500 group-hover:scale-150"></div>
+					
+					<div class="relative z-10 mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary-hover shadow-lg shadow-primary/30">
+						<Lock size={28} class="text-secondary" />
 					</div>
-					<img src="/images/midtrans-logo.png" alt="Midtrans" on:error={(e) => ((e.currentTarget as HTMLImageElement).src='/images/applePay.png')} class="mx-auto h-8 object-contain mb-3 grayscale transition-all hover:grayscale-0" />
-					<h3 class="mb-1 text-sm font-semibold text-text-main">Secure Payment Gateway</h3>
-					<p class="text-xs text-text-muted">You will be securely redirected to Midtrans to complete your transaction with bank-grade encryption.</p>
+					
+					<h3 class="mb-2 text-lg font-bold text-text-main">{STRINGS.CHECKOUT.PAYMENT.SECURE_GATEWAY_TITLE}</h3>
+					<p class="mb-6 text-sm leading-relaxed text-text-muted">{STRINGS.CHECKOUT.PAYMENT.SECURE_GATEWAY_DESC}</p>
+					
+					<div class="relative z-10 flex items-center justify-center gap-3 rounded-xl bg-surface/50 py-3 backdrop-blur-md">
+						<span class="font-bold text-primary">Powered by Midtrans</span>
+						<div class="h-4 w-[1px] bg-border-color"></div>
+						<span class="text-xs font-semibold uppercase tracking-wider text-text-main">Global Security Standard</span>
+					</div>
 				</div>
 
-				<button
-					type="submit"
-					disabled={loading}
-					class="mt-6 w-full rounded-xl bg-primary py-4 text-center font-bold text-secondary shadow-lg transition-transform hover:-translate-y-1 hover:bg-primary-hover active:translate-y-0 disabled:opacity-70 flex items-center justify-center gap-2"
-				>
+				<button type="submit" disabled={loading} class="group relative mt-6 flex w-full items-center justify-center gap-3 overflow-hidden rounded-2xl bg-primary py-4 font-bold text-secondary shadow-xl shadow-primary/20 transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-primary/30 active:translate-y-0 disabled:opacity-70">
+					<div class="absolute inset-0 translate-y-[100%] bg-gradient-to-t from-black/20 to-transparent transition-transform duration-300 group-hover:translate-y-0"></div>
 					{#if loading}
-						<div class="h-5 w-5 animate-spin rounded-full border-2 border-secondary border-t-transparent"></div>
-						{STRINGS.COMMON.LOADING}
+						<div class="relative z-10 h-5 w-5 animate-spin rounded-full border-2 border-secondary border-t-transparent"></div><span class="relative z-10">{STRINGS.COMMON.LOADING}</span>
 					{:else}
-						{STRINGS.CHECKOUT.PAYMENT.PAY}
+						<span class="relative z-10">{STRINGS.CHECKOUT.PAYMENT.PAY}</span><div class="relative z-10 flex h-6 w-6 items-center justify-center rounded-full bg-secondary/20 transition-transform group-hover:translate-x-1">&rarr;</div>
 					{/if}
 				</button>
 			</form>
 		</div>
-
 		<CheckoutSummary {cartItems} {subtotal} {total} {shippingCost} {hasFreeShipping} />
 	</div>
 	</div>
@@ -147,7 +133,7 @@
 {#if isRedirecting}
 	<div class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-surface/80 backdrop-blur-sm transition-all duration-300">
 		<div class="h-16 w-16 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-		<h2 class="mt-6 text-2xl font-bold text-text-main">Payment Successful!</h2>
-		<p class="mt-2 text-text-muted">Redirecting to your order history...</p>
+		<h2 class="mt-6 text-2xl font-bold text-text-main">{STRINGS.CHECKOUT.PAYMENT.REDIRECT_SUCCESS}</h2>
+		<p class="mt-2 text-text-muted">{STRINGS.CHECKOUT.PAYMENT.REDIRECT_DESC}</p>
 	</div>
 {/if}

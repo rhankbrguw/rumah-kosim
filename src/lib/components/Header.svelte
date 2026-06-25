@@ -5,17 +5,12 @@
 	import { STRINGS } from '$lib/constants/strings';
 	import { UserCircle, LogIn } from 'lucide-svelte';
 
-	let isAuthenticated = false,
-		user: { username: string, role: string, avatar?: string } | null = null,
-		isMobileMenuOpen = false;
+	let isMobileMenuOpen = false;
 
 	$: isHome = $page.url.pathname === '/';
 	$: cartCount = $page.data.cartCount || 0;
-
-	$: auth.subscribe(({ isAuthenticated: authState, user: userDetails }) => {
-		isAuthenticated = authState;
-		user = userDetails;
-	});
+	$: user = $page.data.user;
+	$: isAuthenticated = !!user;
 
 	async function handleLogout() {
 		localStorage.clear();

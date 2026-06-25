@@ -16,6 +16,7 @@
 	$: total = subtotal + shippingCost;
 
 	const { form, errors, enhance, message } = superForm(data, {
+		dataType: 'json',
 		onResult: async ({ result }) => {
 			if (result.type === 'success' || result.type === 'redirect') {
 				loading = true;
@@ -31,9 +32,21 @@
 		}
 	});
 
+	import { onMount } from 'svelte';
+
 	let shippingCost = 0,
 		loading = false,
 		error = '';
+
+	onMount(() => {
+		if ($checkoutStore.addressDetails && Object.keys($checkoutStore.addressDetails).length > 0) {
+			$form = { ...$form, ...$checkoutStore.addressDetails };
+		}
+	});
+
+	$: if ($form && typeof window !== 'undefined') {
+		checkoutStore.setAddressDetails($form);
+	}
 </script>
 
 <div class="min-h-screen w-full bg-surface pb-20 pt-24 md:pt-32">

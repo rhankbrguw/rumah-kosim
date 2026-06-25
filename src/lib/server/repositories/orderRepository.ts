@@ -46,11 +46,6 @@ export const OrderRepository = {
 					'INSERT INTO order_items (order_id, product_id, quantity, price_at_time) VALUES (?, ?, ?, ?)',
 					[orderId, item.product_id, item.quantity, item.price]
 				);
-				
-				await connection.execute(
-					'UPDATE products SET sold_count = sold_count + ? WHERE id = ?',
-					[item.quantity, item.product_id]
-				);
 			}
 
 			await connection.execute('DELETE FROM cart WHERE user_id = ?', [userId]);

@@ -14,54 +14,58 @@
 	const inputClass = 'w-full rounded-xl border border-secondary/20 bg-surface-alt px-4 py-3 text-sm transition-colors focus:border-primary focus:ring-1 focus:ring-primary';
 	const selectClass = 'w-full rounded-xl border border-secondary/20 bg-surface-alt px-4 py-3 text-sm';
 
-	let useNewAddress = userAddresses.length === 0;
+	let selectedAddressIndex = 'new';
+	let useNewAddress = true;
+
+	if (userAddresses.length > 0) {
+		const idx = userAddresses.findIndex(addr => {
+			try {
+				const parsed = JSON.parse(addr.address_text);
+				return parsed.address && parsed.address === form.address;
+			} catch { return false; }
+		});
+		if (idx !== -1) {
+			selectedAddressIndex = idx.toString();
+			useNewAddress = false;
+		} else if (form.address) {
+			// If form has address but not in saved list, it's a new address
+			selectedAddressIndex = 'new';
+			useNewAddress = true;
+		} else {
+			// Default to first saved address if available
+			selectedAddressIndex = '0';
+			useNewAddress = false;
+			try {
+				form = { ...form, ...JSON.parse(userAddresses[0].address_text) };
+			} catch(e) {}
+		}
+	}
 
 	function selectAddress(addr: any) {
 		useNewAddress = false;
 		try {
-			const parsed = JSON.parse(addr.address_text);
-			Object.assign(form, parsed);
+			form = { ...form, ...JSON.parse(addr.address_text) };
 		} catch (e) {}
 	}
 </script>
 
 {#if userAddresses.length > 0}
-	<div class="mb-6 space-y-3">
-		<h3 class="text-sm font-semibold text-text-main">{STRINGS.CHECKOUT.ADDRESS.SAVED_ADDRESS}</h3>
-		<div class="grid gap-3 sm:grid-cols-2">
-			{#each userAddresses as addr}
-				<button
-					type="button"
-					on:click={() => selectAddress(addr)}
-					class="relative flex flex-col items-start gap-1 rounded-xl border p-4 text-left transition-all {(!useNewAddress && form.firstName && addr.address_text.includes(form.firstName)) ? 'border-primary bg-primary/5 ring-1 ring-primary' : 'border-surface-alt bg-surface-alt/50 hover:bg-surface-alt'}"
-				>
-					<div class="flex w-full items-center justify-between">
-						<span class="font-bold text-text-main flex items-center gap-2">
-							<MapPin size={16} class="text-primary" />
-							{addr.label}
-						</span>
-						{#if addr.is_primary}
-							<span class="rounded bg-primary px-2 py-0.5 text-xs font-bold text-secondary">{STRINGS.CHECKOUT.ADDRESS.MAIN}</span>
-						{/if}
-					</div>
-					<span class="mt-2 line-clamp-2 text-xs text-text-muted">
-						{(() => {
-							try { return JSON.parse(addr.address_text).address; }
-							catch { return addr.address_text; }
-						})()}
-					</span>
-				</button>
+	<div class="mb-6 space-y-1.5">
+		<label for="checkout_saved_address" class="block text-sm font-semibold text-text-main">{STRINGS.CHECKOUT.ADDRESS.SAVED_ADDRESS}</label>
+		<select id="checkout_saved_address" bind:value={selectedAddressIndex} on:change={(e) => {
+			if (selectedAddressIndex === 'new') {
+				useNewAddress = true;
+				Object.keys(form).forEach(k => form[k] = (k === 'province' ? 'JABODETABEK' : ''));
+			} else {
+				useNewAddress = false;
+				selectAddress(userAddresses[parseInt(selectedAddressIndex)]);
+			}
+		}} class={selectClass}>
+			<option value="new">{STRINGS.CHECKOUT.ADDRESS.USE_NEW}</option>
+			{#each userAddresses as addr, index}
+				<option value={index.toString()}>{addr.label} {#if addr.is_primary}({STRINGS.CHECKOUT.ADDRESS.MAIN}){/if}</option>
 			{/each}
-			
-			<button
-				type="button"
-				on:click={() => { useNewAddress = true; Object.keys(form).forEach(k => form[k] = (k === 'province' ? 'JABODETABEK' : '')); }}
-				class="relative flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-primary/50 bg-primary/5 p-4 text-primary transition-all hover:bg-primary/10 {useNewAddress ? 'ring-2 ring-primary border-solid' : ''}"
-			>
-				<Plus size={20} />
-				<span class="font-bold text-sm">{STRINGS.CHECKOUT.ADDRESS.USE_NEW}</span>
-			</button>
-		</div>
+		</select>
 	</div>
 {/if}
 
@@ -113,3 +117,15 @@
 <button type="submit" disabled={loading} class="mt-6 w-full rounded-xl bg-primary py-4 text-center font-bold text-secondary shadow-lg transition-transform hover:-translate-y-1 hover:bg-primary-hover active:translate-y-0 disabled:opacity-70">
 	{loading ? STRINGS.COMMON.LOADING : STRINGS.CHECKOUT.ADDRESS.CONTINUE}
 </button>
+
+{#if !useNewAddress}
+	<input type="hidden" name="firstName" value={form.firstName || ''} />
+	<input type="hidden" name="lastName" value={form.lastName || ''} />
+	<input type="hidden" name="address" value={form.address || ''} />
+	<input type="hidden" name="apartment" value={form.apartment || ''} />
+	<input type="hidden" name="city" value={form.city || ''} />
+	<input type="hidden" name="district" value={form.district || ''} />
+	<input type="hidden" name="subdistrict" value={form.subdistrict || ''} />
+	<input type="hidden" name="postalCode" value={form.postalCode || ''} />
+	<input type="hidden" name="province" value={form.province || 'JABODETABEK'} />
+{/if}

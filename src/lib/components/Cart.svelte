@@ -14,6 +14,15 @@
 		if (!$auth.isAuthenticated) return goto('/client/auth');
 		if (cartItems.length > 0) goto('/client/checkout/address');
 	}
+	let isSubmitting = false;
+
+	const handleForm = () => {
+		isSubmitting = true;
+		return async ({ update }: { update: any }) => {
+			await update();
+			isSubmitting = false;
+		};
+	};
 </script>
 
 <div class="mx-auto mt-16 min-h-screen max-w-7xl bg-surface-alt px-4 pt-8 sm:px-6 lg:px-8">
@@ -32,11 +41,12 @@
 								<div>
 									<div class="flex items-start justify-between">
 										<h3 class="text-base font-medium text-text-main sm:text-lg">{item.title}</h3>
-										<form method="POST" action="?/remove" use:enhance>
+										<form method="POST" action="?/remove" use:enhance={handleForm}>
 											<input type="hidden" name="productId" value={item.product_id} />
 											<button 
 												type="submit" 
-												class="text-danger transition-colors hover:text-danger-hover" 
+												disabled={isSubmitting}
+												class="text-danger transition-colors hover:text-danger-hover disabled:opacity-50" 
 												aria-label={STRINGS.CART.REMOVE} 
 												title={STRINGS.CART.REMOVE}
 											>
@@ -47,16 +57,16 @@
 									<p class="mt-1 font-bold text-danger sm:mt-2">{formatIDR(Number(item.price))}</p>
 								</div>
 								<div class="mt-3 flex items-center gap-3 sm:mt-4 sm:gap-4">
-									<form method="POST" action="?/updateQuantity" use:enhance>
+									<form method="POST" action="?/updateQuantity" use:enhance={handleForm}>
 										<input type="hidden" name="productId" value={item.product_id} />
 										<input type="hidden" name="delta" value="-1" />
-										<button disabled={item.quantity <= 1} class="rounded border border-secondary px-2 py-1 text-sm text-text-main transition-colors hover:bg-surface-alt disabled:opacity-50">-</button>
+										<button disabled={item.quantity <= 1 || isSubmitting} class="rounded border border-secondary px-2 py-1 text-sm text-text-main transition-colors hover:bg-surface-alt disabled:opacity-50">-</button>
 									</form>
 									<span class="text-sm font-medium text-text-muted sm:text-base">Quantity: {item.quantity}</span>
-									<form method="POST" action="?/updateQuantity" use:enhance>
+									<form method="POST" action="?/updateQuantity" use:enhance={handleForm}>
 										<input type="hidden" name="productId" value={item.product_id} />
 										<input type="hidden" name="delta" value="1" />
-										<button class="rounded border border-secondary px-2 py-1 text-sm text-text-main transition-colors hover:bg-surface-alt disabled:opacity-50">+</button>
+										<button disabled={isSubmitting} class="rounded border border-secondary px-2 py-1 text-sm text-text-main transition-colors hover:bg-surface-alt disabled:opacity-50">+</button>
 									</form>
 								</div>
 							</div>

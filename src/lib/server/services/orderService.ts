@@ -59,12 +59,12 @@ export const updateOrderStatus = async (id: number, status: string) => {
 			const user = await UserRepository.getById(order.user_id);
 			if (user && user.email) {
 				sendStatusUpdateEmail(user.email, status, order.tracking_number).catch((e) => {
-					console.error('Failed to send status update email:', e);
+					logger.error('Failed to send status update email:', e as Error);
 				});
 			}
 		}
 	} catch (e) {
-		console.error('Failed to send status update email:', e);
+		logger.error('Failed to send status update email:', e as Error);
 	}
 	
 	return result;
