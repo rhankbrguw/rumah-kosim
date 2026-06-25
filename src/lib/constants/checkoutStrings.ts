@@ -15,7 +15,13 @@ export const CHECKOUT_STRINGS = {
 		POSTAL: 'Postal Code',
 		PHONE: 'Phone',
 		CONTINUE: 'Continue to Shipping',
-		COUPON_PLACEHOLDER: 'Enter coupon code here'
+		COUPON_PLACEHOLDER: 'Enter coupon code here',
+		SAVED_ADDRESS: 'Pilih Alamat Tersimpan',
+		MAIN: 'Utama',
+		USE_NEW: 'Gunakan Alamat Baru',
+		NEW_DETAIL: 'Detail Alamat Baru',
+		SAVE_INFO: 'Simpan alamat ini untuk ke depannya',
+		LABEL_PLACEHOLDER: 'Beri nama alamat (Contoh: Rumah, Kantor, Kosan)'
 	},
 	SHIPPING: {
 		CONTINUE: 'Continue to Payment',
@@ -29,10 +35,17 @@ export const CHECKOUT_STRINGS = {
 		EXPIRY: 'Expiry Date',
 		CVV: 'CVV',
 		CVV_PLACEHOLDER: '123',
-		PAY: 'Pay Now'
+		PAY: 'Pay Now',
+		SECURE_GATEWAY_TITLE: 'Secure Payment Gateway',
+		SECURE_GATEWAY_DESC: 'You will be securely redirected to Midtrans to complete your transaction with bank-grade encryption.',
+		REDIRECT_SUCCESS: 'Payment Successful!',
+		REDIRECT_DESC: 'Redirecting to your order history...'
 	},
 	MESSAGES: {
 		PAYMENT_SUCCESS: 'Payment processed successfully',
-		PAYMENT_FAILED: 'Payment processing failed'
+		PAYMENT_FAILED: 'Payment processing failed',
+		PAYMENT_CANCELLED: 'Payment cancelled',
+		PAYMENT_PENDING: 'Order placed. Waiting for payment!',
+		INIT_FAILED: 'Failed to initialize payment'
 	}
 };

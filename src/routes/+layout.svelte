@@ -2,15 +2,17 @@
 	import '../app.css';
 	import { Toaster } from 'svelte-sonner';
 	import Header from '$lib/components/Header.svelte';
+	import ChatWidget from '$lib/components/ChatWidget.svelte';
 </script>
 
 <Toaster 
 	position="top-center" 
 	duration={3500}
 	richColors 
-	toastOptions={{
-		style: 'border-radius: 12px; font-family: inherit; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); border: 1px solid var(--color-surface-alt);'
-	}}
+	toastOptions={{ 
+		style: 'border-radius: 12px; font-family: inherit; box-shadow: var(--shadow-lg, 0 10px 15px -3px rgb(0 0 0 / 0.1)); border: 1px solid var(--color-surface-alt);',
+		classes: { toast: 'bg-surface text-text-main' }
+	}} 
 />
 
 <div
@@ -20,6 +22,7 @@
 	<Header />
 	<main>
 		<slot />
+		<ChatWidget />
 	</main>
 </div>
 

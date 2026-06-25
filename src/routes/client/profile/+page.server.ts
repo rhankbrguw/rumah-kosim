@@ -1,8 +1,7 @@
 import { superValidate } from 'sveltekit-superforms';
 import { zod4 as zod } from 'sveltekit-superforms/adapters';
 import { profileSchema } from '$lib/server/validations/auth.js';
-import { getUserById } from '$lib/server/services/authService.js';
-import { updateProfile } from '$lib/server/services/authService.js';
+import { getUserById, updateProfile, getUserAddresses, saveUserAddress } from '$lib/server/services/authService.js';
 import { redirect, fail } from '@sveltejs/kit';
 import bcrypt from 'bcrypt';
 import fs from 'fs';
@@ -35,7 +34,9 @@ export const load = async ({ locals }) => {
 		zod(profileSchema)
 	);
 
-	return { form, avatar: user.avatar };
+	const userAddresses = await getUserAddresses(locals.user.id);
+
+	return { form, avatar: user.avatar, userAddresses };
 };
 
 export const actions = {

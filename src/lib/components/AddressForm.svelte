@@ -9,6 +9,7 @@
 	import type { SuperValidated } from 'sveltekit-superforms';
 	export let data: SuperValidated<Record<string, unknown>>;
 	export let cartItems: { price: number, quantity: number }[] = [];
+	export let userAddresses: any[] = [];
 	export let onSubmitSuccess: (saved: boolean) => void;
 
 	$: subtotal = cartItems.reduce((acc, i) => acc + Number(i.price) * Number(i.quantity), 0);
@@ -20,7 +21,7 @@
 				loading = true;
 				try {
 					checkoutStore.update(s => ({ ...s, items: cartItems, subtotal, shippingCost, total, address: $form.address as string }));
-					onSubmitSuccess?.(saveInfo);
+					onSubmitSuccess?.($form.saveInfo as boolean);
 				} catch (err) {
 					error = (err as Error).message;
 				} finally {
@@ -30,8 +31,7 @@
 		}
 	});
 
-	let saveInfo = false,
-		shippingCost = 0,
+	let shippingCost = 0,
 		loading = false,
 		error = '';
 </script>
@@ -51,7 +51,7 @@
 			{/if}
 			<div class="pt-2">
 				<form method="POST" use:enhance class="space-y-4 sm:space-y-5">
-					<AddressFields bind:form={$form as Record<string, string>} saveInfo={saveInfo} {loading} />
+					<AddressFields bind:form={$form as Record<string, any>} {userAddresses} {loading} />
 				</form>
 			</div>
 		</div>

@@ -44,6 +44,21 @@ export const updateUserAddress = async (userId: number, address: string) => {
 	await UserRepository.updateAddress(userId, address);
 };
 
-export const updateProfile = async (userId: number, data: { username: string, email: string, full_name: string | null, phone: string | null, address: string | null, avatar?: string | null, password?: string }) => {
-	await UserRepository.updateProfile(userId, data);
+export const updateProfile = async (
+	userId: number,
+	data: { username: string; email: string; full_name: string | null; phone: string | null; address: string | null; avatar?: string | null; password?: string }
+) => {
+	return await UserRepository.updateProfile(userId, data);
+};
+
+export const getUserAddresses = async (userId: number) => {
+	return await UserRepository.getUserAddresses(userId);
+};
+
+export const saveUserAddress = async (userId: number, label: string, addressText: string, isPrimary: boolean = false) => {
+	return await UserRepository.saveUserAddress(userId, label, addressText, isPrimary);
+};
+
+export const deleteUserAddress = async (id: number, userId: number) => {
+	return await UserRepository.deleteUserAddress(id, userId);
 };

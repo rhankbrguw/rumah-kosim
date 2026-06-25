@@ -39,7 +39,7 @@ export const actions = {
 			if (!isPasswordValid)
 				return message(form, STRINGS.AUTH.MESSAGES.INVALID_CREDENTIALS, { status: 401 });
 
-			const payload = { id: user.id, username: user.username, email: user.email, role: user.role };
+			const payload = { id: user.id, username: user.username, email: user.email, role: user.role, avatar: user.avatar };
 			const token = jwt.sign(payload, JWT_SECRET, { expiresIn: APP_CONFIG.JWT_EXPIRES_IN });
 
 			cookies.set('authToken', token, { path: '/', httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', maxAge: 86400 });
@@ -96,7 +96,7 @@ export const actions = {
 			const user = await getUserById(form.data.userId);
 			if (!user) return message(form, 'User not found', { status: 404 });
 
-			const payload = { id: user.id, username: user.username, email: user.email, role: user.role };
+			const payload = { id: user.id, username: user.username, email: user.email, role: user.role, avatar: user.avatar };
 			const token = jwt.sign(payload, JWT_SECRET, { expiresIn: APP_CONFIG.JWT_EXPIRES_IN });
 
 			cookies.set('authToken', token, { path: '/', httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', maxAge: 86400 });

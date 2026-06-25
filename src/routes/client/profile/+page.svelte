@@ -4,15 +4,16 @@
 	import { STRINGS } from '$lib/constants/strings';
 	import { Save } from 'lucide-svelte';
 	import { invalidateAll } from '$app/navigation';
-	import ProfileCover from './components/ProfileCover.svelte';
-	import PersonalInfo from './components/PersonalInfo.svelte';
-	import SecurityInfo from './components/SecurityInfo.svelte';
+	import ProfileCover from '../components/ProfileCover.svelte';
+	import PersonalInfo from '../components/PersonalInfo.svelte';
+	import SecurityInfo from '../components/SecurityInfo.svelte';
 	
 	export let data;
 	
 	let avatarPreview: string | null = null;
 
 	const { form, errors, constraints, enhance, message, delayed } = superForm(data.form, {
+		resetForm: false,
 		onResult: async ({ result }) => {
 			if (result.type === 'success') {
 				toast.success(STRINGS.PROFILE.MESSAGES.UPDATE_SUCCESS);
@@ -39,7 +40,7 @@
 
 			<form id="profile_form" method="POST" enctype="multipart/form-data" use:enhance>
 				<PersonalInfo form={$form} errors={$errors} constraints={$constraints} />
-				<SecurityInfo form={$form} errors={$errors} constraints={$constraints} />
+				<SecurityInfo form={$form} errors={$errors} constraints={$constraints} userAddresses={data.userAddresses} />
 
 				<div class="mt-8 flex items-center justify-end border-t border-surface-alt pt-6">
 					<button

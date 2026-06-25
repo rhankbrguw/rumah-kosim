@@ -103,6 +103,11 @@ export const STRINGS = {
 			PASSWORD: 'New Password (leave blank to keep current)',
 			PASSWORD_PLACEHOLDER: '••••••••'
 		},
+		ADDRESS_BOOK: {
+			SAVED_ADDRESS: 'Pilih Alamat Tersimpan',
+			SELECT_PLACEHOLDER: '-- Pilih alamat dari Address Book --',
+			MAIN: 'Utama'
+		},
 		BUTTON_UPDATE: 'Update Profile'
 	},
 	COMMON: {
@@ -133,5 +138,13 @@ export const STRINGS = {
 		IMAGE_UPDATED: 'Image updated',
 		IMAGE_UPLOADED: 'Image uploaded: ',
 		UPLOAD_FAILED: 'Upload failed'
+	},
+	AI_CS: {
+		TITLE: 'Rumah Kosim AI',
+		SUBTITLE: 'Online • Industry Standard CS',
+		GREETING: 'Halo! Saya AI Assistant Rumah Kosim Book. Ada yang bisa saya bantu terkait ketersediaan buku hari ini?',
+		PLACEHOLDER: 'Tanya ketersediaan buku...',
+		ERROR_SERVER: 'Maaf, terjadi kesalahan pada server kami.',
+		ERROR_CONNECTION: 'Koneksi terputus. Silakan coba lagi.'
 	}
 };

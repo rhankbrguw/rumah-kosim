@@ -13,4 +13,4 @@
 	}
 </script>
 
-<AddressForm data={data.form} cartItems={data.cartItems} onSubmitSuccess={handleSuccess} />
+<AddressForm data={data.form} cartItems={data.cartItems} userAddresses={data.userAddresses} onSubmitSuccess={handleSuccess} />

@@ -13,6 +13,7 @@
 	import PaymentMethodSelector from './PaymentMethodSelector.svelte';
 	import { superForm } from 'sveltekit-superforms';
 	import type { SuperValidated } from 'sveltekit-superforms';
+	import { Lock } from 'lucide-svelte';
 
 	export let data: SuperValidated<Record<string, unknown>>;
 	export let cartItems: { price: number, quantity: number, title?: string, image?: string }[] = [];
@@ -114,17 +115,26 @@
 				<input type="hidden" name="shippingMethod" value={$form.shippingMethod} />
 				<input type="hidden" name="paymentMethod" value={$form.paymentMethod} />
 
-				<div class="py-4 text-center">
-					<img src="/images/midtrans-logo.png" alt="Midtrans" onerror="this.src='/images/applePay.png'" class="mx-auto h-16 object-contain mb-4" />
-					<p class="mt-4 text-sm text-text-muted">You will be securely redirected to Midtrans to complete your payment.</p>
+				<div class="rounded-2xl border border-surface-alt/80 bg-surface-alt/20 p-6 text-center backdrop-blur-md transition-all hover:bg-surface-alt/40">
+					<div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-surface-alt shadow-sm">
+						<Lock size={24} class="text-primary" />
+					</div>
+					<img src="/images/midtrans-logo.png" alt="Midtrans" on:error={(e) => ((e.currentTarget as HTMLImageElement).src='/images/applePay.png')} class="mx-auto h-8 object-contain mb-3 grayscale transition-all hover:grayscale-0" />
+					<h3 class="mb-1 text-sm font-semibold text-text-main">Secure Payment Gateway</h3>
+					<p class="text-xs text-text-muted">You will be securely redirected to Midtrans to complete your transaction with bank-grade encryption.</p>
 				</div>
 
 				<button
 					type="submit"
 					disabled={loading}
-					class="w-full rounded-xl bg-primary py-3 font-bold text-text-inverse transition-colors hover:bg-primary-hover disabled:opacity-50"
+					class="mt-6 w-full rounded-xl bg-primary py-4 text-center font-bold text-secondary shadow-lg transition-transform hover:-translate-y-1 hover:bg-primary-hover active:translate-y-0 disabled:opacity-70 flex items-center justify-center gap-2"
 				>
-					{loading ? STRINGS.COMMON.LOADING : STRINGS.CHECKOUT.PAYMENT.PAY}
+					{#if loading}
+						<div class="h-5 w-5 animate-spin rounded-full border-2 border-secondary border-t-transparent"></div>
+						{STRINGS.COMMON.LOADING}
+					{:else}
+						{STRINGS.CHECKOUT.PAYMENT.PAY}
+					{/if}
 				</button>
 			</form>
 		</div>
