@@ -32,7 +32,7 @@ const createCheckoutStore = () => {
 			try {
 				initialState = { ...defaultState, ...JSON.parse(stored) };
 			} catch (e) {
-				// Failed to parse, ignore
+				// Suppress parsing exceptions during initialization
 			}
 		}
 	}

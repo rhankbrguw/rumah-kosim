@@ -25,7 +25,7 @@ export async function GET({ request }) {
 	}
 }
 
-// Helper schema that coerces strings to numbers since formData/json might send strings
+// Coercion schema for HTTP multipart/form-data boundary payloads
 const adminProductSchema = z.object({
 	title: z.string().min(1, 'Title is required').trim(),
 	price: z.coerce.number().positive('Valid price is required'),

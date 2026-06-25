@@ -22,7 +22,7 @@ export async function GET({ url }) {
 		const product = await ProductService.getById(validation.data.id);
 
 		if (product) {
-			// Provide dynamic editorial review based on the specific product
+			// Inject context-aware editorial metadata
 			product.editorialReview = {
 				headline: `The #1 Bestseller: ${product.title}\nOver 10 million copies sold!`,
 				body: `Discover the groundbreaking insights of ${product.title}.\n\nNo matter your goals, this book offers a proven framework for improving. Critics and readers alike are raving about this masterpiece. Whether you're looking to change your perspective or just find a captivating read, ${product.title} delivers an unforgettable experience that will leave a lasting impact.\n\n"A truly remarkable journey from start to finish." — The Book Review`

@@ -1,48 +1,54 @@
 <div align="center">
 
-# RumahKosimBooks
+# Rumah Kosim Book
 
-[![SvelteKit](https://img.shields.io/badge/SvelteKit-FF3E00?style=flat-square&logo=svelte&logoColor=white)](https://kit.svelte.dev/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
-[![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=flat-square&logo=mysql&logoColor=white)](https://www.mysql.com/)
-[![JWT](https://img.shields.io/badge/JWT-Auth-000000?style=flat-square&logo=jsonwebtokens&logoColor=white)](https://jwt.io/)
-[![Node.js](https://img.shields.io/badge/Node.js-v14+-5FA04E?style=flat-square&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
+[![SvelteKit](https://img.shields.io/badge/SvelteKit-FF3E00?style=for-the-badge&logo=svelte&logoColor=white)](https://kit.svelte.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+[![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](https://www.mysql.com/)
+[![Midtrans](https://img.shields.io/badge/Midtrans-00A9E0?style=for-the-badge)](https://midtrans.com/)
+[![Gemini AI](https://img.shields.io/badge/Google_Gemini-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://deepmind.google/technologies/gemini/)
 
-A full-stack book management web application built with SvelteKit, featuring user authentication and complete CRUD operations.
+A full-stack book management web application built with SvelteKit, featuring user authentication, payment gateway integration, and complete E-Commerce operations.
 
 </div>
 
 ---
 
-## Architecture & Tech Stack
+## Architecture & Technology Stack
 
-The application strictly adheres to a **Strict Layered Architecture** (`Controllers -> Services -> Repositories -> Database`) and is fully SSR-first.
+The application strictly adheres to a **Strict Layered Architecture** (`Controllers -> Services -> Repositories -> Database`) and follows an SSR-first approach to ensure maximum performance and maintainability.
 
 | Layer       | Technologies                                             |
 | ----------- | -------------------------------------------------------- |
 | Frontend    | SvelteKit, Tailwind CSS, Superforms (Zod), Lucide Svelte |
 | Backend     | SvelteKit Server-Side Rendering (SSR), Form Actions      |
-| Services    | TypeScript, bcrypt, JWT (HTTP-Only Cookies)              |
+| Services    | TypeScript, bcrypt, JWT, Midtrans SDK, Google Gen AI     |
 | Persistence | MySQL2 (Stored Procedures, Parameterized Queries)        |
 
 ---
 
-## Features
+## Core Features
 
-- **SSR-First Approach:** Zero client-side data fetching (`onMount`), guaranteeing blazing-fast initial load times and robust SEO.
-- **SvelteKit Form Actions:** All data mutations (Checkout, Add to Cart, Login, Register, Admin Panel) are processed strictly via native HTML forms (`use:enhance`), eliminating the need for `axios` or client-side REST APIs.
+- **SSR-First Approach:** Zero client-side data fetching. Data is loaded sequentially via `+page.server.ts`, guaranteeing robust SEO and fast initial load times.
+- **SvelteKit Form Actions:** All data mutations (Checkout, Add to Cart, Login, Register) are processed strictly via native HTML forms enhanced with `use:enhance`.
 - **Secure Authentication:** Pure server-side session validation using HTTP-Only, Secure cookies for JWT.
-- **Strict Data Validation:** Integrated `sveltekit-superforms` paired with `Zod` for unbreakable client and server validation.
-- **E-Commerce Flow:** Complete shopping cart, checkout, and order history workflows.
-- **Admin Panel:** Comprehensive dashboard for tracking orders, updating stock, and product image uploads.
+- **Strict Data Validation:** Integrated `sveltekit-superforms` paired with `zod` for unbreakable client and server payload validation.
+- **E-Commerce Workflow:** Complete shopping cart, address book persistence, real-time checkout updates, and Snap payment gateway integration (Midtrans).
+- **Admin Capabilities:** Comprehensive dashboard for tracking orders, updating product stock, and processing image uploads.
+- **AI Customer Service:** Integrated chat functionality powered by Google Gemini API to assist customers with product inquiries.
 
 ---
 
-## Getting Started
+## Installation & Setup Guide
 
-**Prerequisites:** Node.js v14+, MySQL, npm/pnpm/yarn
+**System Requirements:**
+- Node.js v18.0.0 or higher
+- MySQL v8.0+
+- npm, yarn, or pnpm
 
-1. Clone and install:
+### 1. Repository Setup
+
+Clone the repository and install dependencies:
 
 ```bash
 git clone https://github.com/Samaele13/rumah-kosim-sveltekit.git
@@ -50,35 +56,56 @@ cd rumah-kosim-sveltekit
 npm install
 ```
 
-2. Create a `.env` file:
+### 2. Environment Configuration
+
+Create a `.env` file in the root directory and configure the required variables. Use the provided keys for sandbox testing:
 
 ```env
-DATABASE_URL="mysql://user:password@localhost:3306/database_name"
-JWT_SECRET="your_jwt_secret"
+DATABASE_URL="mysql://user:password@localhost:3306/rumah_kosim"
+JWT_SECRET="your_secure_jwt_secret"
+
+# Midtrans Configuration
+MIDTRANS_SERVER_KEY="your_midtrans_server_key"
+PUBLIC_MIDTRANS_CLIENT_KEY="your_midtrans_client_key"
+MIDTRANS_IS_PRODUCTION="false"
+
+# Google Gemini API
+GEMINI_API_KEY="your_gemini_api_key"
 ```
 
-3. Set up the MySQL database and import the provided SQL scripts.
+### 3. Database Initialization
 
-4. Run the development server:
+The application requires an initialized database schema to operate. Import the provided schema file located at the root of the project into your MySQL instance:
+
+```bash
+mysql -u your_username -p rumah_kosim < database_schema.sql
+```
+
+Alternatively, run the migration script if configured:
+```bash
+node src/lib/server/scripts/migrate.js
+```
+
+### 4. Development Server
+
+Start the Vite development server:
 
 ```bash
 npm run dev
 ```
 
+The application will be accessible at `http://localhost:5173`.
+
 ---
 
-## Build
+## Production Build
+
+To compile the application for production deployment:
 
 ```bash
 npm run build
 npm run preview
 ```
-
----
-
-## License
-
-This project was created for academic purposes only and is not licensed for public or commercial use.
 
 ---
 

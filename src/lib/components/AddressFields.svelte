@@ -28,11 +28,11 @@
 			selectedAddressIndex = idx.toString();
 			useNewAddress = false;
 		} else if (form.address) {
-			// If form has address but not in saved list, it's a new address
+			// Fallback allocation for unmatched addresses
 			selectedAddressIndex = 'new';
 			useNewAddress = true;
 		} else {
-			// Default to first saved address if available
+			// Pre-select primary index 0
 			selectedAddressIndex = '0';
 			useNewAddress = false;
 			try {
