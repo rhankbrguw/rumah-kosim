@@ -16,3 +16,12 @@ export const registerSchema = z.object({
 export const validateTokenSchema = z.object({
 	token: z.string().min(1, 'Token is required')
 });
+
+export const profileSchema = z.object({
+	username: z.string().min(1, 'Username is required'),
+	email: z.string().email('Invalid email address'),
+	full_name: z.string().nullable().optional(),
+	phone: z.string().nullable().optional(),
+	address: z.string().nullable().optional(),
+	password: z.string().min(6, 'Password must be at least 6 characters').or(z.literal('')).optional()
+});

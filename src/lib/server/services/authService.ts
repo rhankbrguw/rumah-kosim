@@ -43,3 +43,7 @@ export const getUserAddress = async (userId: number) => {
 export const updateUserAddress = async (userId: number, address: string) => {
 	await UserRepository.updateAddress(userId, address);
 };
+
+export const updateProfile = async (userId: number, data: { username: string, email: string, full_name: string | null, phone: string | null, address: string | null, avatar?: string | null, password?: string }) => {
+	await UserRepository.updateProfile(userId, data);
+};

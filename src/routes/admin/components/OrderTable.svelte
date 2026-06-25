@@ -24,7 +24,6 @@
 </script>
 
 <div class="rounded-2xl border border-surface-alt/50 bg-surface/80 p-6 shadow-sm backdrop-blur-md" transition:fade>
-	<!-- Mobile Card View -->
 	<div class="grid grid-cols-1 gap-4 md:hidden">
 		{#each orders as order (order.id)}
 			<div class="flex flex-col rounded-xl border border-surface-alt bg-surface-alt/20 p-4 shadow-sm">
@@ -65,8 +64,7 @@
 		{/each}
 	</div>
 
-	<!-- Desktop Table View -->
-	<div class="hidden overflow-x-auto md:block">
+	<div class="hidden overflow-hidden rounded-xl border border-surface-alt bg-surface shadow-sm md:block">
 		<table class="w-full whitespace-nowrap text-center">
 			<thead>
 				<tr class="border-b border-surface-alt text-secondary">
@@ -115,7 +113,6 @@
 	</div>
 </div>
 
-<!-- Order Details Modal -->
 {#if selectedOrder}
 	<OrderDetailsModal order={selectedOrder} on:close={() => selectedOrder = null} />
 {/if}

@@ -3,19 +3,19 @@ import { dbRepository as db } from '$lib/server/repositories/dbRepository.js';
 
 export const UserRepository = {
 	async getByUsername(username: string) {
-		const sql = 'SELECT id, username, password, email, role FROM users WHERE username = ?';
+		const sql = 'SELECT id, username, password, email, role, avatar FROM users WHERE username = ?';
 		const rows = (await db.query(sql, [username])) as RowDataPacket[];
 		return rows[0] || null;
 	},
 
 	async getByEmail(email: string) {
-		const sql = 'SELECT id, username, password, email, role, is_verified, otp, otp_expires_at, reset_token, reset_expires_at FROM users WHERE email = ?';
+		const sql = 'SELECT id, username, password, email, role, is_verified, otp, otp_expires_at, reset_token, reset_expires_at, avatar FROM users WHERE email = ?';
 		const rows = (await db.query(sql, [email])) as RowDataPacket[];
 		return rows[0] || null;
 	},
 
 	async getById(id: number) {
-		const sql = 'SELECT id, username, password, email, role FROM users WHERE id = ?';
+		const sql = 'SELECT id, username, password, email, role, full_name, phone, address, avatar FROM users WHERE id = ?';
 		const rows = (await db.query(sql, [id])) as RowDataPacket[];
 		return rows[0] || null;
 	},
@@ -91,5 +91,33 @@ export const UserRepository = {
 
 	async updateAddress(userId: number, address: string) {
 		await db.query('UPDATE users SET address = ? WHERE id = ?', [address, userId]);
+	},
+
+	async updateProfile(userId: number, data: { username: string, email: string, full_name: string | null, phone: string | null, address: string | null, avatar?: string | null, password?: string }) {
+		if (data.password) {
+			if (data.avatar !== undefined) {
+				await db.query(
+					'UPDATE users SET username = ?, email = ?, full_name = ?, phone = ?, address = ?, avatar = ?, password = ? WHERE id = ?',
+					[data.username, data.email, data.full_name, data.phone, data.address, data.avatar, data.password, userId]
+				);
+			} else {
+				await db.query(
+					'UPDATE users SET username = ?, email = ?, full_name = ?, phone = ?, address = ?, password = ? WHERE id = ?',
+					[data.username, data.email, data.full_name, data.phone, data.address, data.password, userId]
+				);
+			}
+		} else {
+			if (data.avatar !== undefined) {
+				await db.query(
+					'UPDATE users SET username = ?, email = ?, full_name = ?, phone = ?, address = ?, avatar = ? WHERE id = ?',
+					[data.username, data.email, data.full_name, data.phone, data.address, data.avatar, userId]
+				);
+			} else {
+				await db.query(
+					'UPDATE users SET username = ?, email = ?, full_name = ?, phone = ?, address = ? WHERE id = ?',
+					[data.username, data.email, data.full_name, data.phone, data.address, userId]
+				);
+			}
+		}
 	}
 };

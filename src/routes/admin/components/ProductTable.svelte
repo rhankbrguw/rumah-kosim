@@ -29,8 +29,7 @@
 		</button>
 	</div>
 
-	<!-- Mobile Card View -->
-	<div class="grid grid-cols-1 gap-4 md:hidden">
+	<div class="grid gap-4 md:hidden">
 		{#each products.filter((p) => p.title.toLowerCase().includes(searchTerm.toLowerCase())) as product (product.id)}
 			<div class="flex flex-col rounded-xl border border-surface-alt bg-surface-alt/20 p-4 shadow-sm">
 				<div class="mb-3 flex items-start gap-4">
@@ -62,8 +61,7 @@
 		{/each}
 	</div>
 
-	<!-- Desktop Table View -->
-	<div class="hidden overflow-x-auto md:block">
+	<div class="hidden overflow-hidden rounded-xl border border-surface-alt bg-surface shadow-sm md:block">
 		<table class="w-full whitespace-nowrap text-center">
 			<thead>
 				<tr class="border-b border-surface-alt text-secondary">

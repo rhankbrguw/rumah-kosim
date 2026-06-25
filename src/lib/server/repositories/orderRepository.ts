@@ -83,13 +83,6 @@ export const OrderRepository = {
 		if (orders.length === 0) return orders;
 
 		const orderIds = orders.map(o => o.id);
-		const itemsSql = `
-			SELECT
-				oi.order_id, oi.quantity, oi.price_at_time, oi.product_id,
-				p.title, p.image,
-				r.id as review_id, r.comment as review_comment, r.rating as review_rating
-			FROM order_items oi
-			JOIN products p ON p.id = oi.product_id
 		const itemsSql = `SELECT oi.order_id, oi.quantity, oi.price_at_time, oi.product_id, p.title, p.image, r.id as review_id, r.comment as review_comment, r.rating as review_rating FROM order_items oi JOIN products p ON p.id = oi.product_id LEFT JOIN reviews r ON r.order_id = oi.order_id AND r.product_id = oi.product_id WHERE oi.order_id IN (${orderIds.map(() => '?').join(',')})`;
 		const allItems = (await db.query(itemsSql, orderIds)) as RowDataPacket[];
 

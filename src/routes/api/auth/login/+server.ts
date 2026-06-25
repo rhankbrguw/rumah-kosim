@@ -55,7 +55,7 @@ export async function POST({ request, locals, cookies }) {
 		);
 	}
 
-	const payload = { id: user.id, username: user.username, email: user.email, role: user.role };
+	const payload = { id: user.id, username: user.username, email: user.email, role: user.role, avatar: user.avatar };
 	const token = jwt.sign(payload, JWT_SECRET, { expiresIn: APP_CONFIG.JWT_EXPIRES_IN });
 
 	cookies.set('authToken', token, {
@@ -68,7 +68,7 @@ export async function POST({ request, locals, cookies }) {
 
 	return jsonResponse(
 		{
-			user: { username: user.username, email: user.email, role: user.role }
+			user: { username: user.username, email: user.email, role: user.role, avatar: user.avatar }
 		},
 		MESSAGES.SUCCESS.AUTH
 	);

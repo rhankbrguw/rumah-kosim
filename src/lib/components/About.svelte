@@ -1,11 +1,9 @@
 <script lang="ts">
-		import imageSrc from '$lib/assets/image/banner-4.png';
+	import imageSrc from '$lib/assets/image/banner-4.png';
+	import { STRINGS } from '$lib/constants/strings';
 
-	export let title: string = 'What is RumahKosimBook?';
-	export let description: string[] = [
-		`RumahKosimBook is a cozy and vibrant bookstore located in the heart of Jakarta. Established with a passion for literature and learning, RumahKosimBook offers a wide selection of books ranging from fiction, non-fiction, educational resources, to rare and collectible editions.`,
-		`Our mission is to inspire a love for reading and provide a welcoming space where book enthusiasts can explore, discover, and immerse themselves in the world of knowledge and imagination. Whether you're looking for the latest bestseller, a classic novel, or a special gift for a fellow book lover, RumahKosimBook has something for everyone.`
-	];
+	export let title: string = STRINGS.ABOUT.TITLE;
+	export let description: string[] = STRINGS.ABOUT.DESCRIPTION;
 </script>
 
 <section
@@ -13,7 +11,7 @@
 >
 	<img
 		src={imageSrc}
-		alt="Profile of Founder"
+		alt={STRINGS.ABOUT.IMAGE_ALT}
 		class="h-32 w-32 rounded-full border border-secondary object-cover shadow-sm sm:h-40 sm:w-40 md:h-48 md:w-48 lg:h-56 lg:w-56"
 	/>
 

@@ -6,7 +6,7 @@
 	import { UserCircle, LogIn } from 'lucide-svelte';
 
 	let isAuthenticated = false,
-		user: { username: string, role: string } | null = null,
+		user: { username: string, role: string, avatar?: string } | null = null,
 		isMobileMenuOpen = false;
 
 	$: isHome = $page.url.pathname === '/';
@@ -65,17 +65,27 @@
 			<div class="group relative hidden md:block">
 				<div class="flex cursor-pointer items-center transition-transform hover:scale-110">
 					<div class={isHome ? 'text-text-inverse/80 hover:text-text-inverse' : 'text-text-muted hover:text-primary'}>
-						<UserCircle size={28} strokeWidth={1.5} />
+						{#if user?.avatar}
+							<img src={user.avatar} alt="Avatar" class="h-8 w-8 rounded-full object-cover shadow-sm border border-surface-alt" />
+						{:else}
+							<UserCircle size={28} strokeWidth={1.5} />
+						{/if}
 					</div>
 				</div>
 				<div
 					class="absolute right-0 hidden w-48 rounded-md border border-surface-alt bg-surface shadow-md group-hover:block"
 				>
 					<a
+						href="/client/profile"
+						class="block px-4 py-2 text-sm text-text-muted hover:bg-surface-alt hover:text-primary"
+					>
+						👤 Profile
+					</a>
+					<a
 						href={user?.role === 'admin' ? '/admin' : '/client/profile/history'}
 						class="block px-4 py-2 text-sm text-text-muted hover:bg-surface-alt hover:text-primary"
 					>
-						{user?.role === 'admin' ? '⚙️Settings' : '👤 Profile'}
+						{user?.role === 'admin' ? '⚙️ Settings' : '📜 History'}
 					</a>
 					<button
 						on:click={handleLogout}
@@ -110,8 +120,11 @@
 					><LogIn size={20} /> Auth</a
 				>
 			{:else}
+				<a href="/client/profile" class="px-4 py-2 text-sm text-text-muted hover:text-primary">
+					👤 Profile
+				</a>
 				<a href={user?.role === 'admin' ? '/admin' : '/client/profile/history'} class="px-4 py-2 text-sm text-text-muted hover:text-primary">
-					{user?.role === 'admin' ? '⚙️ Settings' : '👤 Profile'}
+					{user?.role === 'admin' ? '⚙️ Settings' : '📜 History'}
 				</a>
 				<button on:click={handleLogout} class="w-full cursor-pointer px-4 py-2 text-left text-sm text-danger hover:text-danger-hover">
 					Logout
