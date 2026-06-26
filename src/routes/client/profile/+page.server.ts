@@ -69,9 +69,13 @@ export const actions = {
 			if (avatarFile && avatarFile.size > 0) {
 				const ext = avatarFile.name.split('.').pop() || 'png';
 				const filename = `avatar_${locals.user.id}_${Date.now()}.${ext}`;
+				const uploadDir = 'static/uploads/avatars';
+				if (!fs.existsSync(uploadDir)) {
+					fs.mkdirSync(uploadDir, { recursive: true });
+				}
 				const arrayBuffer = await avatarFile.arrayBuffer();
 				const buffer = Buffer.from(arrayBuffer);
-				fs.writeFileSync(`static/uploads/avatars/${filename}`, buffer);
+				fs.writeFileSync(`${uploadDir}/${filename}`, buffer);
 				dataToUpdate.avatar = `/uploads/avatars/${filename}`;
 			}
 
