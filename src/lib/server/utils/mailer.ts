@@ -3,15 +3,19 @@ import { COLORS } from '$lib/constants/colors.js';
 import { STRINGS } from '$lib/constants/strings.js';
 import { baseStyles, containerStyles, headingStyles, buttonStyles } from './emailStyles.js';
 
+import { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_SECURE, SMTP_FROM, SMTP_FROM_NAME } from '$env/static/private';
+
 const transporter = nodemailer.createTransport({
-	service: 'gmail',
+	host: SMTP_HOST,
+	port: Number(SMTP_PORT),
+	secure: SMTP_SECURE === 'true' || SMTP_SECURE === 'ssl',
 	auth: {
-		user: 'rhankbrguwdev@gmail.com',
-		pass: 'fbnu tzqh asld embx'
+		user: SMTP_USER,
+		pass: SMTP_PASS
 	}
 });
 
-const SENDER = '"Rumah-Kosim Team" <rhankbrguwdev@gmail.com>';
+const SENDER = `"${SMTP_FROM_NAME}" <${SMTP_FROM}>`;
 
 const send = (to: string, subject: string, html: string) => transporter.sendMail({ from: SENDER, to, subject, html });
 
