@@ -2,11 +2,11 @@
 
 # Rumah Kosim Book
 
-[![SvelteKit](https://img.shields.io/badge/SvelteKit-FF3E00?style=for-the-badge&logo=svelte&logoColor=white)](https://kit.svelte.dev/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
-[![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](https://www.mysql.com/)
-[![Midtrans](https://img.shields.io/badge/Midtrans-00A9E0?style=for-the-badge)](https://midtrans.com/)
-[![Gemini AI](https://img.shields.io/badge/Google_Gemini-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://deepmind.google/technologies/gemini/)
+[![SvelteKit](https://img.shields.io/badge/SvelteKit-FF3E00?style=flat-square&logo=svelte&logoColor=white)](https://kit.svelte.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+[![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=flat-square&logo=mysql&logoColor=white)](https://www.mysql.com/)
+[![Midtrans](https://img.shields.io/badge/Midtrans-00A9E0?style=flat-square)](https://midtrans.com/)
+[![Gemini AI](https://img.shields.io/badge/Google_Gemini-4285F4?style=flat-square&logo=google&logoColor=white)](https://deepmind.google/technologies/gemini/)
 
 A full-stack book management web application built with SvelteKit, featuring user authentication, payment gateway integration, and complete E-Commerce operations.
 
@@ -78,12 +78,7 @@ GEMINI_API_KEY="your_gemini_api_key"
 The application requires an initialized database schema to operate. Import the provided schema file located at the root of the project into your MySQL instance:
 
 ```bash
-mysql -u your_username -p rumah_kosim < database_schema.sql
-```
-
-Alternatively, run the migration script if configured:
-```bash
-node src/lib/server/scripts/migrate.js
+mysql -u your_username -p rumah_kosim < schema.sql
 ```
 
 ### 4. Development Server
