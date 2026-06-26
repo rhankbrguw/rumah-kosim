@@ -2,11 +2,12 @@
 
 # Rumah Kosim Book
 
-[![SvelteKit](https://img.shields.io/badge/SvelteKit-FF3E00?style=flat-square&logo=svelte&logoColor=white)](https://kit.svelte.dev/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
-[![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=flat-square&logo=mysql&logoColor=white)](https://www.mysql.com/)
-[![Midtrans](https://img.shields.io/badge/Midtrans-00A9E0?style=flat-square)](https://midtrans.com/)
-[![Gemini AI](https://img.shields.io/badge/Google_Gemini-4285F4?style=flat-square&logo=google&logoColor=white)](https://deepmind.google/technologies/gemini/)
+[![SvelteKit v2.9](https://img.shields.io/badge/SvelteKit_v2.9-FF3E00?style=flat-square&logo=svelte&logoColor=white)](https://kit.svelte.dev/)
+[![Tailwind CSS v3.4](https://img.shields.io/badge/Tailwind_CSS_v3.4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+[![MySQL v8.0+](https://img.shields.io/badge/MySQL_v8.0+-4479A1?style=flat-square&logo=mysql&logoColor=white)](https://www.mysql.com/)
+[![Midtrans](https://img.shields.io/badge/Midtrans_API-00A9E0?style=flat-square)](https://midtrans.com/)
+[![Gemini AI](https://img.shields.io/badge/Google_Gemini_v2.10-4285F4?style=flat-square&logo=google&logoColor=white)](https://deepmind.google/technologies/gemini/)
+[![Node.js v18+](https://img.shields.io/badge/Node.js_v18+-5FA04E?style=flat-square&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
 
 A full-stack book management web application built with SvelteKit, featuring user authentication, payment gateway integration, and complete E-Commerce operations.
 
