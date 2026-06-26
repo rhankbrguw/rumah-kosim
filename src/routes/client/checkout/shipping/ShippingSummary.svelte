@@ -18,11 +18,13 @@
 	<div class="space-y-4">
 		{#each cartItems as item}
 			<div class="flex gap-3 sm:gap-4">
-				<img
-					src="/images/{item.image?.split('/').pop()}"
-					alt={item.title}
-					class="h-16 w-12 rounded-lg object-cover sm:h-20 sm:w-16"
-				/>
+				<div class="h-16 w-16 overflow-hidden rounded-lg border border-secondary/20 bg-surface shadow-sm">
+					<img
+						src={item.image || STRINGS.SHOP.FALLBACK_IMAGE}
+						alt={item.title || 'Product'}
+						class="h-full w-full object-cover transition-transform hover:scale-105"
+					/>
+				</div>
 				<div class="min-w-0 flex-1">
 					<h3 class="text-sm font-medium text-text-main sm:text-base">{item.title}</h3>
 					<p class="text-xs text-text-muted sm:text-sm">Qty: {item.quantity}</p>

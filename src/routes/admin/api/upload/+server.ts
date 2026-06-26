@@ -38,7 +38,7 @@ export async function POST({ request }) {
 		const filename = `${Date.now()}-${Math.random().toString(36).substring(7)}.${extension}`;
 
 
-		const uploadDir = join(process.cwd(), 'static', 'images');
+		const uploadDir = join(process.cwd(), 'static', 'uploads', 'products');
 		await ensureDir(uploadDir);
 
 
@@ -50,7 +50,7 @@ export async function POST({ request }) {
 
 		return json({
 			success: true,
-			imagePath: `/images/${filename}`
+			imagePath: `/uploads/products/${filename}`
 		});
 	} catch (error) {
 		logger.error('Upload error:', error as Error);
