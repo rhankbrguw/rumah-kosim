@@ -1,12 +1,11 @@
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
-import { JWT_SECRET } from '$env/static/private';
 import { APP_CONFIG, HTTP_STATUS, ERROR_CODES } from '$lib/constants/config.js';
 import { logger } from '$lib/server/utils/logger.js';
 import { jsonResponse, errorResponse } from '$lib/server/utils/response.js';
 import { MESSAGES } from '$lib/constants/messages.js';
+import { STRINGS } from '$lib/constants/strings.js';
 import { loginSchema } from '$lib/server/validations/auth.js';
-import { getUserByUsername } from '$lib/server/services/authService.js';
+import { loginUser } from '$lib/server/services/authService.js';
+import { AuthException } from '$lib/server/utils/exceptions.js';
 
 export async function POST({ request, locals, cookies }) {
 	const body = await request.json();
@@ -22,11 +21,33 @@ export async function POST({ request, locals, cookies }) {
 	}
 
 	const { username, password } = validation.data;
-	let user;
 
 	try {
-		user = await getUserByUsername(username);
+		const { user, token } = await loginUser(username, password, false);
+
+		cookies.set('authToken', token, {
+			path: '/',
+			httpOnly: true,
+			secure: process.env.NODE_ENV === 'production',
+			sameSite: 'strict',
+			maxAge: APP_CONFIG.COOKIE_MAX_AGE
+		});
+
+		return jsonResponse(
+			{
+				user: { username: user.username, email: user.email, role: user.role, avatar: user.avatar }
+			},
+			MESSAGES.SUCCESS.AUTH
+		);
 	} catch (error) {
+		if (error instanceof AuthException && error.message === 'INVALID_CREDENTIALS') {
+			return errorResponse(
+				STRINGS.AUTH.MESSAGES.INVALID_CREDENTIALS,
+				HTTP_STATUS.UNAUTHORIZED,
+				ERROR_CODES.UNAUTHENTICATED
+			);
+		}
+
 		logger.error('Database error during login:', error as Error, {
 			correlationId: locals?.correlationId
 		});
@@ -37,39 +58,4 @@ export async function POST({ request, locals, cookies }) {
 			ERROR_CODES.INTERNAL_ERROR
 		);
 	}
-
-	if (!user) {
-		return errorResponse(
-			'Invalid username or password',
-			HTTP_STATUS.UNAUTHORIZED,
-			ERROR_CODES.UNAUTHENTICATED
-		);
-	}
-
-	const isPasswordValid = await bcrypt.compare(password, user.password);
-	if (!isPasswordValid) {
-		return errorResponse(
-			'Invalid username or password',
-			HTTP_STATUS.UNAUTHORIZED,
-			ERROR_CODES.UNAUTHENTICATED
-		);
-	}
-
-	const payload = { id: user.id, username: user.username, email: user.email, role: user.role, avatar: user.avatar };
-	const token = jwt.sign(payload, JWT_SECRET, { expiresIn: APP_CONFIG.JWT_EXPIRES_IN });
-
-	cookies.set('authToken', token, {
-		path: '/',
-		httpOnly: true,
-		secure: process.env.NODE_ENV === 'production',
-		sameSite: 'strict',
-		maxAge: 60 * 60 * 24 // 1 day
-	});
-
-	return jsonResponse(
-		{
-			user: { username: user.username, email: user.email, role: user.role, avatar: user.avatar }
-		},
-		MESSAGES.SUCCESS.AUTH
-	);
 }

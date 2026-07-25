@@ -1,7 +1,10 @@
 import { ADMIN_STRINGS } from './adminStrings';
 import { AUTH_STRINGS } from './authStrings';
 import { CHECKOUT_STRINGS } from './checkoutStrings';
-
+import { EMAIL_STRINGS } from './emailStrings';
+import { PROFILE_STRINGS } from './profileStrings';
+import { ORDER_STRINGS } from './orderStrings';
+import { RESET_PASSWORD_STRINGS } from './resetPasswordStrings';
 export const STRINGS = {
 	ADMIN: ADMIN_STRINGS,
 	HERO: {
@@ -27,32 +30,7 @@ export const STRINGS = {
 		FALLBACK_IMAGE: '/images/placeholder.jpg'
 	},
 	AUTH: AUTH_STRINGS,
-	EMAIL: {
-		INVOICE: {
-			TITLE: 'Order Confirmation',
-			SUBJECT: 'Your Rumah-Kosim Invoice',
-			GREETING: 'Thank you for your order!',
-			MESSAGE: 'Your order has been received and is currently being processed. Here are the details:',
-			TOTAL: 'Total:',
-			SHIPPING_ADDRESS: 'Shipping Address:',
-			TRACKING: 'Tracking Number:',
-			BUTTON: 'View Order History'
-		},
-		SHIPPING: {
-			TITLE: 'Shipping Update',
-			SUBJECT: 'Your order status has been updated',
-			GREETING: 'Good news about your order!',
-			MESSAGE: 'Your order status has been updated to:',
-			TRACKING: 'Your tracking number is:',
-			BUTTON: 'Track Order'
-		},
-		ADMIN: {
-			TITLE: 'New Order Received',
-			SUBJECT: 'New Order Alert - Rumah Kosim',
-			MESSAGE: 'A new order has been placed by',
-			BUTTON: 'View Order Dashboard'
-		}
-	},
+	EMAIL: EMAIL_STRINGS,
 	CART: {
 		TITLE: 'Shopping Cart',
 		EMPTY: 'Your cart is empty',
@@ -85,34 +63,9 @@ export const STRINGS = {
 		ADDRESS: 'Address:',
 		ORDER_ITEMS: 'Order Items'
 	},
-	PROFILE: {
-		MESSAGES: {
-			REVIEW_SUCCESS: 'Review submitted successfully!',
-			REVIEW_DUPLICATE: 'You have already reviewed this product',
-			REVIEW_FAILED: 'Failed to submit review',
-			UPDATE_SUCCESS: 'Profile updated successfully!'
-		},
-		TITLE: 'My Profile',
-		FIELDS: {
-			FULL_NAME: 'Full Name',
-			FULL_NAME_PLACEHOLDER: 'John Doe',
-			PHONE: 'Phone Number',
-			PHONE_PREFIX: '+62',
-			PHONE_PLACEHOLDER: '812 3456 7890',
-			USERNAME: 'Username',
-			EMAIL: 'Email',
-			ADDRESS: 'Address',
-			ADDRESS_PLACEHOLDER: '123 Main St, City, Country',
-			PASSWORD: 'New Password (leave blank to keep current)',
-			PASSWORD_PLACEHOLDER: '••••••••'
-		},
-		ADDRESS_BOOK: {
-			SAVED_ADDRESS: 'Pilih Alamat Tersimpan',
-			SELECT_PLACEHOLDER: 'Pilih alamat dari Address Book',
-			MAIN: 'Utama'
-		},
-		BUTTON_UPDATE: 'Update Profile'
-	},
+	ORDER: ORDER_STRINGS,
+	RESET_PASSWORD: RESET_PASSWORD_STRINGS,
+	PROFILE: PROFILE_STRINGS,
 	COMMON: {
 		LOADING: 'Loading...',
 		ERROR: 'An error occurred',
@@ -131,14 +84,22 @@ export const STRINGS = {
 			'Please check your input. Address must be at least 10 characters and Postal Code at least 5 digits.'
 	},
 	TOAST: {
-		PAYMENT_SUCCESS: 'Payment Successful!', SCAN_TO_PAY: 'Scan to pay', ADDRESS_SUCCESS: 'Address saved successfully',
-		SHIPPING_METHOD_REQUIRED: 'Please select a shipping method', INVALID_COUPON: 'Invalid coupon code', ADDED_TO_CART: 'Added to cart!',
-		INVALID_IMAGE: 'Invalid image', IMAGE_UPDATED: 'Image updated', IMAGE_UPLOADED: 'Image uploaded: ', UPLOAD_FAILED: 'Upload failed'
+		PAYMENT_SUCCESS: 'Payment Successful!',
+		SCAN_TO_PAY: 'Scan to pay',
+		ADDRESS_SUCCESS: 'Address saved successfully',
+		SHIPPING_METHOD_REQUIRED: 'Please select a shipping method',
+		INVALID_COUPON: 'Invalid coupon code',
+		ADDED_TO_CART: 'Added to cart!',
+		INVALID_IMAGE: 'Invalid image',
+		IMAGE_UPDATED: 'Image updated',
+		IMAGE_UPLOADED: 'Image uploaded: ',
+		UPLOAD_FAILED: 'Upload failed'
 	},
 	AI_CS: {
 		TITLE: 'Rumah Kosim AI',
 		SUBTITLE: 'Online • Industry Standard CS',
-		GREETING: 'Halo! Saya AI Assistant Rumah Kosim Book. Ada yang bisa saya bantu terkait ketersediaan buku hari ini?',
+		GREETING:
+			'Halo! Saya AI Assistant Rumah Kosim Book. Ada yang bisa saya bantu terkait ketersediaan buku hari ini?',
 		PLACEHOLDER: 'Tanya ketersediaan buku...',
 		ERROR_SERVER: 'Maaf, terjadi kesalahan pada server kami.',
 		ERROR_CONNECTION: 'Koneksi terputus. Silakan coba lagi.'

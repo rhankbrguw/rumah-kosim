@@ -29,7 +29,13 @@ export const AUTH_STRINGS = {
 		INVALID_CREDENTIALS: 'Invalid username or password',
 		DB_ERROR_LOGIN: 'Database error during login',
 		CONFLICT_USER: 'Username or email already exists',
-		DB_ERROR_REGISTER: 'Database error during registration'
+		DB_ERROR_REGISTER: 'Database error during registration',
+		ACCOUNT_NOT_VERIFIED: 'Account is not verified. Please check your email for OTP.',
+		INVALID_OTP: 'Invalid or expired OTP',
+		USER_NOT_FOUND: 'User not found',
+		FORGOT_PASSWORD_SUCCESS: 'If your email is registered, a reset link has been sent.',
+		OTP_VERIFY_FAILED: 'Failed to verify OTP',
+		FORGOT_PASSWORD_FAILED: 'Failed to process request'
 	},
 	OTP: {
 		TITLE: 'Verify Account',

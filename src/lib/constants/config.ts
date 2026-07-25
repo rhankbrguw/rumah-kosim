@@ -22,6 +22,7 @@ export const ERROR_CODES = {
 
 export const APP_CONFIG = {
 	JWT_EXPIRES_IN: '24h',
+	COOKIE_MAX_AGE: 86400,
 	DEFAULT_PAGINATION_LIMIT: 20,
 	BCRYPT_SALT_ROUNDS: 10,
 	AI_SYSTEM_INSTRUCTION: `You are an AI Customer Support Agent for Rumah Kosim Book, a premium bookstore.
@@ -41,5 +42,41 @@ export const STORE_CONSTANTS = {
 	SHIPPING_RATES: {
 		GOSEND: 20000,
 		JNE: 70000
-	}
+	},
+	ORDER_PREFIX: 'RK',
+	DEFAULT_CUSTOMER_NAME: 'Customer',
+	DEFAULT_CUSTOMER_EMAIL: 'customer@example.com'
 };
+
+export const AUTH = {
+	OTP_MIN: 100000,
+	OTP_RANGE: 900000,
+	OTP_EXPIRY_MS: 5 * 60_000,
+	RESET_TOKEN_BYTES: 32
+} as const;
+
+export const AI = {
+	MODEL_NAME: 'gemini-2.5-flash',
+	TEMPERATURE: 0.2
+} as const;
+
+export const SEARCH = {
+	RESULT_LIMIT: 5,
+	TRACKING_RANDOM_RANGE: 1000
+} as const;
+
+export const FORMAT = {
+	LOCALE: 'id-ID',
+	CURRENCY_CODE: 'IDR'
+} as const;
+
+export const UPLOAD = {
+	ALLOWED_TYPES: ['image/jpeg', 'image/png', 'image/gif'],
+	MAX_SIZE_BYTES: 5 * 1024 * 1024
+} as const;
+
+export const ANIMATION = {
+	TOAST_DISMISS_MS: 3000,
+	REDIRECT_DELAY_MS: 1000,
+	REVIEW_REDIRECT_MS: 2500
+} as const;

@@ -3,7 +3,6 @@ import { logger } from '$lib/server/utils/logger.js';
 import { checkAdmin } from '$lib/server/admin-guard.js';
 import { ProductService } from '$lib/server/services/productService.js';
 import { jsonResponse, errorResponse } from '$lib/server/utils/response.js';
-import { productCreateSchema } from '$lib/server/validations/product.js';
 import { z } from 'zod';
 import type { ResultSetHeader } from 'mysql2';
 
@@ -25,7 +24,6 @@ export async function GET({ request }) {
 	}
 }
 
-// Coercion schema for HTTP multipart/form-data boundary payloads
 const adminProductSchema = z.object({
 	title: z.string().min(1, 'Title is required').trim(),
 	price: z.coerce.number().positive('Valid price is required'),
@@ -44,15 +42,15 @@ export async function POST({ request }) {
 	}
 
 	try {
-		const data = await request.json();
-		const validation = adminProductSchema.safeParse(data);
+		const payload = await request.json();
+		const validation = adminProductSchema.safeParse(payload);
 
 		if (!validation.success) {
-			const firstError = Object.values(validation.error.flatten().fieldErrors)[0][0];
 			return errorResponse(
-				firstError,
+				'Validation failed',
 				HTTP_STATUS.UNPROCESSABLE_ENTITY,
-				ERROR_CODES.VALIDATION_ERROR
+				ERROR_CODES.VALIDATION_ERROR,
+				validation.error.format()
 			);
 		}
 

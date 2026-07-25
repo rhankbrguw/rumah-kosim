@@ -1,32 +1,39 @@
-import { json } from '@sveltejs/kit';
-import { query } from '$lib/db.js';
-import { HTTP_STATUS } from '$lib/constants/config.js';
+import { ProductService } from '$lib/server/services/productService.js';
+import { HTTP_STATUS, ERROR_CODES } from '$lib/constants/config.js';
+import { jsonResponse, errorResponse } from '$lib/server/utils/response.js';
+import { MESSAGES } from '$lib/constants/messages.js';
 import { logger } from '$lib/server/utils/logger.js';
 import { checkAdmin } from '$lib/server/admin-guard.js';
 
 export async function PATCH({ request }) {
 	if (!(await checkAdmin(request))) {
-		return json({ success: false, message: 'Unauthorized' }, { status: HTTP_STATUS.UNAUTHORIZED });
+		return errorResponse(
+			MESSAGES.ERROR.UNAUTHORIZED,
+			HTTP_STATUS.UNAUTHORIZED,
+			ERROR_CODES.UNAUTHORIZED
+		);
 	}
 
 	try {
 		const { productId, quantity } = await request.json();
 
 		if (!productId || quantity === undefined) {
-			return json(
-				{ success: false, message: 'Missing required fields' },
-				{ status: HTTP_STATUS.BAD_REQUEST }
+			return errorResponse(
+				MESSAGES.ERROR.VALIDATION,
+				HTTP_STATUS.BAD_REQUEST,
+				ERROR_CODES.VALIDATION_ERROR
 			);
 		}
 
-		await query('UPDATE products SET quantity = ? WHERE id = ?', [quantity, productId]);
+		await ProductService.updateQuantity(productId, quantity);
 
-		return json({ success: true });
+		return jsonResponse(null, MESSAGES.SUCCESS.UPDATE);
 	} catch (error) {
 		logger.error('Stock update error:', error as Error);
-		return json(
-			{ success: false, message: (error as Error).message },
-			{ status: HTTP_STATUS.INTERNAL_SERVER_ERROR }
+		return errorResponse(
+			(error as Error).message,
+			HTTP_STATUS.INTERNAL_SERVER_ERROR,
+			ERROR_CODES.INTERNAL_ERROR
 		);
 	}
 }

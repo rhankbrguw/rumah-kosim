@@ -9,8 +9,8 @@ import { ERROR_CODES } from '$lib/constants/config.js';
  * @param {string} code - Domain specific success code
  * @returns {Response}
  */
-export const jsonResponse = (
-	data: unknown = null,
+export const jsonResponse = <T>(
+	data: T | null = null,
 	message: string = 'Success',
 	status: number = 200,
 	code: string = ERROR_CODES.SUCCESS

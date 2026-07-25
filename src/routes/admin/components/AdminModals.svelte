@@ -2,11 +2,31 @@
 	import ProductModal from '../../admin/components/ProductModal.svelte';
 	import type { SuperValidated } from 'sveltekit-superforms';
 
-	export let modals: { add: boolean, edit: boolean };
-	export let editingProduct: { id: number, title: string, price: number, quantity: number, image: string } | null;
+	export let modals: { add: boolean; edit: boolean };
+	export let editingProduct: {
+		id: number;
+		title: string;
+		price: number;
+		quantity: number;
+		image: string;
+	} | null;
 
-	export let productForm: SuperValidated<any>;
-	export let editProductForm: SuperValidated<any>;
+	export let productForm: SuperValidated<{
+		id?: number;
+		title: string;
+		image: string;
+		description: string;
+		price: number;
+		quantity: number;
+	}>;
+	export let editProductForm: SuperValidated<{
+		id?: number;
+		title: string;
+		image: string;
+		description: string;
+		price: number;
+		quantity: number;
+	}>;
 
 	export let handleUploadImage: (e: CustomEvent) => void;
 </script>

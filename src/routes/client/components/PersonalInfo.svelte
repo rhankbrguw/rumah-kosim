@@ -2,35 +2,41 @@
 	import { User, Mail, Phone } from 'lucide-svelte';
 	import { STRINGS } from '$lib/constants/strings';
 
-	export let form: any;
-	export let errors: any;
-	export let constraints: any;
+	export let form: Record<string, unknown>;
+	export let errors: Record<string, string[]>;
+	export let constraints: Record<string, Record<string, unknown> | undefined>;
 
 	function handlePhoneInput(e: Event) {
 		const target = e.target as HTMLInputElement;
-		let val = target.value;
-		let clean = val.replace(/\D/g, '');
-		
+		let rawPhoneValue = target.value;
+		let clean = rawPhoneValue.replace(/\D/g, '');
+
 		if (clean.startsWith('62')) {
 			clean = clean.substring(2);
 		} else if (clean.startsWith('0')) {
 			clean = clean.substring(1);
 		}
-		
+
 		form.phone = clean;
 	}
 </script>
 
 <div class="rounded-xl border border-surface-alt bg-surface/50 p-5 sm:p-6 lg:p-8">
-	<h2 class="mb-5 flex items-center gap-2 border-b border-surface-alt pb-3 text-lg font-semibold text-text-main">
+	<h2
+		class="mb-5 flex items-center gap-2 border-b border-surface-alt pb-3 text-lg font-semibold text-text-main"
+	>
 		<User size={20} class="text-primary" />
 		Personal Details
 	</h2>
 	<div class="grid gap-5 sm:grid-cols-2 lg:gap-6">
 		<div class="space-y-1.5">
-			<label for="full_name" class="block text-sm font-medium text-text-muted">{STRINGS.PROFILE.FIELDS.FULL_NAME}</label>
+			<label for="full_name" class="block text-sm font-medium text-text-muted"
+				>{STRINGS.PROFILE.FIELDS.FULL_NAME}</label
+			>
 			<div class="relative">
-				<div class="absolute inset-y-0 left-0 z-10 flex items-center pl-3 pointer-events-none text-text-muted">
+				<div
+					class="pointer-events-none absolute inset-y-0 left-0 z-10 flex items-center pl-3 text-text-muted"
+				>
 					<User size={18} />
 				</div>
 				<input
@@ -47,12 +53,18 @@
 		</div>
 
 		<div class="space-y-1.5">
-			<label for="phone" class="block text-sm font-medium text-text-muted">{STRINGS.PROFILE.FIELDS.PHONE}</label>
+			<label for="phone" class="block text-sm font-medium text-text-muted"
+				>{STRINGS.PROFILE.FIELDS.PHONE}</label
+			>
 			<div class="relative flex">
-				<div class="absolute inset-y-0 left-0 z-10 flex items-center pl-3 pointer-events-none text-text-muted">
+				<div
+					class="pointer-events-none absolute inset-y-0 left-0 z-10 flex items-center pl-3 text-text-muted"
+				>
 					<Phone size={18} />
 				</div>
-				<span class="inline-flex items-center rounded-l-lg border-y-2 border-l-2 border-surface-alt/80 bg-surface-alt px-3 pl-10 text-sm font-semibold text-text-main">
+				<span
+					class="inline-flex items-center rounded-l-lg border-y-2 border-l-2 border-surface-alt/80 bg-surface-alt px-3 pl-10 text-sm font-semibold text-text-main"
+				>
 					{STRINGS.PROFILE.FIELDS.PHONE_PREFIX}
 				</span>
 				<input
@@ -71,16 +83,22 @@
 	</div>
 </div>
 
-<div class="rounded-xl border border-surface-alt bg-surface/50 p-5 sm:p-6 lg:p-8 mt-8">
-	<h2 class="mb-5 flex items-center gap-2 border-b border-surface-alt pb-3 text-lg font-semibold text-text-main">
+<div class="mt-8 rounded-xl border border-surface-alt bg-surface/50 p-5 sm:p-6 lg:p-8">
+	<h2
+		class="mb-5 flex items-center gap-2 border-b border-surface-alt pb-3 text-lg font-semibold text-text-main"
+	>
 		<Mail size={20} class="text-primary" />
 		Account Information
 	</h2>
 	<div class="grid gap-5 sm:grid-cols-2 lg:gap-6">
 		<div class="space-y-1.5">
-			<label for="username" class="block text-sm font-medium text-text-muted">{STRINGS.PROFILE.FIELDS.USERNAME}</label>
+			<label for="username" class="block text-sm font-medium text-text-muted"
+				>{STRINGS.PROFILE.FIELDS.USERNAME}</label
+			>
 			<div class="relative">
-				<div class="absolute inset-y-0 left-0 z-10 flex items-center pl-3 pointer-events-none text-text-muted">
+				<div
+					class="pointer-events-none absolute inset-y-0 left-0 z-10 flex items-center pl-3 text-text-muted"
+				>
 					<User size={18} />
 				</div>
 				<input
@@ -96,9 +114,13 @@
 		</div>
 
 		<div class="space-y-1.5">
-			<label for="email" class="block text-sm font-medium text-text-muted">{STRINGS.PROFILE.FIELDS.EMAIL}</label>
+			<label for="email" class="block text-sm font-medium text-text-muted"
+				>{STRINGS.PROFILE.FIELDS.EMAIL}</label
+			>
 			<div class="relative">
-				<div class="absolute inset-y-0 left-0 z-10 flex items-center pl-3 pointer-events-none text-text-muted">
+				<div
+					class="pointer-events-none absolute inset-y-0 left-0 z-10 flex items-center pl-3 text-text-muted"
+				>
 					<Mail size={18} />
 				</div>
 				<input

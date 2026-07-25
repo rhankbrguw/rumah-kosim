@@ -7,6 +7,7 @@ import { fail } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
 import { logger } from '$lib/server/utils/logger.js';
 import { STRINGS } from '$lib/constants/strings.js';
+import type { Order } from '$lib/types';
 
 const productSchema = z.object({
 	title: z.string().min(1, 'Title is required'),
@@ -47,16 +48,7 @@ export const load = async () => {
 			quantity: number;
 			image: string;
 		}[];
-		const orders = ordersRaw as unknown as {
-			id: number;
-			date: string;
-			total: number;
-			status: string;
-			title?: string;
-			username?: string;
-			quantity?: number;
-			price_at_time?: number;
-		}[];
+		const orders = ordersRaw as unknown as Order[];
 
 		const productForm = await superValidate(zod(productSchema));
 		const editProductForm = await superValidate(zod(editProductSchema));
@@ -133,9 +125,9 @@ export const actions = {
 		}
 	},
 	updateImage: async ({ request }: RequestEvent) => {
-		const data = await request.formData();
-		const id = Number(data.get('id'));
-		const image = data.get('image');
+		const formData = await request.formData();
+		const id = Number(formData.get('id'));
+		const image = formData.get('image');
 		if (!id || !image) return fail(422, { error: STRINGS.ADMIN.MESSAGES.MISSING_ID_IMAGE });
 		try {
 			await ProductService.updateImage(id, image as string);

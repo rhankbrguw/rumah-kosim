@@ -1,4 +1,5 @@
 import { writable } from 'svelte/store';
+import { STORAGE_KEYS } from '$lib/constants/storageKeys';
 
 interface CheckoutState {
 	address: string;
@@ -25,23 +26,22 @@ const createCheckoutStore = () => {
 		coupon: null
 	};
 
-	let initialState = defaultState;
+	const { subscribe, set, update } = writable<CheckoutState>(defaultState);
+
 	if (typeof window !== 'undefined') {
-		const stored = localStorage.getItem('checkoutStore');
+		const stored = localStorage.getItem(STORAGE_KEYS.CHECKOUT);
 		if (stored) {
 			try {
-				initialState = { ...defaultState, ...JSON.parse(stored) };
-			} catch (e) {
-				// Suppress parsing exceptions during initialization
+				const parsed = JSON.parse(stored);
+				set(parsed);
+			} catch {
+				// Ignore JSON parse errors, fallback to empty object
+				localStorage.removeItem(STORAGE_KEYS.CHECKOUT);
 			}
 		}
-	}
 
-	const { subscribe, set, update } = writable<CheckoutState>(initialState);
-
-	if (typeof window !== 'undefined') {
 		subscribe((state) => {
-			localStorage.setItem('checkoutStore', JSON.stringify(state));
+			localStorage.setItem(STORAGE_KEYS.CHECKOUT, JSON.stringify(state));
 		});
 	}
 
@@ -56,8 +56,7 @@ const createCheckoutStore = () => {
 		setCoupon: (coupon: Record<string, unknown> | null) =>
 			update((store) => ({ ...store, coupon })),
 		update,
-		reset: () =>
-			set(defaultState)
+		reset: () => set(defaultState)
 	};
 };
 

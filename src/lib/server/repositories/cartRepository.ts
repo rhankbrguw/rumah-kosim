@@ -21,7 +21,7 @@ export const CartRepository = {
 			const [cartItem] = (await connection.execute(
 				'SELECT quantity FROM cart WHERE user_id = ? AND product_id = ?',
 				[userId, productId]
-			)) as [RowDataPacket[], any];
+			)) as [RowDataPacket[], unknown];
 
 			if (cartItem.length === 0) {
 				const error = new Error('No cart item found') as Error & { status?: number };

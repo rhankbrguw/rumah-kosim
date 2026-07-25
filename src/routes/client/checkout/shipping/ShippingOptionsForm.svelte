@@ -1,8 +1,13 @@
 <script lang="ts">
-	export let shippingOptions: { id: string, label: string, duration: string, price: number }[] = [];
+	export let shippingOptions: { id: string; label: string; duration: string; price: number }[] = [];
 	export let selectedShipping: string = '';
 	export let isValidCoupon = false;
-	export let handleShippingSelect: (option: { id: string, label: string, duration: string, price: number }) => void;
+	export let handleShippingSelect: (option: {
+		id: string;
+		label: string;
+		duration: string;
+		price: number;
+	}) => void;
 </script>
 
 <div class="space-y-3">

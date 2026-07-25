@@ -2,7 +2,7 @@
 	import AddressForm from '$lib/components/AddressForm.svelte';
 	import { toast } from 'svelte-sonner';
 	import { STRINGS } from '$lib/constants/strings';
-	
+
 	import type { PageData } from './$types';
 	export let data: PageData;
 
@@ -13,4 +13,9 @@
 	}
 </script>
 
-<AddressForm data={data.form} cartItems={data.cartItems} userAddresses={data.userAddresses} onSubmitSuccess={handleSuccess} />
+<AddressForm
+	data={data.form}
+	cartItems={data.cartItems}
+	userAddresses={data.userAddresses}
+	onSubmitSuccess={handleSuccess}
+/>

@@ -5,7 +5,7 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 	let cartCount = 0;
 	if (locals.user) {
 		const items = await getCartItems(locals.user.id);
-		cartCount = (items as unknown as any[]).reduce(
+		cartCount = (items as unknown as Record<string, unknown>[]).reduce(
 			(sum, item) => sum + (Number(item.quantity) || 0),
 			0
 		);

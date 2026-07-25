@@ -37,7 +37,8 @@ export const CHECKOUT_STRINGS = {
 		CVV_PLACEHOLDER: '123',
 		PAY: 'Pay Now',
 		SECURE_GATEWAY_TITLE: 'Secure Payment Gateway',
-		SECURE_GATEWAY_DESC: 'You will be securely redirected to Midtrans to complete your transaction with bank-grade encryption.',
+		SECURE_GATEWAY_DESC:
+			'You will be securely redirected to Midtrans to complete your transaction with bank-grade encryption.',
 		REDIRECT_SUCCESS: 'Payment Successful!',
 		REDIRECT_DESC: 'Redirecting to your order history...'
 	},

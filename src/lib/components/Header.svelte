@@ -1,9 +1,8 @@
 <script lang="ts">
-	import { auth, logout } from '$lib/stores/auth';
-	import { goto } from '$app/navigation';
+	import { logout } from '$lib/stores/auth';
 	import { page } from '$app/stores';
-	import { STRINGS } from '$lib/constants/strings';
 	import { UserCircle, LogIn } from 'lucide-svelte';
+	import HeaderMobileMenu from './HeaderMobileMenu.svelte';
 
 	let isMobileMenuOpen = false;
 
@@ -27,7 +26,9 @@
 >
 	<div class="flex items-center gap-x-2 text-primary md:gap-x-6">
 		<button
-			class={`mr-2 block md:hidden ${isHome ? 'text-text-inverse hover:text-primary' : 'text-text-muted hover:text-primary'}`}
+			class={`mr-2 block md:hidden ${
+				isHome ? 'text-text-inverse hover:text-primary' : 'text-text-muted hover:text-primary'
+			}`}
 			on:click={() => (isMobileMenuOpen = !isMobileMenuOpen)}
 			aria-label="Toggle menu">☰</button
 		>
@@ -35,13 +36,19 @@
 		<nav class="hidden gap-4 md:flex">
 			<a
 				href="/client/about"
-				class={`text-sm ${isHome ? 'text-text-inverse/80 hover:text-text-inverse' : 'text-text-muted hover:text-primary'}`}
-				>About</a
+				class={`text-sm ${
+					isHome
+						? 'text-text-inverse/80 hover:text-text-inverse'
+						: 'text-text-muted hover:text-primary'
+				}`}>About</a
 			>
 			<a
 				href="/client/shop"
-				class={`text-sm ${isHome ? 'text-text-inverse/80 hover:text-text-inverse' : 'text-text-muted hover:text-primary'}`}
-				>Shop</a
+				class={`text-sm ${
+					isHome
+						? 'text-text-inverse/80 hover:text-text-inverse'
+						: 'text-text-muted hover:text-primary'
+				}`}>Shop</a
 			>
 		</nav>
 	</div>
@@ -59,9 +66,17 @@
 		{#if isAuthenticated}
 			<div class="group relative hidden md:block">
 				<div class="flex cursor-pointer items-center transition-transform hover:scale-110">
-					<div class={isHome ? 'text-text-inverse/80 hover:text-text-inverse' : 'text-text-muted hover:text-primary'}>
+					<div
+						class={isHome
+							? 'text-text-inverse/80 hover:text-text-inverse'
+							: 'text-text-muted hover:text-primary'}
+					>
 						{#if user?.avatar}
-							<img src={user.avatar} alt="Avatar" class="h-8 w-8 rounded-full object-cover shadow-sm border border-surface-alt" />
+							<img
+								src={user.avatar}
+								alt="Avatar"
+								class="h-8 w-8 rounded-full border border-surface-alt object-cover shadow-sm"
+							/>
 						{:else}
 							<UserCircle size={28} strokeWidth={1.5} />
 						{/if}
@@ -94,7 +109,11 @@
 			<div class="hidden gap-2 md:flex md:gap-4">
 				<a
 					href="/client/auth"
-					class={`flex items-center gap-1 text-sm font-semibold md:text-base transition-transform hover:scale-110 ${isHome ? 'text-text-inverse/80 hover:text-text-inverse' : 'text-text-muted hover:text-primary'}`}
+					class={`flex items-center gap-1 text-sm font-semibold transition-transform hover:scale-110 md:text-base ${
+						isHome
+							? 'text-text-inverse/80 hover:text-text-inverse'
+							: 'text-text-muted hover:text-primary'
+					}`}
 					aria-label="Account"
 					title="Login or Register"
 				>
@@ -104,27 +123,5 @@
 		{/if}
 	</div>
 
-	<div
-		class={`w-full border-t border-surface-alt md:hidden ${isMobileMenuOpen ? 'block' : 'hidden'}`}
-	>
-		<nav class="flex flex-col py-2">
-			<a href="/client/about" class="px-4 py-2 text-sm text-text-muted hover:text-primary">About</a>
-			<a href="/client/shop" class="px-4 py-2 text-sm text-text-muted hover:text-primary">Shop</a>
-			{#if !isAuthenticated}
-				<a href="/client/auth" class="flex items-center gap-2 px-4 py-2 text-sm text-text-muted hover:text-primary"
-					><LogIn size={20} /> Auth</a
-				>
-			{:else}
-				<a href="/client/profile" class="px-4 py-2 text-sm text-text-muted hover:text-primary">
-					👤 Profile
-				</a>
-				<a href={user?.role === 'admin' ? '/admin' : '/client/profile/history'} class="px-4 py-2 text-sm text-text-muted hover:text-primary">
-					{user?.role === 'admin' ? '⚙️ Settings' : '📜 History'}
-				</a>
-				<button on:click={handleLogout} class="w-full cursor-pointer px-4 py-2 text-left text-sm text-danger hover:text-danger-hover">
-					Logout
-				</button>
-			{/if}
-		</nav>
-	</div>
+	<HeaderMobileMenu {isMobileMenuOpen} {isAuthenticated} {user} {handleLogout} />
 </header>

@@ -2,7 +2,7 @@
 	import { formatIDR } from '$lib/utils/currency';
 	import { STRINGS } from '$lib/constants/strings';
 
-	export let cartItems: { title?: string, image?: string, price: number, quantity: number }[] = [];
+	export let cartItems: { title?: string; image?: string; price: number; quantity: number }[] = [];
 	export let subtotal: number = 0;
 	export let total: number = 0;
 	export let shippingCost: number | null = null;

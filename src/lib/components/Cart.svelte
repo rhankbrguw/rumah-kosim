@@ -6,9 +6,18 @@
 	import { enhance } from '$app/forms';
 	import { Trash2 } from 'lucide-svelte';
 
-	export let cartItems: { product_id: number, price: number, quantity: number, title: string, image: string }[] = [];
+	export let cartItems: {
+		product_id: number;
+		price: number;
+		quantity: number;
+		title: string;
+		image: string;
+	}[] = [];
 
-	$: subtotal = cartItems.reduce((sum, item) => sum + (Number(item.price) || 0) * (Number(item.quantity) || 0), 0);
+	$: subtotal = cartItems.reduce(
+		(sum, item) => sum + (Number(item.price) || 0) * (Number(item.quantity) || 0),
+		0
+	);
 
 	function checkout() {
 		if (!$auth.isAuthenticated) return goto('/client/auth');
@@ -18,7 +27,7 @@
 
 	const handleForm = () => {
 		isSubmitting = true;
-		return async ({ update }: { update: any }) => {
+		return async ({ update }: { update: () => Promise<void> }) => {
 			await update();
 			isSubmitting = false;
 		};
@@ -36,18 +45,22 @@
 				<div class="divide-y divide-secondary/10">
 					{#each cartItems as item (item.product_id)}
 						<div class="flex gap-4 py-6">
-							<img src={item.image} alt={item.title} class="h-20 w-20 shrink-0 rounded-md object-cover sm:h-24 sm:w-24" />
+							<img
+								src={item.image}
+								alt={item.title}
+								class="h-20 w-20 shrink-0 rounded-md object-cover sm:h-24 sm:w-24"
+							/>
 							<div class="flex flex-1 flex-col justify-between">
 								<div>
 									<div class="flex items-start justify-between">
 										<h3 class="text-base font-medium text-text-main sm:text-lg">{item.title}</h3>
 										<form method="POST" action="?/remove" use:enhance={handleForm}>
 											<input type="hidden" name="productId" value={item.product_id} />
-											<button 
-												type="submit" 
+											<button
+												type="submit"
 												disabled={isSubmitting}
-												class="text-danger transition-colors hover:text-danger-hover disabled:opacity-50" 
-												aria-label={STRINGS.CART.REMOVE} 
+												class="text-danger transition-colors hover:text-danger-hover disabled:opacity-50"
+												aria-label={STRINGS.CART.REMOVE}
 												title={STRINGS.CART.REMOVE}
 											>
 												<Trash2 size={20} />
@@ -60,13 +73,23 @@
 									<form method="POST" action="?/updateQuantity" use:enhance={handleForm}>
 										<input type="hidden" name="productId" value={item.product_id} />
 										<input type="hidden" name="delta" value="-1" />
-										<button disabled={item.quantity <= 1 || isSubmitting} class="rounded border border-secondary px-2 py-1 text-sm text-text-main transition-colors hover:bg-surface-alt disabled:opacity-50">-</button>
+										<button
+											disabled={item.quantity <= 1 || isSubmitting}
+											class="rounded border border-secondary px-2 py-1 text-sm text-text-main transition-colors hover:bg-surface-alt disabled:opacity-50"
+											>-</button
+										>
 									</form>
-									<span class="text-sm font-medium text-text-muted sm:text-base">Quantity: {item.quantity}</span>
+									<span class="text-sm font-medium text-text-muted sm:text-base"
+										>Quantity: {item.quantity}</span
+									>
 									<form method="POST" action="?/updateQuantity" use:enhance={handleForm}>
 										<input type="hidden" name="productId" value={item.product_id} />
 										<input type="hidden" name="delta" value="1" />
-										<button disabled={isSubmitting} class="rounded border border-secondary px-2 py-1 text-sm text-text-main transition-colors hover:bg-surface-alt disabled:opacity-50">+</button>
+										<button
+											disabled={isSubmitting}
+											class="rounded border border-secondary px-2 py-1 text-sm text-text-main transition-colors hover:bg-surface-alt disabled:opacity-50"
+											>+</button
+										>
 									</form>
 								</div>
 							</div>
@@ -93,18 +116,21 @@
 							<span>Estimated Tax</span>
 							<span class="text-text-main">Calculated at checkout</span>
 						</div>
-						
+
 						<div class="my-4 border-t border-surface-alt"></div>
-						
+
 						<div class="flex justify-between text-base font-bold text-text-main">
 							<span>{STRINGS.CART.TOTAL}</span>
 							<span class="text-primary">{formatIDR(subtotal)}</span>
 						</div>
 					</div>
-					<button on:click={checkout} class="mt-8 w-full rounded-lg bg-primary py-3.5 font-semibold text-text-inverse transition-colors hover:bg-primary-hover focus:ring-4 focus:ring-primary/20">
+					<button
+						on:click={checkout}
+						class="mt-8 w-full rounded-lg bg-primary py-3.5 font-semibold text-text-inverse transition-colors hover:bg-primary-hover focus:ring-4 focus:ring-primary/20"
+					>
 						{STRINGS.CART.CHECKOUT}
 					</button>
-					
+
 					<p class="mt-4 text-center text-xs text-text-muted">
 						Taxes and shipping calculated at checkout
 					</p>

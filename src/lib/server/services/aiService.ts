@@ -1,7 +1,7 @@
 import { GoogleGenAI, Type } from '@google/genai';
 import { GEMINI_API_KEY } from '$env/static/private';
 import { APP_CONFIG } from '$lib/constants/config.js';
-import { dbRepository } from '../repositories/dbRepository.js';
+import { ProductRepository } from '../repositories/productRepository.js';
 import { logger } from '../utils/logger.js';
 import type { RowDataPacket } from 'mysql2';
 
@@ -9,13 +9,15 @@ const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 
 const getAvailableBooksDeclaration = {
 	name: 'getAvailableBooks',
-	description: 'Search for available books in stock based on a search query or get a list of books if no query is provided.',
+	description:
+		'Search for available books in stock based on a search query or get a list of books if no query is provided.',
 	parameters: {
 		type: Type.OBJECT,
 		properties: {
 			query: {
 				type: Type.STRING,
-				description: 'Optional search query for book title or description. E.g., "Deep Work", "History".'
+				description:
+					'Optional search query for book title or description. E.g., "Deep Work", "History".'
 			}
 		}
 	}
@@ -23,16 +25,7 @@ const getAvailableBooksDeclaration = {
 
 async function executeGetAvailableBooks(query?: string) {
 	try {
-		let sql = 'SELECT id, title, description, price, quantity FROM products WHERE quantity > 0';
-		let params: any[] = [];
-		if (query) {
-			sql += ' AND (title LIKE ? OR description LIKE ?)';
-			const q = `%${query}%`;
-			params = [q, q];
-		}
-		sql += ' LIMIT 5';
-		
-		const rows = await dbRepository.query(sql, params) as RowDataPacket[];
+		const rows = (await ProductRepository.searchAvailable(query)) as RowDataPacket[];
 		if (rows.length === 0) {
 			return { message: 'No books found matching the query.' };
 		}
@@ -43,24 +36,38 @@ async function executeGetAvailableBooks(query?: string) {
 	}
 }
 
-async function handleFunctionCalls(chat: any, response: any) {
+type ChatSession = { sendMessage(params: { message: string | unknown[] }): Promise<ChatResponse> };
+type ChatResponse = {
+	text?: string;
+	functionCalls?: { name: string; args: Record<string, unknown> }[];
+	data?: unknown;
+	executableCode?: unknown;
+	codeExecutionResult?: unknown;
+};
+
+async function handleFunctionCalls(
+	chat: ChatSession,
+	response: ChatResponse
+): Promise<ChatResponse> {
 	if (response.functionCalls && response.functionCalls.length > 0) {
 		for (const call of response.functionCalls) {
 			if (call.name === 'getAvailableBooks') {
-				const args = call.args as any;
-				const result = await executeGetAvailableBooks(args.query);
-				response = await chat.sendMessage({
-					message: [{ functionResponse: { name: call.name, response: result } }] as any
-				});
+				const result = await executeGetAvailableBooks(call.args.query as string);
+				response = (await chat.sendMessage({
+					message: [{ functionResponse: { name: call.name, response: result } }]
+				})) as ChatResponse;
 			}
 		}
 	}
 	return response;
 }
 
-export async function chatWithAI(userMessage: string, history: { role: 'user' | 'model', parts: { text: string }[] }[] = []) {
+export async function chatWithAI(
+	userMessage: string,
+	history: { role: 'user' | 'model'; parts: { text: string }[] }[] = []
+) {
 	try {
-		const formattedHistory = history.map(msg => ({
+		const formattedHistory = history.map((msg) => ({
 			role: msg.role,
 			parts: msg.parts
 		}));
@@ -75,8 +82,8 @@ export async function chatWithAI(userMessage: string, history: { role: 'user' | 
 			}
 		});
 
-		let response = await chat.sendMessage({ message: userMessage });
-		response = await handleFunctionCalls(chat, response);
+		let response = (await chat.sendMessage({ message: userMessage })) as ChatResponse;
+		response = await handleFunctionCalls(chat as unknown as ChatSession, response);
 
 		return response.text;
 	} catch (error) {

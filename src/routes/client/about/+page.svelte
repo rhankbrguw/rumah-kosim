@@ -1,5 +1,5 @@
 <script lang="ts">
-		import About from '$lib/components/About.svelte';
+	import About from '$lib/components/About.svelte';
 </script>
 
 <main class="flex min-h-screen items-center justify-center px-4 py-20">

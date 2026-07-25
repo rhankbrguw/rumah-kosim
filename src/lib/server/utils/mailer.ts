@@ -1,9 +1,18 @@
 import nodemailer from 'nodemailer';
-import { COLORS } from '$lib/constants/colors.js';
+import { COLORS } from '$lib/constants/emailColors.js';
 import { STRINGS } from '$lib/constants/strings.js';
 import { baseStyles, containerStyles, headingStyles, buttonStyles } from './emailStyles.js';
 
-import { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_SECURE, SMTP_FROM, SMTP_FROM_NAME } from '$env/static/private';
+import {
+	SMTP_HOST,
+	SMTP_PORT,
+	SMTP_USER,
+	SMTP_PASS,
+	SMTP_SECURE,
+	SMTP_FROM,
+	SMTP_FROM_NAME,
+	APP_BASE_URL
+} from '$env/static/private';
 
 const transporter = nodemailer.createTransport({
 	host: SMTP_HOST,
@@ -17,7 +26,8 @@ const transporter = nodemailer.createTransport({
 
 const SENDER = `"${SMTP_FROM_NAME}" <${SMTP_FROM}>`;
 
-const send = (to: string, subject: string, html: string) => transporter.sendMail({ from: SENDER, to, subject, html });
+const send = (to: string, subject: string, html: string) =>
+	transporter.sendMail({ from: SENDER, to, subject, html });
 
 export const sendOTP = async (email: string, otp: string) => {
 	const html = `
@@ -32,7 +42,7 @@ export const sendOTP = async (email: string, otp: string) => {
 };
 
 export const sendResetPassword = async (email: string, token: string) => {
-	const resetLink = `http://localhost:5173/client/reset-password?token=${token}`;
+	const resetLink = `${APP_BASE_URL}/client/reset-password?token=${token}`;
 	const html = `
 		<div style="${baseStyles}"><div style="${containerStyles}">
 			<h2 style="${headingStyles}">${STRINGS.AUTH.FORGOT_PASSWORD.TITLE}</h2>
@@ -44,15 +54,25 @@ export const sendResetPassword = async (email: string, token: string) => {
 	await send(email, STRINGS.AUTH.FORGOT_PASSWORD.TITLE, html);
 };
 
-export const sendOrderConfirmationEmail = async (email: string, total: number, trackingNumber: string) => {
-	const historyLink = `http://localhost:5173/client/profile`;
+export const sendOrderConfirmationEmail = async (
+	email: string,
+	total: number,
+	trackingNumber: string
+) => {
+	const historyLink = `${APP_BASE_URL}/client/profile`;
 	const html = `
 		<div style="${baseStyles}"><div style="${containerStyles}">
 			<h2 style="${headingStyles}">${STRINGS.EMAIL.INVOICE.TITLE}</h2>
-			<p style="font-size: 16px; line-height: 1.5; color: ${COLORS.TEXT_MUTED};">${STRINGS.EMAIL.INVOICE.GREETING} ${STRINGS.EMAIL.INVOICE.MESSAGE}</p>
-			<div style="font-size: 24px; font-weight: bold; color: ${COLORS.TEXT_MAIN}; background: ${COLORS.SURFACE_ALT}; padding: 20px; border-radius: 12px; margin: 30px 0;">
+			<p style="font-size: 16px; line-height: 1.5; color: ${COLORS.TEXT_MUTED};">${
+				STRINGS.EMAIL.INVOICE.GREETING
+			} ${STRINGS.EMAIL.INVOICE.MESSAGE}</p>
+			<div style="font-size: 24px; font-weight: bold; color: ${COLORS.TEXT_MAIN}; background: ${
+				COLORS.SURFACE_ALT
+			}; padding: 20px; border-radius: 12px; margin: 30px 0;">
 				${STRINGS.EMAIL.INVOICE.TOTAL} Rp ${total.toLocaleString('id-ID')}<br><br>
-				<span style="font-size: 16px; font-weight: normal;">${STRINGS.EMAIL.INVOICE.TRACKING} ${trackingNumber}</span>
+				<span style="font-size: 16px; font-weight: normal;">${
+					STRINGS.EMAIL.INVOICE.TRACKING
+				} ${trackingNumber}</span>
 			</div>
 			<a href="${historyLink}" style="${buttonStyles}">${STRINGS.EMAIL.INVOICE.BUTTON}</a>
 		</div></div>
@@ -60,8 +80,12 @@ export const sendOrderConfirmationEmail = async (email: string, total: number, t
 	await send(email, STRINGS.EMAIL.INVOICE.SUBJECT, html);
 };
 
-export const sendStatusUpdateEmail = async (email: string, status: string, trackingNumber: string) => {
-	const historyLink = `http://localhost:5173/client/profile`;
+export const sendStatusUpdateEmail = async (
+	email: string,
+	status: string,
+	trackingNumber: string
+) => {
+	const historyLink = `${APP_BASE_URL}/client/profile`;
 	const html = `
 		<div style="${baseStyles}"><div style="${containerStyles}">
 			<h2 style="${headingStyles}">${STRINGS.EMAIL.SHIPPING.TITLE}</h2>
@@ -76,20 +100,30 @@ export const sendStatusUpdateEmail = async (email: string, status: string, track
 	await send(email, STRINGS.EMAIL.SHIPPING.SUBJECT, html);
 };
 
-export const sendAdminNotificationEmail = async (adminEmails: string[], orderId: number, total: number, username: string) => {
-	const adminLink = `http://localhost:5173/admin`;
+export const sendAdminNotificationEmail = async (
+	adminEmails: string[],
+	orderId: number,
+	total: number,
+	username: string
+) => {
+	const adminLink = `${APP_BASE_URL}/admin`;
 	const html = `
 		<div style="${baseStyles}"><div style="${containerStyles}">
 			<h2 style="${headingStyles}">${STRINGS.EMAIL.ADMIN.TITLE}</h2>
-			<p style="font-size: 16px; line-height: 1.5; color: ${COLORS.TEXT_MUTED};">${STRINGS.EMAIL.ADMIN.MESSAGE} <strong>${username}</strong>.</p>
-			<div style="font-size: 24px; font-weight: bold; color: ${COLORS.TEXT_MAIN}; background: ${COLORS.SURFACE_ALT}; padding: 20px; border-radius: 12px; margin: 30px 0;">
+			<p style="font-size: 16px; line-height: 1.5; color: ${COLORS.TEXT_MUTED};">${
+				STRINGS.EMAIL.ADMIN.MESSAGE
+			} <strong>${username}</strong>.</p>
+			<div style="font-size: 24px; font-weight: bold; color: ${COLORS.TEXT_MAIN}; background: ${
+				COLORS.SURFACE_ALT
+			}; padding: 20px; border-radius: 12px; margin: 30px 0;">
 				Order #${orderId}<br><br>
-				<span style="font-size: 16px; font-weight: normal;">Total: Rp ${total.toLocaleString('id-ID')}</span>
+				<span style="font-size: 16px; font-weight: normal;">Total: Rp ${total.toLocaleString(
+					'id-ID'
+				)}</span>
 			</div>
 			<a href="${adminLink}" style="${buttonStyles}">${STRINGS.EMAIL.ADMIN.BUTTON}</a>
 		</div></div>
 	`;
-	
 
 	const promises = adminEmails.map((email) => send(email, STRINGS.EMAIL.ADMIN.SUBJECT, html));
 	await Promise.allSettled(promises);

@@ -35,16 +35,8 @@
 	font-display: swap;
 }
 
-@font-face {
-	font-family: 'Inter';
-	src: url('/fonts/Inter-VariableFont_opsz,wght.ttf') format('truetype');
-	font-weight: 100 900;
-	font-display: swap;
-}
-
 body {
 	font-family:
-		'Inter',
 		system-ui,
 		-apple-system,
 		sans-serif;
@@ -61,4 +53,14 @@ h4,
 h5,
 h6 {
 	font-family: 'Playfair Display', serif;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+	}
 }

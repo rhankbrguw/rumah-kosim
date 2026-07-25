@@ -1,10 +1,12 @@
-import { superValidate, message } from 'sveltekit-superforms';
+import { superValidate } from 'sveltekit-superforms';
 import { zod4 as zod } from 'sveltekit-superforms/adapters';
 import { z } from 'zod';
 import { redirect, fail } from '@sveltejs/kit';
 import { getCartItems } from '$lib/server/services/cartService.js';
-import { getUserAddresses, saveUserAddress, getUserById } from '$lib/server/services/authService.js';
-import { STRINGS } from '$lib/constants/strings';
+import { getUserById } from '$lib/server/services/authService.js';
+import { getUserAddresses, saveUserAddress } from '$lib/server/services/profileService.js';
+import type { CartItem, UserAddress } from '$lib/types';
+import { logger } from '$lib/server/utils/logger.js';
 
 const addressSchema = z.object({
 	firstName: z.string().min(1, 'Required'),
@@ -28,7 +30,7 @@ export const load = async ({ locals }) => {
 	if (!locals.user) throw redirect(303, '/client/auth');
 
 	const cartItemsRaw = await getCartItems(locals.user.id);
-	const cartItems = (cartItemsRaw as unknown as any[]).map((item) => ({
+	const cartItems = (cartItemsRaw as unknown as CartItem[]).map((item) => ({
 		...item,
 		image: `/images/${item.image?.split('/').pop() || `buku${item.product_id}.jpg`}`
 	}));
@@ -38,10 +40,13 @@ export const load = async ({ locals }) => {
 
 	if (userAddresses.length > 0 && userAddresses[0].address_text) {
 		try {
-			const primary = userAddresses.find(a => a.is_primary) || userAddresses[0];
+			const primary =
+				(userAddresses as UserAddress[]).find((a: UserAddress) => a.is_primary) || userAddresses[0];
 			const parsed = JSON.parse(primary.address_text);
 			Object.assign(form.data, parsed);
-		} catch (e) {}
+		} catch (e) {
+			logger.warn('Failed to parse user address JSON', { error: (e as Error).message });
+		}
 	} else {
 		const user = await getUserById(locals.user.id);
 		if (user && user.address) {

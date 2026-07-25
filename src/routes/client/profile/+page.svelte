@@ -2,14 +2,15 @@
 	import { superForm } from 'sveltekit-superforms';
 	import { toast } from 'svelte-sonner';
 	import { STRINGS } from '$lib/constants/strings';
+	import { STORAGE_KEYS } from '$lib/constants/storageKeys';
 	import { Save } from 'lucide-svelte';
 	import { invalidateAll } from '$app/navigation';
 	import ProfileCover from '../components/ProfileCover.svelte';
 	import PersonalInfo from '../components/PersonalInfo.svelte';
 	import SecurityInfo from '../components/SecurityInfo.svelte';
-	
+
 	export let data;
-	
+
 	let avatarPreview: string | null = null;
 
 	const { form, errors, constraints, enhance, message, delayed } = superForm(data.form, {
@@ -18,7 +19,7 @@
 			if (result.type === 'success') {
 				toast.success(STRINGS.PROFILE.MESSAGES.UPDATE_SUCCESS);
 				avatarPreview = null;
-				localStorage.removeItem('profileForm');
+				localStorage.removeItem(STORAGE_KEYS.PROFILE_FORM);
 				await invalidateAll();
 			}
 		}
@@ -27,34 +28,39 @@
 	import { onMount } from 'svelte';
 	onMount(() => {
 		if (typeof window !== 'undefined') {
-			const saved = localStorage.getItem('profileForm');
+			const saved = localStorage.getItem(STORAGE_KEYS.PROFILE_FORM);
 			if (saved) {
 				try {
-					const data = JSON.parse(saved);
-					delete data.password;
-					delete data.confirmPassword;
-					Object.assign($form, data);
-				} catch {}
+					const parsedStorage = JSON.parse(saved);
+					delete parsedStorage.password;
+					delete parsedStorage.confirmPassword;
+					Object.assign($form, parsedStorage);
+				} catch {
+					// Ignore JSON parse errors, fallback to empty profile form
+				}
 			}
 		}
 	});
 
 	$: if ($form && typeof window !== 'undefined') {
-		const data = { ...$form };
-		delete data.password;
-		delete data.confirmPassword;
-		localStorage.setItem('profileForm', JSON.stringify(data));
+		const formPayload = { ...$form };
+		delete formPayload.password;
+		localStorage.setItem(STORAGE_KEYS.PROFILE_FORM, JSON.stringify(formPayload));
 	}
 </script>
 
-<div class="mx-auto w-full max-w-4xl px-4 pt-24 pb-12 sm:px-6 sm:pt-28 sm:pb-16 lg:px-8">
-	<div class="overflow-hidden rounded-2xl border border-surface-alt/50 bg-surface/90 shadow-lg backdrop-blur-xl">
+<div class="mx-auto w-full max-w-4xl px-4 pb-12 pt-24 sm:px-6 sm:pb-16 sm:pt-28 lg:px-8">
+	<div
+		class="overflow-hidden rounded-2xl border border-surface-alt/50 bg-surface/90 shadow-lg backdrop-blur-xl"
+	>
 		<ProfileCover bind:avatarPreview defaultAvatar={data.avatar} />
 
 		<div class="p-6 pt-14 sm:p-8 sm:pt-16 lg:p-10 lg:pt-20">
 			<h1 class="mb-2 text-2xl font-bold text-text-main sm:text-3xl">{STRINGS.PROFILE.TITLE}</h1>
-			<p class="mb-8 text-sm text-text-muted">Manage your personal information and security settings.</p>
-			
+			<p class="mb-8 text-sm text-text-muted">
+				Manage your personal information and security settings.
+			</p>
+
 			{#if $message}
 				<div class="mb-6 rounded-lg bg-surface-alt p-4 text-sm text-text-main">
 					{$message}
@@ -63,7 +69,12 @@
 
 			<form id="profile_form" method="POST" enctype="multipart/form-data" use:enhance>
 				<PersonalInfo form={$form} errors={$errors} constraints={$constraints} />
-				<SecurityInfo form={$form} errors={$errors} constraints={$constraints} userAddresses={data.userAddresses} />
+				<SecurityInfo
+					form={$form}
+					errors={$errors}
+					constraints={$constraints}
+					userAddresses={data.userAddresses}
+				/>
 
 				<div class="mt-8 flex items-center justify-end border-t border-surface-alt pt-6">
 					<button
@@ -72,7 +83,9 @@
 						class="flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 font-medium text-secondary shadow-md transition-all hover:bg-primary-hover hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-70"
 					>
 						{#if $delayed}
-							<div class="h-5 w-5 animate-spin rounded-full border-2 border-secondary border-t-transparent"></div>
+							<div
+								class="h-5 w-5 animate-spin rounded-full border-2 border-secondary border-t-transparent"
+							></div>
 							Saving...
 						{:else}
 							<Save size={18} />

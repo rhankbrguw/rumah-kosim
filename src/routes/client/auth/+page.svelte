@@ -4,4 +4,4 @@
 	export let data: PageData;
 </script>
 
-<AuthForm data={data} />
+<AuthForm {data} />

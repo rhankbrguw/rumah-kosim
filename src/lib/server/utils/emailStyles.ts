@@ -1,4 +1,4 @@
-import { COLORS } from '$lib/constants/colors.js';
+import { COLORS } from '$lib/constants/emailColors.js';
 
 export const baseStyles = `
 	font-family: 'Inter', system-ui, -apple-system, sans-serif;
@@ -14,8 +14,8 @@ export const containerStyles = `
 	margin: 0 auto;
 	border-radius: 16px;
 	padding: 40px;
-	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-	border: 1px solid rgba(15, 23, 42, 0.1);
+	box-shadow: 0 4px 20px ${COLORS.SHADOW_LIGHT};
+	border: 1px solid ${COLORS.BORDER_LIGHT};
 `;
 
 export const headingStyles = `

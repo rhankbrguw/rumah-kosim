@@ -1,16 +1,7 @@
-import { json } from '@sveltejs/kit';
-import { writeFile, mkdir } from 'fs/promises';
-import { HTTP_STATUS } from '$lib/constants/config.js';
+import { HTTP_STATUS, ERROR_CODES } from '$lib/constants/config.js';
+import { jsonResponse, errorResponse } from '$lib/server/utils/response.js';
 import { logger } from '$lib/server/utils/logger.js';
-import { join } from 'path';
-
-async function ensureDir(dirPath: string) {
-	try {
-		await mkdir(dirPath, { recursive: true });
-	} catch (err) {
-		if ((err as NodeJS.ErrnoException).code !== 'EEXIST') throw err;
-	}
-}
+import { processProductImageUpload } from '$lib/server/services/fileUploadService.js';
 
 export async function POST({ request }) {
 	try {
@@ -18,45 +9,30 @@ export async function POST({ request }) {
 		const image = formData.get('image');
 
 		if (!(image instanceof File)) {
-			return json(
-				{ success: false, message: 'No valid image uploaded' },
-				{ status: HTTP_STATUS.BAD_REQUEST }
+			return errorResponse(
+				'No valid image uploaded',
+				HTTP_STATUS.BAD_REQUEST,
+				ERROR_CODES.VALIDATION_ERROR
 			);
 		}
 
+		const imagePath = await processProductImageUpload(image);
 
-		const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
-		if (!allowedTypes.includes(image.type)) {
-			return json(
-				{ success: false, message: 'Invalid file type' },
-				{ status: HTTP_STATUS.BAD_REQUEST }
-			);
-		}
-
-
-		const extension = image.name.split('.').pop();
-		const filename = `${Date.now()}-${Math.random().toString(36).substring(7)}.${extension}`;
-
-
-		const uploadDir = join(process.cwd(), 'static', 'uploads', 'products');
-		await ensureDir(uploadDir);
-
-
-		const arrayBuffer = await image.arrayBuffer();
-		const buffer = Buffer.from(arrayBuffer);
-		const filePath = join(uploadDir, filename);
-
-		await writeFile(filePath, buffer);
-
-		return json({
-			success: true,
-			imagePath: `/uploads/products/${filename}`
-		});
+		return jsonResponse({ imagePath }, 'Image uploaded successfully');
 	} catch (error) {
 		logger.error('Upload error:', error as Error);
-		return json(
-			{ success: false, message: 'Error uploading file' },
-			{ status: HTTP_STATUS.INTERNAL_SERVER_ERROR }
+		const err = error as Error;
+		if (err.message === 'Invalid file type') {
+			return errorResponse(
+				'Invalid file type',
+				HTTP_STATUS.BAD_REQUEST,
+				ERROR_CODES.VALIDATION_ERROR
+			);
+		}
+		return errorResponse(
+			'Error uploading file',
+			HTTP_STATUS.INTERNAL_SERVER_ERROR,
+			ERROR_CODES.INTERNAL_ERROR
 		);
 	}
 }

@@ -5,18 +5,19 @@
 	import ChatWidget from '$lib/components/ChatWidget.svelte';
 </script>
 
-<Toaster 
-	position="top-center" 
+<Toaster
+	position="top-center"
 	duration={3500}
-	richColors 
-	toastOptions={{ 
-		style: 'border-radius: 12px; font-family: inherit; box-shadow: var(--shadow-lg, 0 10px 15px -3px rgb(0 0 0 / 0.1)); border: 1px solid var(--color-surface-alt);',
+	richColors
+	toastOptions={{
+		style:
+			'border-radius: 12px; font-family: inherit; box-shadow: var(--shadow-lg, 0 10px 15px -3px var(--color-shadow-lg, rgba(0,0,0,0.1))); border: 1px solid var(--color-surface-alt);',
 		classes: { toast: 'bg-surface text-text-main' }
-	}} 
+	}}
 />
 
 <div
-	class="fixed inset-0 -z-50 bg-cover bg-center bg-no-repeat opacity-[0.05] bg-[url('/images/bg-ruko.png')]"
+	class="fixed inset-0 -z-50 bg-[url('/images/bg-ruko.png')] bg-cover bg-center bg-no-repeat opacity-[0.05]"
 ></div>
 <div class="app">
 	<Header />

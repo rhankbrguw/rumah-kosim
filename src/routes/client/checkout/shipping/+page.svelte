@@ -9,12 +9,16 @@
 	import ShippingOptionsForm from './ShippingOptionsForm.svelte';
 	import CheckoutProgressBar from '$lib/components/CheckoutProgressBar.svelte';
 
-	export let data: any;
+	export let data: { cartItems: { price: number; quantity: number; [key: string]: unknown }[] };
 
 	import { onMount } from 'svelte';
 	let selectedShipping = '';
 	$: cartItems = data.cartItems;
-	$: subtotal = cartItems.reduce((sum: number, item: any) => sum + item.price * item.quantity, 0);
+	$: subtotal = cartItems.reduce(
+		(sum: number, item: { price: number; quantity: number; [key: string]: unknown }) =>
+			sum + item.price * item.quantity,
+		0
+	);
 
 	let couponCode = '';
 	let isValidCoupon = false;
@@ -47,7 +51,12 @@
 		}
 	];
 
-	function handleShippingSelect(option: { id: string, label: string, duration: string, price: number }) {
+	function handleShippingSelect(option: {
+		id: string;
+		label: string;
+		duration: string;
+		price: number;
+	}) {
 		selectedShipping = option.id;
 		checkoutStore.setShipping({
 			...option,
@@ -91,14 +100,14 @@
 
 <div class="min-h-screen w-full bg-surface pb-20 pt-24 md:pt-32">
 	<div class="mx-auto max-w-5xl px-4 sm:px-8">
-	<h1 class="mb-6 text-xl font-semibold text-text-main sm:text-2xl">
-		{STRINGS.CHECKOUT.TITLE}
-	</h1>
+		<h1 class="mb-6 text-xl font-semibold text-text-main sm:text-2xl">
+			{STRINGS.CHECKOUT.TITLE}
+		</h1>
 
-	<CheckoutProgressBar activeStep={1} />
+		<CheckoutProgressBar activeStep={1} />
 
-	<div class="grid grid-cols-1 gap-12 lg:grid-cols-[1fr,26rem] lg:gap-16">
-		<div class="pt-2">
+		<div class="grid grid-cols-1 gap-12 lg:grid-cols-[1fr,26rem] lg:gap-16">
+			<div class="pt-2">
 				<ShippingOptionsForm
 					{shippingOptions}
 					bind:selectedShipping
@@ -106,29 +115,35 @@
 					{handleShippingSelect}
 				/>
 
-			<form method="POST" action="?/saveShipping" use:enhance>
-				<input type="hidden" name="shippingMethod" value={selectedShipping} />
-				<input type="hidden" name="shippingPrice" value={isValidCoupon ? 0 : (shippingOptions.find(o => o.id === selectedShipping)?.price || 0)} />
-				<button
-					type="submit"
-					on:click={handleContinue}
-					class="mt-6 w-full rounded-xl bg-primary py-3 font-bold text-text-inverse transition-colors hover:bg-primary-hover"
-				>
-					{STRINGS.CHECKOUT.SHIPPING.CONTINUE}
-				</button>
-			</form>
-		</div>
+				<form method="POST" action="?/saveShipping" use:enhance>
+					<input type="hidden" name="shippingMethod" value={selectedShipping} />
+					<input
+						type="hidden"
+						name="shippingPrice"
+						value={isValidCoupon
+							? 0
+							: shippingOptions.find((o) => o.id === selectedShipping)?.price || 0}
+					/>
+					<button
+						type="submit"
+						on:click={handleContinue}
+						class="mt-6 w-full rounded-xl bg-primary py-3 font-bold text-text-inverse transition-colors hover:bg-primary-hover"
+					>
+						{STRINGS.CHECKOUT.SHIPPING.CONTINUE}
+					</button>
+				</form>
+			</div>
 
-		<ShippingSummary
-			{cartItems}
-			{subtotal}
-			{shippingOptions}
-			{selectedShipping}
-			bind:isValidCoupon
-			bind:couponCode
-			{handleCouponSubmit}
-			{calculateTotal}
-		/>
-	</div>
+			<ShippingSummary
+				{cartItems}
+				{subtotal}
+				{shippingOptions}
+				{selectedShipping}
+				bind:isValidCoupon
+				bind:couponCode
+				{handleCouponSubmit}
+				{calculateTotal}
+			/>
+		</div>
 	</div>
 </div>

@@ -3,19 +3,38 @@
 	import { formatIDR } from '$lib/utils/currency';
 	import { STRINGS } from '$lib/constants/strings';
 
-	export let item: { product_id: number, title: string, image: string, price_at_time: number, quantity: number, reviewed?: boolean, review?: { comment: string, rating?: number } };
+	export let item: {
+		product_id: number;
+		title?: string;
+		image?: string;
+		price_at_time: number;
+		quantity: number;
+		reviewed?: boolean;
+		review?: { comment?: string; rating?: number };
+	};
 	export let orderStatus: string;
 	export let orderId: number;
-	export let openReviewModal: (item: { id: number, title: string, image: string, orderId: number }) => void;
+	export let openReviewModal: (item: {
+		id: number;
+		title: string;
+		image: string;
+		orderId: number;
+	}) => void;
 </script>
 
-<div class="flex flex-col gap-4 rounded-xl border border-secondary/20 bg-surface-alt/30 p-4 shadow-sm transition-all hover:bg-surface-alt/50 sm:flex-row sm:items-center">
-	<img src={item.image || STRINGS.SHOP.FALLBACK_IMAGE} alt={item.title} class="h-20 w-20 rounded-lg object-cover shadow-sm" />
-	
+<div
+	class="flex flex-col gap-4 rounded-xl border border-secondary/20 bg-surface-alt/30 p-4 shadow-sm transition-all hover:bg-surface-alt/50 sm:flex-row sm:items-center"
+>
+	<img
+		src={item.image || STRINGS.SHOP.FALLBACK_IMAGE}
+		alt={item.title}
+		class="h-20 w-20 rounded-lg object-cover shadow-sm"
+	/>
+
 	<div class="flex flex-1 flex-col justify-between gap-3">
-		<div class="flex flex-col justify-between sm:flex-row sm:items-start gap-4">
+		<div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
 			<div>
-				<h5 class="font-bold text-text-main line-clamp-2">{item.title}</h5>
+				<h5 class="line-clamp-2 font-bold text-text-main">{item.title}</h5>
 				<p class="mt-1 text-sm font-medium text-text-muted">
 					{item.quantity} × {formatIDR(item.price_at_time)}
 				</p>
@@ -28,13 +47,17 @@
 					<div class="flex flex-col gap-1.5 rounded-lg bg-surface/50 p-3">
 						<div class="flex items-center gap-1 text-primary">
 							{#each Array(5) as _, i}
-								<StarIcon size={14} fill={i < (item.review?.rating || 5) ? 'currentColor' : 'none'} class={i < (item.review?.rating || 5) ? 'text-primary' : 'text-secondary'} />
+								<StarIcon
+									size={14}
+									fill={i < (item.review?.rating || 5) ? 'currentColor' : 'none'}
+									class={i < (item.review?.rating || 5) ? 'text-primary' : 'text-secondary'}
+								/>
 							{/each}
 							<span class="ml-2 text-xs font-bold text-text-main">Reviewed</span>
 						</div>
 						<div class="flex items-start gap-2 text-sm text-text-muted">
 							<MessageCircle size={14} class="mt-0.5 shrink-0" />
-							<span class="italic line-clamp-2">"{item.review?.comment}"</span>
+							<span class="line-clamp-2 italic">"{item.review?.comment}"</span>
 						</div>
 					</div>
 				{:else}
@@ -44,8 +67,8 @@
 							openReviewModal({
 								id: item.product_id,
 								orderId: orderId,
-								title: item.title,
-								image: item.image
+								title: item.title || '',
+								image: item.image || ''
 							})}
 					>
 						<StarIcon size={16} />

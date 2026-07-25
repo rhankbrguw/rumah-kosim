@@ -6,7 +6,6 @@
 	export let month: string = '';
 	export let year: string = '';
 	export let cvv: string = '';
-	export let loading: boolean = false;
 
 	const formatCard = (e: Event) =>
 		(cardNumber = (e.target as HTMLInputElement).value
@@ -33,15 +32,27 @@
 		required
 	/>
 	<div class="grid grid-cols-3 gap-3">
-		<select bind:value={month} class="rounded-xl border border-secondary/20 bg-surface-alt px-3 py-3 text-sm" required>
+		<select
+			bind:value={month}
+			class="rounded-xl border border-secondary/20 bg-surface-alt px-3 py-3 text-sm"
+			required
+		>
 			<option value="">Month</option>
-			{#each Array(12).fill(0).map((_, i) => i + 1) as m}
+			{#each Array(12)
+				.fill(0)
+				.map((_, i) => i + 1) as m}
 				<option value={m.toString().padStart(2, '0')}>{m.toString().padStart(2, '0')}</option>
 			{/each}
 		</select>
-		<select bind:value={year} class="rounded-xl border border-secondary/20 bg-surface-alt px-3 py-3 text-sm" required>
+		<select
+			bind:value={year}
+			class="rounded-xl border border-secondary/20 bg-surface-alt px-3 py-3 text-sm"
+			required
+		>
 			<option value="">Year</option>
-			{#each Array(10).fill(0).map((_, i) => new Date().getFullYear() + i) as y}
+			{#each Array(10)
+				.fill(0)
+				.map((_, i) => new Date().getFullYear() + i) as y}
 				<option value={y}>{y}</option>
 			{/each}
 		</select>

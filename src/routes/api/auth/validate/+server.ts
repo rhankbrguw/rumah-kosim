@@ -4,6 +4,7 @@ import { HTTP_STATUS, ERROR_CODES } from '$lib/constants/config.js';
 import { jsonResponse, errorResponse } from '$lib/server/utils/response.js';
 import { MESSAGES } from '$lib/constants/messages.js';
 import { validateTokenSchema } from '$lib/server/validations/auth.js';
+import { logger } from '$lib/server/utils/logger.js';
 
 export async function POST({ request }) {
 	const body = await request.json();
@@ -32,7 +33,8 @@ export async function POST({ request }) {
 			},
 			MESSAGES.SUCCESS.AUTH
 		);
-	} catch {
+	} catch (err) {
+		logger.warn('Token validation failed', { error: (err as Error).message });
 		return errorResponse('Invalid token', HTTP_STATUS.UNAUTHORIZED, ERROR_CODES.UNAUTHENTICATED);
 	}
 }

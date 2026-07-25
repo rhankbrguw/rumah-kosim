@@ -4,7 +4,13 @@
 	import { STRINGS } from '$lib/constants/strings';
 	import { superForm } from 'sveltekit-superforms';
 
-	export let data: any;
+	import type { SuperValidated } from 'sveltekit-superforms';
+	export let data: SuperValidated<{
+		rating: number;
+		comment: string;
+		orderId: number;
+		productId: number;
+	}>;
 	export let product: { id: number; title: string; image: string; orderId: number } | null = null;
 	export let isOpen: boolean = false;
 
@@ -65,7 +71,10 @@
 								role="radio"
 								on:click={() => ($form.rating = i)}
 							>
-								<StarIcon size={24} class={i <= ($form.rating || 5) ? 'text-primary' : 'text-secondary'} />
+								<StarIcon
+									size={24}
+									class={i <= ($form.rating || 5) ? 'text-primary' : 'text-secondary'}
+								/>
 							</button>
 						{/each}
 					</div>

@@ -15,7 +15,8 @@ const getUserIdFromAuth = (request: Request) => {
 	try {
 		const decoded = jwt.verify(token, JWT_SECRET);
 		return decoded.id;
-	} catch {
+	} catch (err) {
+		logger.warn('JWT verification failed in getUserIdFromAuth', { error: (err as Error).message });
 		return null;
 	}
 };

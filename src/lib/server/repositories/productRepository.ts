@@ -13,13 +13,16 @@ export const ProductRepository = {
 	},
 
 	async getById(id: number) {
-		const rows = (await db.query(`
+		const rows = (await db.query(
+			`
 			SELECT 
 				p.*,
 				COALESCE((SELECT SUM(quantity) FROM order_items WHERE product_id = p.id), 0) AS sold_count,
 				COALESCE((SELECT AVG(rating) FROM reviews WHERE product_id = p.id), 0) AS average_rating
 			FROM products p WHERE id = ?
-		`, [id])) as RowDataPacket[];
+		`,
+			[id]
+		)) as RowDataPacket[];
 		return rows[0] || null;
 	},
 
@@ -34,7 +37,14 @@ export const ProductRepository = {
 		);
 	},
 
-	async update(id: number, title: string, description: string, price: number, quantity: number, image: string) {
+	async update(
+		id: number,
+		title: string,
+		description: string,
+		price: number,
+		quantity: number,
+		image: string
+	) {
 		return await db.query(
 			'UPDATE products SET title = ?, description = ?, price = ?, quantity = ?, image = ? WHERE id = ?',
 			[title, description, price, quantity, image, id]
@@ -47,5 +57,17 @@ export const ProductRepository = {
 
 	async delete(id: number) {
 		return await db.query('DELETE FROM products WHERE id = ?', [id]);
+	},
+
+	async searchAvailable(query?: string) {
+		let sql = 'SELECT id, title, description, price, quantity FROM products WHERE quantity > 0';
+		let params: unknown[] = [];
+		if (query) {
+			sql += ' AND (title LIKE ? OR description LIKE ?)';
+			const q = `%${query}%`;
+			params = [q, q];
+		}
+		sql += ' LIMIT 5';
+		return await db.query(sql, params);
 	}
 };

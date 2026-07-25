@@ -1,6 +1,7 @@
 import { derived } from 'svelte/store';
+import { logoutUser } from '$lib/services/authApiService';
+import { CLIENT_ROUTES } from '$lib/constants/routes';
 import { page } from '$app/stores';
-import { goto } from '$app/navigation';
 import { browser } from '$app/environment';
 
 export const auth = derived(page, ($page) => {
@@ -14,8 +15,8 @@ export const auth = derived(page, ($page) => {
 
 export async function logout() {
 	if (browser) {
-		await fetch('/api/auth/logout', { method: 'POST' });
-		window.location.href = '/client/auth';
+		await logoutUser();
+		window.location.href = CLIENT_ROUTES.AUTH;
 	}
 }
 

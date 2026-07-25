@@ -43,6 +43,7 @@ The application strictly adheres to a **Strict Layered Architecture** (`Controll
 ## Installation & Setup Guide
 
 **System Requirements:**
+
 - Node.js v18.0.0 or higher
 - MySQL v8.0+
 - npm, yarn, or pnpm

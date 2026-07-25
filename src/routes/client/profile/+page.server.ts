@@ -1,12 +1,14 @@
-import { superValidate } from 'sveltekit-superforms';
+import { superValidate, message } from 'sveltekit-superforms';
 import { zod4 as zod } from 'sveltekit-superforms/adapters';
 import { profileSchema } from '$lib/server/validations/auth.js';
-import { getUserById, updateProfile, getUserAddresses, saveUserAddress } from '$lib/server/services/authService.js';
+import { getUserById } from '$lib/server/services/authService.js';
+import { updateProfile, getUserAddresses } from '$lib/server/services/profileService.js';
 import { redirect, fail } from '@sveltejs/kit';
 import bcrypt from 'bcrypt';
 import fs from 'fs';
 import jwt from 'jsonwebtoken';
 import { JWT_SECRET } from '$env/static/private';
+import { logger } from '$lib/server/utils/logger.js';
 
 export const load = async ({ locals }) => {
 	if (!locals.user) {
@@ -57,7 +59,7 @@ export const actions = {
 				finalPhone = '+62' + finalPhone;
 			}
 
-			const dataToUpdate: any = {
+			const dataToUpdate: Record<string, unknown> = {
 				username: form.data.username,
 				email: form.data.email,
 				full_name: form.data.full_name || null,
@@ -83,12 +85,18 @@ export const actions = {
 				dataToUpdate.password = await bcrypt.hash(form.data.password, 10);
 			}
 
-			await updateProfile(locals.user.id, dataToUpdate);
+			await updateProfile(locals.user.id, dataToUpdate as Parameters<typeof updateProfile>[1]);
 
 			const newAvatar = dataToUpdate.avatar || locals.user.avatar;
-			const payload = { id: locals.user.id, username: dataToUpdate.username, email: dataToUpdate.email, role: locals.user.role, avatar: newAvatar };
+			const payload = {
+				id: locals.user.id,
+				username: dataToUpdate.username,
+				email: dataToUpdate.email,
+				role: locals.user.role,
+				avatar: newAvatar
+			};
 			const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '1d' });
-			
+
 			cookies.set('authToken', token, {
 				path: '/',
 				httpOnly: true,
@@ -98,8 +106,9 @@ export const actions = {
 			});
 
 			return { form, success: true };
-		} catch (error) {
-			return fail(500, { form, error: 'Failed to update profile' });
+		} catch (_error) {
+			logger.error('Failed to update profile:', _error as Error);
+			return message(form, 'Failed to update profile', { status: 500 });
 		}
 	}
 };

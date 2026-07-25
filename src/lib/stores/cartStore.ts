@@ -1,5 +1,5 @@
 import { writable } from 'svelte/store';
-import axios from 'axios';
+import { fetchCartItems } from '$lib/services/cartApiService';
 
 export type CartItem = {
 	product_id: number;
@@ -27,11 +27,11 @@ const createCartStore = () => {
 		async getCart() {
 			update((store) => ({ ...store, loading: true }));
 			try {
-				const response = await axios.get('/api/cart');
+				const payload = await fetchCartItems();
 
 				update((store) => ({
 					...store,
-					items: response.data.data || response.data,
+					items: payload,
 					loading: false
 				}));
 			} catch (error) {

@@ -1,48 +1,55 @@
-import { json } from '@sveltejs/kit';
-import { query } from '$lib/db.js';
+import { HTTP_STATUS, ERROR_CODES } from '$lib/constants/config.js';
+import { jsonResponse, errorResponse } from '$lib/server/utils/response.js';
+import { MESSAGES } from '$lib/constants/messages.js';
 import { checkAdmin } from '$lib/server/admin-guard.js';
-
+import { getAllOrdersAdmin, updateOrderStatus } from '$lib/server/services/orderService.js';
 export async function GET({ request }) {
 	if (!(await checkAdmin(request))) {
-		return json({ success: false, message: 'Unauthorized' }, { status: 401 });
+		return errorResponse(
+			MESSAGES.ERROR.UNAUTHORIZED,
+			HTTP_STATUS.UNAUTHORIZED,
+			ERROR_CODES.UNAUTHORIZED
+		);
 	}
 
 	try {
-		const orders = await query(`
-            SELECT
-                o.id,
-                p.title,
-                u.username,
-                oi.quantity,
-                oi.price_at_time,
-                o.total,
-                o.status
-            FROM orders o
-            JOIN order_items oi ON o.id = oi.order_id
-            JOIN products p ON oi.product_id = p.id
-            JOIN users u ON o.user_id = u.id
-            ORDER BY o.date DESC
-        `);
-		return json({ success: true, orders });
+		const orders = await getAllOrdersAdmin();
+		return jsonResponse({ orders }, MESSAGES.SUCCESS.FETCH);
 	} catch (error) {
-		return json({ success: false, message: (error as Error).message }, { status: 500 });
+		return errorResponse(
+			(error as Error).message,
+			HTTP_STATUS.INTERNAL_SERVER_ERROR,
+			ERROR_CODES.INTERNAL_ERROR
+		);
 	}
 }
 
 export async function PATCH({ request }) {
 	if (!(await checkAdmin(request))) {
-		return json({ success: false, message: 'Unauthorized' }, { status: 401 });
+		return errorResponse(
+			MESSAGES.ERROR.UNAUTHORIZED,
+			HTTP_STATUS.UNAUTHORIZED,
+			ERROR_CODES.UNAUTHORIZED
+		);
 	}
 
 	try {
 		const { orderId, status } = await request.json();
 		if (!orderId || !status) {
-			return json({ success: false, message: 'Missing required fields' }, { status: 400 });
+			return errorResponse(
+				MESSAGES.ERROR.VALIDATION,
+				HTTP_STATUS.BAD_REQUEST,
+				ERROR_CODES.VALIDATION_ERROR
+			);
 		}
 
-		await query('UPDATE orders SET status = ? WHERE id = ?', [status, orderId]);
-		return json({ success: true });
+		await updateOrderStatus(orderId, status);
+		return jsonResponse(null, MESSAGES.SUCCESS.UPDATE);
 	} catch (error) {
-		return json({ success: false, message: (error as Error).message }, { status: 500 });
+		return errorResponse(
+			(error as Error).message,
+			HTTP_STATUS.INTERNAL_SERVER_ERROR,
+			ERROR_CODES.INTERNAL_ERROR
+		);
 	}
 }

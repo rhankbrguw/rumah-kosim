@@ -1,7 +1,7 @@
 import { ProductService } from '$lib/server/services/productService.js';
 import { addToCart } from '$lib/server/services/cartService.js';
 import { getProductReviews } from '$lib/server/services/reviewService.js';
-import { fail, redirect } from '@sveltejs/kit';
+import { fail } from '@sveltejs/kit';
 import { STRINGS } from '$lib/constants/strings.js';
 import { logger } from '$lib/server/utils/logger.js';
 
@@ -10,7 +10,7 @@ export const load = async ({ params }) => {
 		const productId = Number(params.id);
 		const productRaw = await ProductService.getById(productId);
 		const reviewsRaw = await getProductReviews(productId);
-		
+
 		const product = productRaw as unknown as {
 			id: number;
 			title: string;
@@ -43,9 +43,9 @@ export const actions = {
 		if (!locals.user)
 			return fail(401, { error: STRINGS.AUTH.LOGIN.REQUIRED, redirectTo: '/client/auth' });
 
-		const data = await request.formData();
-		const productId = Number(data.get('productId'));
-		const quantity = Number(data.get('quantity'));
+		const formData = await request.formData();
+		const productId = Number(formData.get('productId'));
+		const quantity = Number(formData.get('quantity'));
 
 		try {
 			await addToCart(locals.user.id, productId, quantity);

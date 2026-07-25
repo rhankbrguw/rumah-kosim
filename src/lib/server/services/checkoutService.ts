@@ -1,8 +1,12 @@
 import { UserRepository } from '$lib/server/repositories/userRepository.js';
-import { OrderRepository } from '$lib/server/repositories/orderRepository.js';
+import { UserAddressRepository } from '$lib/server/repositories/userAddressRepository.js';
+import { OrderTransactionRepository } from '$lib/server/repositories/orderTransactionRepository.js';
+import { logger } from '$lib/server/utils/logger.js';
+
+import { STORE_CONSTANTS } from '$lib/constants/config.js';
 
 function generateTrackingNumber() {
-	const prefix = 'RK';
+	const prefix = STORE_CONSTANTS.ORDER_PREFIX;
 	const timestamp = Date.now().toString().slice(-8);
 	const random = Math.floor(Math.random() * 1000)
 		.toString()
@@ -11,11 +15,11 @@ function generateTrackingNumber() {
 }
 
 export const getAddress = async (userId: number) => {
-	return await UserRepository.getAddress(userId);
+	return await UserAddressRepository.getAddress(userId);
 };
 
 export const updateAddress = async (userId: number, address: string) => {
-	await UserRepository.updateAddress(userId, address);
+	await UserAddressRepository.updateAddress(userId, address);
 };
 
 interface CartItem {
@@ -26,6 +30,43 @@ interface CartItem {
 
 import { sendOrderConfirmationEmail } from '$lib/server/utils/mailer.js';
 
+async function generateMidtransToken(trackingNumber: string, total: number, user: Record<string, unknown> | null) {
+	const { snap } = await import('$lib/server/utils/midtrans.js');
+	const transaction = await snap.createTransaction({
+		transaction_details: {
+			order_id: trackingNumber,
+			gross_amount: Math.round(total)
+		},
+		customer_details: {
+			first_name: user?.username || STORE_CONSTANTS.DEFAULT_CUSTOMER_NAME,
+			email: user?.email || STORE_CONSTANTS.DEFAULT_CUSTOMER_EMAIL
+		}
+	});
+	return transaction.token;
+}
+
+async function dispatchOrderEmails(user: Record<string, unknown> | null, total: number, trackingNumber: string, orderId: number) {
+	if (!user?.email || typeof user.email !== 'string') return;
+	const userEmail = user.email;
+	const username = typeof user.username === 'string' ? user.username : STORE_CONSTANTS.DEFAULT_CUSTOMER_NAME;
+	
+	sendOrderConfirmationEmail(userEmail, total, trackingNumber).catch((e) => {
+		logger.error('Failed to send invoice email:', e);
+	});
+
+	try {
+		const adminEmails = await UserRepository.getAdminEmails();
+		if (adminEmails.length > 0) {
+			const { sendAdminNotificationEmail } = await import('$lib/server/utils/mailer.js');
+			sendAdminNotificationEmail(adminEmails, orderId, total, username).catch((e) => {
+				logger.error('Failed to send admin notification:', e);
+			});
+		}
+	} catch (e) {
+		logger.error('Failed to get admin emails:', e);
+	}
+}
+
 export const processPayment = async (
 	userId: number,
 	cartItems: CartItem[],
@@ -35,7 +76,7 @@ export const processPayment = async (
 	shippingMethod: string
 ) => {
 	const trackingNumber = generateTrackingNumber();
-	const orderId = await OrderRepository.createOrderTransaction(
+	const orderId = await OrderTransactionRepository.createOrderTransaction(
 		userId,
 		cartItems,
 		total,
@@ -44,41 +85,10 @@ export const processPayment = async (
 		shippingMethod,
 		trackingNumber
 	);
-	
+
 	const user = await UserRepository.getById(userId);
-	
+	const snapToken = await generateMidtransToken(trackingNumber, total, user);
+	await dispatchOrderEmails(user, total, trackingNumber, orderId);
 
-	const { snap } = await import('$lib/server/utils/midtrans.js');
-	const parameters = {
-		transaction_details: {
-			order_id: trackingNumber,
-			gross_amount: Math.round(total)
-		},
-		customer_details: {
-			first_name: user?.username || 'Customer',
-			email: user?.email || 'customer@example.com'
-		}
-	};
-	
-	const transaction = await snap.createTransaction(parameters);
-	const snapToken = transaction.token;
-
-	if (user && user.email) {
-		sendOrderConfirmationEmail(user.email, total, trackingNumber).catch((e) => {
-			logger.error('Failed to send invoice email:', e);
-		});
-		
-
-		UserRepository.getAdminEmails().then((adminEmails) => {
-			if (adminEmails.length > 0) {
-				import('$lib/server/utils/mailer.js').then(({ sendAdminNotificationEmail }) => {
-					sendAdminNotificationEmail(adminEmails, orderId, total, user.username).catch((e) => {
-						logger.error('Failed to send admin notification:', e);
-					});
-				});
-			}
-		}).catch((e) => logger.error('Failed to get admin emails:', e));
-	}
-	
 	return { orderId, trackingNumber, snapToken };
 };

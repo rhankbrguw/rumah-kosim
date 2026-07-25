@@ -7,6 +7,7 @@ import { fail, redirect } from '@sveltejs/kit';
 import { STRINGS } from '$lib/constants/strings.js';
 import { logger } from '$lib/server/utils/logger.js';
 import type { RequestEvent } from '@sveltejs/kit';
+import type { Order } from '$lib/types';
 
 const reviewSchema = z.object({
 	orderId: z.coerce.number(),
@@ -21,16 +22,7 @@ export const load = async ({ locals }: RequestEvent) => {
 	}
 
 	const historyRaw = await getOrders(locals.user.id);
-	const history = historyRaw as unknown as {
-		id: number;
-		date: string;
-		tracking_number: string;
-		status: string;
-		total: number;
-		shipping_method: string;
-		shipping_address: string;
-		items: Record<string, unknown>[];
-	}[];
+	const history = historyRaw as unknown as Order[];
 
 	const reviewForm = await superValidate(zod(reviewSchema));
 

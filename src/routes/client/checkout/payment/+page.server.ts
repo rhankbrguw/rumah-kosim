@@ -7,6 +7,7 @@ import { fail, redirect } from '@sveltejs/kit';
 import { STRINGS } from '$lib/constants/strings.js';
 import { logger } from '$lib/server/utils/logger.js';
 import type { RequestEvent } from '@sveltejs/kit';
+import type { CartItem } from '$lib/types';
 
 const paymentFormSchema = z.object({
 	cartItemsJson: z.string().min(1, 'Cart items cannot be empty'),
@@ -22,12 +23,7 @@ export const load = async ({ locals }: RequestEvent) => {
 	}
 
 	const cartItemsRaw = await getCartItems(locals.user.id);
-	const cartItems = cartItemsRaw as unknown as {
-		price: number;
-		quantity: number;
-		title?: string;
-		image?: string;
-	}[];
+	const cartItems = cartItemsRaw as unknown as CartItem[];
 
 	const paymentForm = await superValidate(zod(paymentFormSchema));
 
@@ -58,7 +54,11 @@ export const actions = {
 				shippingMethod as string
 			);
 
-			return message(paymentForm, { status: 'success', text: STRINGS.CHECKOUT.MESSAGES.PAYMENT_SUCCESS, snapToken: result.snapToken });
+			return message(paymentForm, {
+				status: 'success',
+				text: STRINGS.CHECKOUT.MESSAGES.PAYMENT_SUCCESS,
+				snapToken: result.snapToken
+			});
 		} catch (err) {
 			const error = err as Error;
 			logger.error('Payment processing error:', error);

@@ -1,20 +1,26 @@
 <script lang="ts">
 	import { STRINGS } from '$lib/constants/strings.js';
-	
+	import { uploadImage, updateProductImage } from '$lib/services/adminService';
+
 	import ProductTable from './components/ProductTable.svelte';
 	import OrderTable from './components/OrderTable.svelte';
 	import { toast } from 'svelte-sonner';
 	import AdminModals from './components/AdminModals.svelte';
 	import { invalidateAll } from '$app/navigation';
-	import type { PageData } from './$types';
 
-	export let data: PageData;
+	export let data: import('./$types').PageData;
 
 	let state: {
 		activeTab: string;
 		searchTerm: string;
 		modals: { add: boolean; edit: boolean };
-		editingProduct: { id: number; title: string; price: number; quantity: number; image: string } | null;
+		editingProduct: {
+			id: number;
+			title: string;
+			price: number;
+			quantity: number;
+			image: string;
+		} | null;
 	} = {
 		activeTab: 'products',
 		searchTerm: '',
@@ -29,35 +35,19 @@
 			return toast.error(STRINGS.TOAST.INVALID_IMAGE);
 
 		try {
-			const uploadData = new FormData();
-			uploadData.append('image', file);
-			
-			const res = await fetch('/admin/api/upload', {
-				method: 'POST',
-				body: uploadData
-			});
-			if (!res.ok) throw new Error('Upload failed');
-			const result = await res.json();
+			const result = await uploadImage(file);
 			const path = result.imagePath;
 
 			if (id) {
-				const updateData = new FormData();
-				updateData.append('id', id.toString());
-				updateData.append('image', path);
-				
-				const updateRes = await fetch('?/updateImage', {
-					method: 'POST',
-					body: updateData
-				});
-				if (!updateRes.ok) throw new Error('Failed to update image path');
+				await updateProductImage(id, path);
 				await invalidateAll();
 				toast.success(STRINGS.TOAST.IMAGE_UPDATED);
 			} else {
 				if (onSuccess) onSuccess(path);
-				toast.success("Image uploaded successfully");
+				toast.success('Image uploaded successfully');
 			}
-		} catch (err: any) {
-			toast.error(err.message || STRINGS.TOAST.UPLOAD_FAILED);
+		} catch (err) {
+			toast.error((err as Error).message || STRINGS.TOAST.UPLOAD_FAILED);
 		}
 	}
 </script>
@@ -67,7 +57,7 @@
 		<div class="mb-6 mt-16 sm:mt-20"></div>
 
 		<div class="mb-6 flex gap-2">
-			{#each [{ id: 'products', label: STRINGS.ADMIN.TABS.PRODUCTS }, { id: 'orders', label: STRINGS.ADMIN.TABS.ORDERS }] as tab}
+			{#each [{ id: 'products', label: STRINGS.ADMIN.TABS.PRODUCTS }, { id: 'orders', label: STRINGS.ADMIN.TABS.ORDERS }] as tab, index (index)}
 				<button
 					class="rounded-md px-4 py-2 text-sm font-medium transition-colors sm:text-base {state.activeTab ===
 					tab.id
@@ -94,9 +84,7 @@
 				}}
 			/>
 		{:else}
-			<OrderTable
-				orders={data.orders}
-			/>
+			<OrderTable orders={data.orders} />
 		{/if}
 
 		<AdminModals

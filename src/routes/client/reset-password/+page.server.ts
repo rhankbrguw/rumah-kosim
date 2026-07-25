@@ -19,10 +19,10 @@ const resetPasswordSchema = z
 
 export const load = async ({ url }) => {
 	const token = url.searchParams.get('token') || '';
-	
+
 	const form = await superValidate(zod(resetPasswordSchema));
 	form.data.token = token;
-	
+
 	return { form, token };
 };
 
@@ -39,16 +39,18 @@ export const actions = {
 
 			const isSamePassword = await bcrypt.compare(form.data.password, user.password);
 			if (isSamePassword) {
-				return message(form, 'New password cannot be the same as your old password', { status: 400 });
+				return message(form, 'New password cannot be the same as your old password', {
+					status: 400
+				});
 			}
 
 			const hashedPassword = await bcrypt.hash(form.data.password, 10);
 			const success = await resetPassword(form.data.token, hashedPassword);
-			
+
 			if (!success) {
 				return message(form, 'Invalid or expired token', { status: 400 });
 			}
-			
+
 			throw redirect(303, '/client/auth');
 		} catch (error) {
 			if (isRedirect(error)) throw error;

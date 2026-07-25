@@ -18,7 +18,7 @@ export const ReviewRepository = {
 			const [orders] = (await conn.execute('SELECT id FROM orders WHERE id = ? AND user_id = ?', [
 				orderId,
 				userId
-			])) as [RowDataPacket[], any];
+			])) as [RowDataPacket[], unknown];
 
 			if (orders.length === 0) {
 				const error = new Error('Order not found') as Error & { status?: number };
@@ -29,7 +29,7 @@ export const ReviewRepository = {
 			const [existingReviews] = (await conn.execute(
 				'SELECT id FROM reviews WHERE order_id = ? AND product_id = ? AND user_id = ?',
 				[orderId, productId, userId]
-			)) as [RowDataPacket[], any];
+			)) as [RowDataPacket[], unknown];
 
 			if (existingReviews.length > 0) {
 				const error = new Error('Review already exists') as Error & { status?: number };
@@ -41,7 +41,7 @@ export const ReviewRepository = {
 				`INSERT INTO reviews (order_id, product_id, user_id, rating, comment)
                  VALUES (?, ?, ?, ?, ?)`,
 				[orderId, productId, userId, rating, comment]
-			)) as [ResultSetHeader, any];
+			)) as [ResultSetHeader, unknown];
 
 			await conn.commit();
 			return result.insertId;

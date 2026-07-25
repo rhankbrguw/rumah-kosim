@@ -1,12 +1,14 @@
 <script lang="ts">
-	import { MessageCircle, X, Send, Bot, User } from 'lucide-svelte';
+	import { MessageCircle, X, Send } from 'lucide-svelte';
 	import { scale } from 'svelte/transition';
 	import { afterUpdate } from 'svelte';
 	import { STRINGS } from '$lib/constants/strings';
+	import { sendChatMessage } from '$lib/services/aiService';
+	import ChatHeader from './ChatHeader.svelte';
 
 	let isOpen = false;
 	let message = '';
-	let messages: { role: 'model' | 'user', text: string }[] = [
+	let messages: { role: 'model' | 'user'; text: string }[] = [
 		{ role: 'model', text: STRINGS.AI_CS.GREETING }
 	];
 	let isLoading = false;
@@ -25,19 +27,14 @@
 		isLoading = true;
 
 		try {
-			const res = await fetch('/api/chat', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ message: userText })
-			});
-
-			const data = await res.json();
-			if (data.success && data.data && data.data.response) {
-				messages = [...messages, { role: 'model', text: data.data.response }];
+			const payload = await sendChatMessage(userText);
+			if (payload.success && payload.data && payload.data.response) {
+				messages = [...messages, { role: 'model', text: payload.data.response }];
 			} else {
 				messages = [...messages, { role: 'model', text: STRINGS.AI_CS.ERROR_SERVER }];
 			}
-		} catch (error) {
+		} catch (_error) {
+			// Ignore message parsing errors, chat will be empty
 			messages = [...messages, { role: 'model', text: STRINGS.AI_CS.ERROR_CONNECTION }];
 		} finally {
 			isLoading = false;
@@ -45,7 +42,10 @@
 	}
 
 	function handleKeydown(e: KeyboardEvent) {
-		if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+		if (e.key === 'Enter' && !e.shiftKey) {
+			e.preventDefault();
+			sendMessage();
+		}
 	}
 
 	afterUpdate(() => {
@@ -58,31 +58,22 @@
 		<div
 			in:scale={{ duration: 300, start: 0.9 }}
 			out:scale={{ duration: 200, start: 0.9 }}
-			class="mb-4 flex h-[70dvh] max-h-[600px] w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-2xl border border-surface-alt/50 bg-surface/90 shadow-2xl backdrop-blur-xl sm:w-[400px] sm:h-[500px]"
+			class="mb-4 flex h-[70dvh] max-h-[600px] w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-2xl border border-surface-alt/50 bg-surface/90 shadow-2xl backdrop-blur-xl sm:h-[500px] sm:w-[400px]"
 		>
 			<!-- Header -->
-			<div class="flex items-center justify-between border-b border-surface-alt bg-primary/10 px-5 py-4">
-				<div class="flex items-center gap-3">
-					<div class="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-secondary shadow-sm"><Bot size={20} /></div>
-					<div>
-						<h3 class="font-bold text-text-main">{STRINGS.AI_CS.TITLE}</h3>
-						<p class="text-xs text-text-muted">{STRINGS.AI_CS.SUBTITLE}</p>
-					</div>
-				</div>
-				<button on:click={toggleChat} class="cursor-pointer rounded-full p-2 text-text-muted transition-colors duration-200 hover:bg-surface-alt hover:text-text-main">
-					<X size={20} />
-				</button>
-			</div>
+			<ChatHeader {toggleChat} />
 
 			<!-- Chat Area -->
-			<div bind:this={chatContainer} class="flex-1 overflow-y-auto p-5 space-y-4">
+			<div bind:this={chatContainer} class="flex-1 space-y-4 overflow-y-auto p-5">
 				{#each messages as msg}
 					<div class="flex flex-col {msg.role === 'user' ? 'items-end' : 'items-start'}">
-						<div 
-							class="max-w-[85%] rounded-2xl px-4 py-3 shadow-sm {msg.role === 'user' ? 'bg-primary text-secondary rounded-tr-sm' : 'bg-surface-alt/50 text-text-main border border-surface-alt rounded-tl-sm'}"
+						<div
+							class="max-w-[85%] rounded-2xl px-4 py-3 shadow-sm {msg.role === 'user'
+								? 'rounded-tr-sm bg-primary text-secondary'
+								: 'rounded-tl-sm border border-surface-alt bg-surface-alt/50 text-text-main'}"
 						>
 							{#if msg.role === 'model'}
-								<div class="text-justify leading-relaxed tracking-wide text-sm space-y-2">
+								<div class="space-y-2 text-justify text-sm leading-relaxed tracking-wide">
 									{#each msg.text.split('\n') as line}
 										{#if line.trim()}
 											<p>{line.replace(/\*/g, '')}</p>
@@ -95,14 +86,16 @@
 						</div>
 					</div>
 				{/each}
-				
+
 				{#if isLoading}
 					<div class="flex items-start">
-						<div class="rounded-2xl rounded-tl-sm border border-surface-alt bg-surface-alt/50 px-4 py-3 shadow-sm">
+						<div
+							class="rounded-2xl rounded-tl-sm border border-surface-alt bg-surface-alt/50 px-4 py-3 shadow-sm"
+						>
 							<div class="flex items-center gap-1">
 								<div class="h-2 w-2 animate-bounce rounded-full bg-text-muted"></div>
-								<div class="h-2 w-2 animate-bounce rounded-full bg-text-muted" style="animation-delay: 0.2s"></div>
-								<div class="h-2 w-2 animate-bounce rounded-full bg-text-muted" style="animation-delay: 0.4s"></div>
+								<div class="delay-2 h-2 w-2 animate-bounce rounded-full bg-text-muted"></div>
+								<div class="delay-4 h-2 w-2 animate-bounce rounded-full bg-text-muted"></div>
 							</div>
 						</div>
 					</div>
@@ -143,3 +136,12 @@
 		{/if}
 	</button>
 </div>
+
+<style>
+	.delay-2 {
+		animation-delay: 0.2s;
+	}
+	.delay-4 {
+		animation-delay: 0.4s;
+	}
+</style>

@@ -2,9 +2,9 @@
 	import { STRINGS } from '$lib/constants/strings';
 	import { formatIDR } from '$lib/utils/currency';
 
-	export let cartItems: { title?: string, image?: string, price: number, quantity: number }[] = [];
+	export let cartItems: { title?: string; image?: string; price: number; quantity: number }[] = [];
 	export let subtotal: number = 0;
-	export let shippingOptions: { id: string, label: string, duration: string, price: number }[] = [];
+	export let shippingOptions: { id: string; label: string; duration: string; price: number }[] = [];
 	export let selectedShipping: string = '';
 	export let isValidCoupon: boolean = false;
 	export let couponCode: string = '';
@@ -18,7 +18,9 @@
 	<div class="space-y-4">
 		{#each cartItems as item}
 			<div class="flex gap-3 sm:gap-4">
-				<div class="h-16 w-16 overflow-hidden rounded-lg border border-secondary/20 bg-surface shadow-sm">
+				<div
+					class="h-16 w-16 overflow-hidden rounded-lg border border-secondary/20 bg-surface shadow-sm"
+				>
 					<img
 						src={item.image || STRINGS.SHOP.FALLBACK_IMAGE}
 						alt={item.title || 'Product'}
@@ -51,7 +53,9 @@
 			</button>
 		</div>
 		{#if isValidCoupon}
-			<p class="mt-2 text-sm font-medium text-primary">{STRINGS.CHECKOUT.SHIPPING.COUPON_SUCCESS}</p>
+			<p class="mt-2 text-sm font-medium text-primary">
+				{STRINGS.CHECKOUT.SHIPPING.COUPON_SUCCESS}
+			</p>
 		{/if}
 	</div>
 

@@ -1,13 +1,22 @@
 <script lang="ts">
-		import { goto } from '$app/navigation';
-	import { Search, X, Star } from 'lucide-svelte';
+	import { goto } from '$app/navigation';
+	import { Search, Star } from 'lucide-svelte';
 	import { onMount } from 'svelte';
-	import { fade } from 'svelte/transition';
+	import ShippingPromoModal from './ShippingPromoModal.svelte';
 	import { auth } from '$lib/stores/auth';
+	import { STORAGE_KEYS } from '$lib/constants/storageKeys';
 	import { STRINGS } from '$lib/constants/strings.js';
 	import { formatIDR } from '$lib/utils/currency.js';
 
-	export let books: { id: number, title: string, description: string, price: number, image: string, sold_count: number, average_rating: number }[] = [];
+	export let books: {
+		id: number;
+		title: string;
+		description: string;
+		price: number;
+		image: string;
+		sold_count: number;
+		average_rating: number;
+	}[] = [];
 	export let loading: boolean = true;
 	let searchTerm = '';
 	let showModal = false;
@@ -15,9 +24,9 @@
 	onMount(() => {
 		if ($auth.isAuthenticated && !$auth.isAdmin) {
 			const userId = $auth.user?.id;
-			if (!localStorage.getItem(`hasSeenShippingModal_${userId}`)) {
+			if (!localStorage.getItem(`${STORAGE_KEYS.SHIPPING_MODAL_PREFIX}${userId}`)) {
 				showModal = true;
-				localStorage.setItem(`hasSeenShippingModal_${userId}`, 'true');
+				localStorage.setItem(`${STORAGE_KEYS.SHIPPING_MODAL_PREFIX}${userId}`, 'true');
 			}
 		}
 	});
@@ -32,31 +41,7 @@
 </script>
 
 {#if showModal}
-	<div
-		class="fixed inset-0 z-50 flex items-center justify-center bg-text-main/60 backdrop-blur-md"
-		transition:fade={{ duration: 150 }}
-		on:click={() => (showModal = false)}
-		role="presentation"
-	>
-		<div
-			class="relative w-[90%] max-w-xl rounded-xl bg-surface p-2 shadow-2xl sm:w-auto"
-			on:click|stopPropagation
-			role="presentation"
-		>
-			<button
-				class="absolute -right-5 -top-5 z-50 rounded-full bg-danger p-3 text-text-inverse shadow-lg transition-transform hover:scale-110 hover:bg-danger-hover"
-				on:click={() => (showModal = false)}
-				aria-label="Close modal"
-			>
-				<X size={24} />
-			</button>
-			<img
-				src="/images/banner-5.png"
-				alt="Free Shipping Promo"
-				class="w-full object-cover transition-transform duration-500 hover:scale-105"
-			/>
-		</div>
-	</div>
+	<ShippingPromoModal bind:showModal />
 {/if}
 
 <section class="mt-16 p-4 sm:mt-20 sm:p-24 sm:px-4 sm:py-4">
@@ -122,7 +107,9 @@
 							<div class="mt-2 flex items-center gap-1.5">
 								<div class="flex items-center text-primary">
 									<Star size={14} fill="currentColor" />
-									<span class="ml-1 text-xs font-bold text-text-main">{Number(book.average_rating || 0).toFixed(1)}</span>
+									<span class="ml-1 text-xs font-bold text-text-main"
+										>{Number(book.average_rating || 0).toFixed(1)}</span
+									>
 								</div>
 								<span class="text-xs text-text-muted">• {book.sold_count || 0} sold</span>
 							</div>

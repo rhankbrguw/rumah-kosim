@@ -6,6 +6,9 @@ export default {
 	content: ['./src/**/*.{html,js,svelte,ts}'],
 	theme: {
 		extend: {
+			backgroundImage: {
+				hero: "url('/images/bg-ruko.png')"
+			},
 			colors: {
 				primary: {
 					DEFAULT: 'hsl(var(--color-primary) / <alpha-value>)',
