@@ -6,11 +6,11 @@
 <section
 	class="relative flex h-screen flex-col items-center justify-center overflow-hidden pt-8 text-center"
 >
-	<!-- Documented exception: Inline style required for dynamic background image URL -->
-	<div
-		class="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
-		style="background-image: url('{STRINGS.HERO.BG_IMAGE_URL}');"
-	></div>
+	<img
+		src={STRINGS.HERO.BG_IMAGE_URL}
+		alt="Hero Background"
+		class="absolute inset-0 z-0 h-full w-full object-cover object-center"
+	/>
 
 	<div class="absolute inset-0 z-10 backdrop-blur-sm"></div>
 
