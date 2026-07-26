@@ -1,9 +1,9 @@
-import { HTTP_STATUS, ERROR_CODES } from '$lib/constants/config.js';
+import { HTTP_STATUS, ERROR_CODES, APP_CONFIG } from '$lib/constants/config.js';
 import { jsonResponse, errorResponse } from '$lib/server/utils/response.js';
 import { MESSAGES } from '$lib/constants/messages.js';
 import { checkAdmin } from '$lib/server/admin-guard.js';
 import { getAllOrdersAdmin, updateOrderStatus } from '$lib/server/services/orderService.js';
-export async function GET({ request }) {
+export async function GET({ request, url }) {
 	if (!(await checkAdmin(request))) {
 		return errorResponse(
 			MESSAGES.ERROR.UNAUTHORIZED,
@@ -13,8 +13,10 @@ export async function GET({ request }) {
 	}
 
 	try {
-		const orders = await getAllOrdersAdmin();
-		return jsonResponse({ orders }, MESSAGES.SUCCESS.FETCH);
+		const page = Number(url.searchParams.get('page')) || 1;
+		const limit = Number(url.searchParams.get('limit')) || APP_CONFIG.DEFAULT_PAGINATION_LIMIT;
+		const result = await getAllOrdersAdmin(page, limit);
+		return jsonResponse(result, MESSAGES.SUCCESS.FETCH);
 	} catch (error) {
 		return errorResponse(
 			(error as Error).message,

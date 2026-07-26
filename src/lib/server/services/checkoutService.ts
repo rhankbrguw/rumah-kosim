@@ -63,7 +63,7 @@ async function dispatchOrderEmails(user: Record<string, unknown> | null, total: 
 			});
 		}
 	} catch (e) {
-		logger.error('Failed to get admin emails:', e);
+		logger.error('Failed to get admin emails:', e as Error);
 	}
 }
 

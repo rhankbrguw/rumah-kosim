@@ -3,13 +3,16 @@ import { addToCart } from '$lib/server/services/cartService.js';
 import { getProductReviews } from '$lib/server/services/reviewService.js';
 import { fail } from '@sveltejs/kit';
 import { STRINGS } from '$lib/constants/strings.js';
+import { APP_CONFIG } from '$lib/constants/config.js';
 import { logger } from '$lib/server/utils/logger.js';
 
-export const load = async ({ params }) => {
+export const load = async ({ params, url }) => {
 	try {
 		const productId = Number(params.id);
+		const reviewPage = Number(url.searchParams.get('reviewPage')) || 1;
+		const limit = APP_CONFIG.DEFAULT_PAGINATION_LIMIT;
 		const productRaw = await ProductService.getById(productId);
-		const reviewsRaw = await getProductReviews(productId);
+		const reviewsRaw = await getProductReviews(productId, reviewPage, limit);
 
 		const product = productRaw as unknown as {
 			id: number;
@@ -23,18 +26,20 @@ export const load = async ({ params }) => {
 			editorialReview?: { headline: string; body: string };
 		} | null;
 
-		const reviews = reviewsRaw as unknown as {
+		const reviews = reviewsRaw.data as unknown as {
 			id: number;
 			user_name: string;
 			rating: number;
 			comment: string;
 			created_at: string;
 		}[];
+		
+		const totalReviews = reviewsRaw.total as number;
 
-		return { product, reviews };
+		return { product, reviews, totalReviews, reviewPage, limit };
 	} catch (error) {
 		logger.error('Error fetching product:', error as Error);
-		return { product: null, reviews: [] };
+		return { product: null, reviews: [], totalReviews: 0, reviewPage: 1, limit: 20 };
 	}
 };
 

@@ -1,10 +1,16 @@
 import { ProductService } from '$lib/server/services/productService.js';
 import { logger } from '$lib/server/utils/logger.js';
 
-export const load = async () => {
+import { APP_CONFIG } from '$lib/constants/config.js';
+
+export const load = async ({ url }) => {
 	try {
-		const booksRaw = await ProductService.getAll();
-		const books = booksRaw as unknown as {
+		const page = Number(url.searchParams.get('page')) || 1;
+		const search = url.searchParams.get('search') || undefined;
+		const limit = APP_CONFIG.DEFAULT_PAGINATION_LIMIT;
+
+		const result = await ProductService.getAll(page, limit, search);
+		const books = result.data as unknown as {
 			id: number;
 			title: string;
 			description: string;
@@ -13,9 +19,9 @@ export const load = async () => {
 			sold_count: number;
 			average_rating: number;
 		}[];
-		return { books, success: true };
+		return { books, total: result.total, page, limit, search, success: true };
 	} catch (error) {
 		logger.error('Failed to load products on server:', error as Error);
-		return { books: [], success: false };
+		return { books: [], total: 0, page: 1, limit: APP_CONFIG.DEFAULT_PAGINATION_LIMIT, search: undefined, success: false };
 	}
 };

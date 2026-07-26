@@ -2,10 +2,13 @@
 	import { goto } from '$app/navigation';
 	import { Search, Star } from 'lucide-svelte';
 	import { onMount } from 'svelte';
+	import Pagination from './Pagination.svelte';
+	import ShopSkeleton from './ShopSkeleton.svelte';
 	import ShippingPromoModal from './ShippingPromoModal.svelte';
 	import { auth } from '$lib/stores/auth';
 	import { STORAGE_KEYS } from '$lib/constants/storageKeys';
 	import { STRINGS } from '$lib/constants/strings.js';
+	import { APP_CONFIG } from '$lib/constants/config.js';
 	import { formatIDR } from '$lib/utils/currency.js';
 
 	export let books: {
@@ -17,8 +20,13 @@
 		sold_count: number;
 		average_rating: number;
 	}[] = [];
+	export let total: number = 0;
+	export let currentPage: number = 1;
+	export let itemsPerPage: number = APP_CONFIG.DEFAULT_PAGINATION_LIMIT;
+	export let searchTerm: string = '';
 	export let loading: boolean = true;
-	let searchTerm = '';
+	
+	let searchInput = searchTerm;
 	let showModal = false;
 
 	onMount(() => {
@@ -33,11 +41,27 @@
 
 	const goToProduct = (id: number) => goto(`/client/products/${id}`);
 
-	$: filteredBooks = books.filter(
-		(b) =>
-			b.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			b.description.toLowerCase().includes(searchTerm.toLowerCase())
-	);
+	let debounceTimer: ReturnType<typeof setTimeout>;
+
+	function handleInput() {
+		clearTimeout(debounceTimer);
+		debounceTimer = setTimeout(() => {
+			const url = new URL(window.location.href);
+			if (searchInput) {
+				url.searchParams.set('search', searchInput);
+			} else {
+				url.searchParams.delete('search');
+			}
+			url.searchParams.set('page', '1');
+			goto(url.toString(), { keepFocus: true, noScroll: true, replaceState: true });
+		}, 400);
+	}
+
+	function handlePageChange(e: CustomEvent<number>) {
+		const url = new URL(window.location.href);
+		url.searchParams.set('page', e.detail.toString());
+		goto(url.toString(), { keepFocus: true });
+	}
 </script>
 
 {#if showModal}
@@ -51,7 +75,8 @@
 				type="text"
 				class="w-full rounded-xl border border-surface-alt/50 bg-surface/80 px-4 py-3 pl-11 text-text-main shadow-sm backdrop-blur-md transition-all focus:border-primary focus:bg-surface focus:ring-1 focus:ring-primary md:w-80"
 				placeholder={STRINGS.SHOP.SEARCH_PLACEHOLDER}
-				bind:value={searchTerm}
+				bind:value={searchInput}
+				on:input={handleInput}
 			/>
 			<div class="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted">
 				<Search size={20} />
@@ -61,23 +86,11 @@
 
 	{#if loading}
 		<div class="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-1 sm:gap-8 md:grid-cols-3 lg:grid-cols-4">
-			{#each Array(8) as i}
-				<div
-					data-skeleton={i}
-					class="flex h-full flex-col overflow-hidden rounded-2xl border border-surface-alt/50 bg-surface/70 shadow-sm backdrop-blur-md"
-				>
-					<div class="aspect-[4/5] w-full animate-pulse bg-surface-alt/80"></div>
-					<div class="flex flex-1 flex-col p-4 sm:p-5">
-						<div class="mb-2 h-5 w-3/4 animate-pulse rounded bg-surface-alt"></div>
-						<div class="mb-4 h-4 w-1/2 animate-pulse rounded bg-surface-alt"></div>
-						<div class="mt-auto h-10 w-full animate-pulse rounded-xl bg-surface-alt"></div>
-					</div>
-				</div>
-			{/each}
+			<ShopSkeleton />
 		</div>
 	{:else}
 		<div class="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-1 sm:gap-8 md:grid-cols-3 lg:grid-cols-4">
-			{#each filteredBooks as book (book.id)}
+			{#each books as book (book.id)}
 				<div
 					class="group flex h-full flex-col overflow-hidden rounded-2xl border border-surface-alt/50 bg-surface/80 shadow-sm backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:bg-surface/95 hover:shadow-xl"
 				>
@@ -127,5 +140,6 @@
 				</div>
 			{/each}
 		</div>
+		<Pagination {currentPage} totalItems={total} {itemsPerPage} on:pageChange={handlePageChange} />
 	{/if}
 </section>

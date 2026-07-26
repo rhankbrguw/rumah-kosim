@@ -2,19 +2,52 @@
 	import { createEventDispatcher } from 'svelte';
 	import { Pencil, Trash2, Plus } from 'lucide-svelte';
 	import { STRINGS } from '$lib/constants/strings.js';
+	import { APP_CONFIG } from '$lib/constants/config.js';
 	import { formatIDR } from '$lib/utils/currency.js';
 	import { fade } from 'svelte/transition';
 	import { enhance } from '$app/forms';
 	import ProductTableDesktop from './ProductTableDesktop.svelte';
+	import Pagination from '$lib/components/Pagination.svelte';
+	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
 
 	export let products: {
-		id: number;
-		title: string;
-		price: number;
-		quantity: number;
-		image: string;
-	}[] = [];
+		data: {
+			id: number;
+			title: string;
+			price: number;
+			quantity: number;
+			image: string;
+		}[],
+		total: number
+	};
 	export let searchTerm: string = '';
+	export let currentPage: number = 1;
+	export let itemsPerPage: number = APP_CONFIG.DEFAULT_PAGINATION_LIMIT;
+
+	let searchInput = searchTerm;
+
+	let debounceTimer: ReturnType<typeof setTimeout>;
+
+	function handleInput() {
+		clearTimeout(debounceTimer);
+		debounceTimer = setTimeout(() => {
+			const url = new URL($page.url);
+			if (searchInput) {
+				url.searchParams.set('search', searchInput);
+			} else {
+				url.searchParams.delete('search');
+			}
+			url.searchParams.set('productPage', '1');
+			goto(url.toString(), { keepFocus: true, noScroll: true, replaceState: true });
+		}, 400);
+	}
+
+	function handlePageChange(e: CustomEvent<number>) {
+		const url = new URL($page.url);
+		url.searchParams.set('productPage', e.detail.toString());
+		goto(url.toString(), { keepFocus: true });
+	}
 
 	const dispatch = createEventDispatcher();
 </script>
@@ -28,7 +61,8 @@
 			type="text"
 			class="w-full rounded-lg border border-secondary px-4 py-2 text-sm text-text-main focus:border-primary focus:ring-1 focus:ring-primary sm:w-64"
 			placeholder={STRINGS.ADMIN.PRODUCT_TABLE.SEARCH_PLACEHOLDER}
-			bind:value={searchTerm}
+			bind:value={searchInput}
+			on:input={handleInput}
 		/>
 		<button
 			class="flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-text-inverse transition-colors hover:bg-primary-hover"
@@ -40,9 +74,7 @@
 	</div>
 
 	<div class="grid gap-4 md:hidden">
-		{#each products.filter((p) => p.title
-				.toLowerCase()
-				.includes(searchTerm.toLowerCase())) as product (product.id)}
+		{#each products.data as product (product.id)}
 			<div
 				class="flex flex-col rounded-xl border border-surface-alt bg-surface-alt/20 p-4 shadow-sm"
 			>
@@ -99,5 +131,6 @@
 		{/each}
 	</div>
 
-	<ProductTableDesktop {products} {searchTerm} on:uploadImage on:editStock />
+	<ProductTableDesktop products={products.data} on:uploadImage on:editStock />
+	<Pagination {currentPage} totalItems={products.total} {itemsPerPage} on:pageChange={handlePageChange} />
 </div>

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { auth } from '$lib/stores/auth';
 	import { STRINGS } from '$lib/constants/strings';
+	import { APP_CONFIG } from '$lib/constants/config.js';
 	import { formatIDR } from '$lib/utils/currency';
 	import { Star } from 'lucide-svelte';
 	import ProductCartForm from './ProductCartForm.svelte';
@@ -25,6 +26,9 @@
 		comment: string;
 		created_at: string;
 	}[] = [];
+	export let totalReviews: number = 0;
+	export let reviewPage: number = 1;
+	export let limit: number = APP_CONFIG.DEFAULT_PAGINATION_LIMIT;
 	export let quantity: number = 1;
 
 	let user: { role: string } | null = null;
@@ -64,7 +68,7 @@
 							<span class="ml-1.5 font-bold text-text-main"
 								>{Number(product.average_rating || 0).toFixed(1)}</span
 							>
-							<span class="ml-1 text-sm text-text-muted">({reviews.length} reviews)</span>
+							<span class="ml-1 text-sm text-text-muted">({totalReviews} reviews)</span>
 						</div>
 						<span class="text-sm text-text-muted">• {product.sold_count || 0} sold</span>
 					</div>
@@ -99,5 +103,5 @@
 		<ProductEditorialReview review={product.editorialReview} />
 	{/if}
 
-	<ProductCustomerReviews {reviews} />
+	<ProductCustomerReviews {reviews} {totalReviews} {reviewPage} {limit} />
 </div>

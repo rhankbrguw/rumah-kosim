@@ -1,6 +1,10 @@
 <script lang="ts">
 	import { STRINGS } from '$lib/constants/strings.js';
+	import { APP_CONFIG } from '$lib/constants/config.js';
 	import { Star } from 'lucide-svelte';
+	import Pagination from '$lib/components/Pagination.svelte';
+	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
 
 	export let reviews: {
 		id: number;
@@ -9,6 +13,15 @@
 		comment: string;
 		created_at: string;
 	}[] = [];
+	export let totalReviews: number = 0;
+	export let reviewPage: number = 1;
+	export let limit: number = APP_CONFIG.DEFAULT_PAGINATION_LIMIT;
+
+	function handlePageChange(e: CustomEvent<number>) {
+		const url = new URL($page.url);
+		url.searchParams.set('reviewPage', e.detail.toString());
+		goto(url.toString(), { keepFocus: true });
+	}
 </script>
 
 <div class="mx-auto mt-16 max-w-5xl border-t border-secondary/10 pt-12 md:mt-20 md:pt-16">
@@ -48,6 +61,9 @@
 					<p class="text-sm leading-relaxed text-text-muted">"{review.comment}"</p>
 				</div>
 			{/each}
+		</div>
+		<div class="mt-8">
+			<Pagination currentPage={reviewPage} totalItems={totalReviews} itemsPerPage={limit} on:pageChange={handlePageChange} />
 		</div>
 	{/if}
 </div>

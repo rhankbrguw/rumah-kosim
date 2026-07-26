@@ -1,4 +1,4 @@
-import { HTTP_STATUS, ERROR_CODES } from '$lib/constants/config.js';
+import { HTTP_STATUS, ERROR_CODES, APP_CONFIG } from '$lib/constants/config.js';
 import { logger } from '$lib/server/utils/logger.js';
 import { checkAdmin } from '$lib/server/admin-guard.js';
 import { ProductService } from '$lib/server/services/productService.js';
@@ -6,14 +6,17 @@ import { jsonResponse, errorResponse } from '$lib/server/utils/response.js';
 import { z } from 'zod';
 import type { ResultSetHeader } from 'mysql2';
 
-export async function GET({ request }) {
+export async function GET({ request, url }) {
 	if (!(await checkAdmin(request))) {
 		return errorResponse('Unauthorized', HTTP_STATUS.UNAUTHORIZED, ERROR_CODES.UNAUTHORIZED);
 	}
 
 	try {
-		const products = await ProductService.getAll();
-		return jsonResponse({ products }, 'Products fetched successfully');
+		const page = Number(url.searchParams.get('page')) || 1;
+		const limit = Number(url.searchParams.get('limit')) || APP_CONFIG.DEFAULT_PAGINATION_LIMIT;
+		const search = url.searchParams.get('search') || undefined;
+		const result = await ProductService.getAll(page, limit, search);
+		return jsonResponse(result, 'Products fetched successfully');
 	} catch (error) {
 		logger.error('GET products error:', error as Error);
 		return errorResponse(

@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { fail, redirect } from '@sveltejs/kit';
 import { STRINGS } from '$lib/constants/strings.js';
 import { logger } from '$lib/server/utils/logger.js';
+import { APP_CONFIG } from '$lib/constants/config.js';
 import type { RequestEvent } from '@sveltejs/kit';
 import type { Order } from '$lib/types';
 
@@ -16,17 +17,20 @@ const reviewSchema = z.object({
 	comment: z.string().min(1, 'Review cannot be empty').max(1000, 'Review is too long')
 });
 
-export const load = async ({ locals }: RequestEvent) => {
+export const load = async ({ locals, url }: RequestEvent) => {
 	if (!locals.user) {
 		throw redirect(303, '/client/auth');
 	}
+	const page = Number(url.searchParams.get('page')) || 1;
+	const limit = APP_CONFIG.DEFAULT_PAGINATION_LIMIT;
 
-	const historyRaw = await getOrders(locals.user.id);
-	const history = historyRaw as unknown as Order[];
+	const historyRaw = await getOrders(locals.user.id, page, limit);
+	const history = historyRaw.data as unknown as Order[];
+	const total = historyRaw.total;
 
 	const reviewForm = await superValidate(zod(reviewSchema));
 
-	return { history, reviewForm };
+	return { history, total, page, limit, reviewForm };
 };
 
 export const actions = {

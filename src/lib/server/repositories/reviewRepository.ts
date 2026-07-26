@@ -62,13 +62,23 @@ export const ReviewRepository = {
 		return await db.query(sql, [userId]);
 	},
 
-	async getByProductId(productId: number) {
-		const sql = `
+	async getByProductId(productId: number, limit?: number, offset?: number) {
+		let sql = `
             SELECT r.*, u.username as user_name
             FROM reviews r
             JOIN users u ON r.user_id = u.id
             WHERE r.product_id = ?
 			ORDER BY r.id DESC`;
-		return await db.query(sql, [productId]);
+		
+		const params: unknown[] = [productId];
+		if (limit !== undefined && offset !== undefined) {
+			sql += ' LIMIT ? OFFSET ?';
+			params.push(limit, offset);
+		}
+		const data = await db.query(sql, params) as RowDataPacket[];
+		
+		const [countRow] = (await db.query('SELECT COUNT(*) as total FROM reviews WHERE product_id = ?', [productId])) as RowDataPacket[];
+		
+		return { data, total: countRow.total as number };
 	}
 };

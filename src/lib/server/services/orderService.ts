@@ -45,14 +45,22 @@ function mapOrderItems(order: OrderRaw) {
 	return order;
 }
 
-export const getOrders = async (userId: number) => {
-	const orders = await OrderRepository.getOrdersWithItems(userId);
-	return orders.map(mapOrderItems);
+export const getOrders = async (userId: number, page?: number, limit?: number) => {
+	let offset = undefined;
+	if (page !== undefined && limit !== undefined) {
+		offset = (page - 1) * limit;
+	}
+	const result = await OrderRepository.getOrdersWithItems(userId, limit, offset);
+	return { data: result.data.map(mapOrderItems), total: result.total };
 };
 
-export const getAllOrdersAdmin = async () => {
-	const orders = await OrderRepository.getAllOrders();
-	return orders.map(mapOrderItems);
+export const getAllOrdersAdmin = async (page?: number, limit?: number) => {
+	let offset = undefined;
+	if (page !== undefined && limit !== undefined) {
+		offset = (page - 1) * limit;
+	}
+	const result = await OrderRepository.getAllOrders(limit, offset);
+	return { data: result.data.map(mapOrderItems), total: result.total };
 };
 
 export const updateOrderStatus = async (id: number, status: string) => {

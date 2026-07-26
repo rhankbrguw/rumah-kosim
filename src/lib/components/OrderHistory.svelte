@@ -4,11 +4,18 @@
 	import OrderHistoryEmpty from './OrderHistoryEmpty.svelte';
 	import OrderItem from './OrderItem.svelte';
 	import { formatIDR } from '$lib/utils/currency';
+	import Pagination from '$lib/components/Pagination.svelte';
+	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
+	import { APP_CONFIG } from '$lib/constants/config';
 
 	import type { Order } from '$lib/types';
 	import type { SuperValidated } from 'sveltekit-superforms';
 	export let data: {
 		history: Order[];
+		total: number;
+		page: number;
+		limit: number;
 		reviewForm: SuperValidated<{
 			rating: number;
 			comment: string;
@@ -33,6 +40,12 @@
 	function closeReviewModal() {
 		showReviewModal = false;
 		selectedProduct = null;
+	}
+
+	function handlePageChange(e: CustomEvent<number>) {
+		const url = new URL($page.url);
+		url.searchParams.set('page', e.detail.toString());
+		goto(url.toString(), { keepFocus: true });
 	}
 </script>
 
@@ -135,6 +148,9 @@
 						{/if}
 					</div>
 				{/each}
+			</div>
+			<div class="mt-8">
+				<Pagination currentPage={data.page} totalItems={data.total} itemsPerPage={APP_CONFIG.DEFAULT_PAGINATION_LIMIT} on:pageChange={handlePageChange} />
 			</div>
 		{/if}
 	</div>

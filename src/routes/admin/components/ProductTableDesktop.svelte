@@ -12,7 +12,6 @@
 		quantity: number;
 		image: string;
 	}[] = [];
-	export let searchTerm: string = '';
 
 	const dispatch = createEventDispatcher();
 </script>
@@ -31,9 +30,7 @@
 			</tr>
 		</thead>
 		<tbody>
-			{#each products.filter((p) => p.title
-					.toLowerCase()
-					.includes(searchTerm.toLowerCase())) as product (product.id)}
+			{#each products as product (product.id)}
 				<tr class="border-b border-surface-alt transition-colors hover:bg-surface-alt/50">
 					<td class="py-4 font-medium text-text-main">{product.title}</td>
 					<td class="py-4 font-semibold text-primary">{formatIDR(product.price)}</td>

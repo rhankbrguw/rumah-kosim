@@ -1,8 +1,12 @@
 import { ProductRepository } from '$lib/server/repositories/productRepository.js';
 
 export const ProductService = {
-	getAll: async () => {
-		return await ProductRepository.getAll();
+	getAll: async (page?: number, limit?: number, search?: string) => {
+		let offset = undefined;
+		if (page !== undefined && limit !== undefined) {
+			offset = (page - 1) * limit;
+		}
+		return await ProductRepository.getAll(limit, offset, search);
 	},
 	getById: async (id: number) => {
 		return await ProductRepository.getById(id);

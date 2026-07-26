@@ -2,13 +2,13 @@ import type { RowDataPacket } from 'mysql2';
 import { dbRepository as db } from '$lib/server/repositories/dbRepository.js';
 
 export const OrderRepository = {
-	async getOrdersWithItems(userId: number) {
+	async getOrdersWithItems(userId: number, limit?: number, offset?: number) {
 		const userRows = (await db.query('SELECT username FROM users WHERE id = ?', [
 			userId
 		])) as RowDataPacket[];
 		const username = userRows[0]?.username;
 
-		const ordersSql = `
+		let ordersSql = `
             SELECT
                 o.id, o.total, o.shipping_address, o.shipping_price,
                 o.shipping_method, o.tracking_number, o.status,
@@ -16,9 +16,18 @@ export const OrderRepository = {
             FROM orders o
             WHERE o.user_id = ?
             ORDER BY o.date DESC`;
-		const orders = (await db.query(ordersSql, [userId])) as RowDataPacket[];
+            
+		const params: unknown[] = [userId];
+		if (limit !== undefined && offset !== undefined) {
+			ordersSql += ' LIMIT ? OFFSET ?';
+			params.push(limit, offset);
+		}
+		const orders = (await db.query(ordersSql, params)) as RowDataPacket[];
+		
+		const [countRow] = (await db.query('SELECT COUNT(*) as total FROM orders WHERE user_id = ?', [userId])) as RowDataPacket[];
+		const total = countRow.total as number;
 
-		if (orders.length === 0) return orders;
+		if (orders.length === 0) return { data: [], total };
 
 		const orderIds = orders.map((o) => o.id);
 		const itemsSql = `SELECT oi.order_id, oi.quantity, oi.price_at_time, oi.product_id, p.title, p.image, r.id as review_id, r.comment as review_comment, r.rating as review_rating FROM order_items oi JOIN products p ON p.id = oi.product_id LEFT JOIN reviews r ON r.order_id = oi.order_id AND r.product_id = oi.product_id WHERE oi.order_id IN (${orderIds
@@ -41,11 +50,11 @@ export const OrderRepository = {
 			order.username = username;
 		}
 
-		return orders;
+		return { data: orders, total };
 	},
 
-	async getAllOrders() {
-		const ordersSql = `
+	async getAllOrders(limit?: number, offset?: number) {
+		let ordersSql = `
             SELECT
                 o.id, o.total, o.shipping_address, o.shipping_price,
                 o.shipping_method, o.tracking_number, o.status,
@@ -54,9 +63,18 @@ export const OrderRepository = {
             FROM orders o
 			JOIN users u ON u.id = o.user_id
             ORDER BY o.date DESC`;
-		const orders = (await db.query(ordersSql)) as RowDataPacket[];
+            
+		const params: unknown[] = [];
+		if (limit !== undefined && offset !== undefined) {
+			ordersSql += ' LIMIT ? OFFSET ?';
+			params.push(limit, offset);
+		}
+		const orders = (await db.query(ordersSql, params)) as RowDataPacket[];
+		
+		const [countRow] = (await db.query('SELECT COUNT(*) as total FROM orders')) as RowDataPacket[];
+		const total = countRow.total as number;
 
-		if (orders.length === 0) return orders;
+		if (orders.length === 0) return { data: [], total };
 
 		const orderIds = orders.map((o) => o.id);
 		const itemsSql = `
@@ -73,7 +91,7 @@ export const OrderRepository = {
 			order.items = allItems.filter((item) => item.order_id === order.id);
 		}
 
-		return orders;
+		return { data: orders, total };
 	},
 
 	async updateStatus(id: number, status: string) {

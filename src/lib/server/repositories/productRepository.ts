@@ -2,14 +2,34 @@ import type { RowDataPacket } from 'mysql2';
 import { dbRepository as db } from '$lib/server/repositories/dbRepository.js';
 
 export const ProductRepository = {
-	async getAll() {
-		return await db.query(`
+	async getAll(limit?: number, offset?: number, search?: string) {
+		let sql = `
 			SELECT 
 				p.id, p.title, p.price, p.image, p.description, p.quantity,
 				COALESCE((SELECT SUM(quantity) FROM order_items WHERE product_id = p.id), 0) AS sold_count,
 				COALESCE((SELECT AVG(rating) FROM reviews WHERE product_id = p.id), 0) AS average_rating
 			FROM products p
-		`);
+		`;
+		let countSql = 'SELECT COUNT(*) as total FROM products p';
+		const params: unknown[] = [];
+
+		if (search) {
+			const q = `%${search}%`;
+			sql += ' WHERE p.title LIKE ? OR p.description LIKE ?';
+			countSql += ' WHERE p.title LIKE ? OR p.description LIKE ?';
+			params.push(q, q);
+		}
+
+		if (limit !== undefined && offset !== undefined) {
+			sql += ' LIMIT ? OFFSET ?';
+			params.push(limit, offset);
+		}
+
+		const data = await db.query(sql, params) as RowDataPacket[];
+		const countParams = search ? [params[0], params[1]] : [];
+		const [countRow] = await db.query(countSql, countParams) as RowDataPacket[];
+		
+		return { data, total: countRow.total as number };
 	},
 
 	async getById(id: number) {

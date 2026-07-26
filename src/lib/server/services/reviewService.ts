@@ -20,6 +20,10 @@ export const getReviews = async (userId: number) => {
 	return await ReviewRepository.getReviews(userId);
 };
 
-export const getProductReviews = async (productId: number) => {
-	return await ReviewRepository.getByProductId(productId);
+export const getProductReviews = async (productId: number, page?: number, limit?: number) => {
+	let offset = undefined;
+	if (page !== undefined && limit !== undefined) {
+		offset = (page - 1) * limit;
+	}
+	return await ReviewRepository.getByProductId(productId, limit, offset);
 };

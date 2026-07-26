@@ -74,7 +74,9 @@
 
 		{#if state.activeTab === 'products'}
 			<ProductTable
-				bind:searchTerm={state.searchTerm}
+				searchTerm={data.search || ''}
+				currentPage={data.productPage}
+				itemsPerPage={data.limit}
 				products={data.products}
 				on:addProduct={() => (state.modals.add = true)}
 				on:uploadImage={handleUploadImage}
@@ -84,7 +86,11 @@
 				}}
 			/>
 		{:else}
-			<OrderTable orders={data.orders} />
+			<OrderTable
+				orders={data.orders}
+				currentPage={data.orderPage}
+				itemsPerPage={data.limit}
+			/>
 		{/if}
 
 		<AdminModals

@@ -7,6 +7,7 @@ import { fail } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
 import { logger } from '$lib/server/utils/logger.js';
 import { STRINGS } from '$lib/constants/strings.js';
+import { APP_CONFIG } from '$lib/constants/config.js';
 import type { Order } from '$lib/types';
 
 const productSchema = z.object({
@@ -35,34 +36,32 @@ const deleteSchema = z.object({
 	id: z.coerce.number()
 });
 
-export const load = async () => {
+export const load = async ({ url }) => {
 	try {
+		const productPage = Number(url.searchParams.get('productPage')) || 1;
+		const orderPage = Number(url.searchParams.get('orderPage')) || 1;
+		const search = url.searchParams.get('search') || undefined;
+		const limit = APP_CONFIG.DEFAULT_PAGINATION_LIMIT;
+
 		const [productsRaw, ordersRaw] = await Promise.all([
-			ProductService.getAll(),
-			getAllOrdersAdmin()
+			ProductService.getAll(productPage, limit, search),
+			getAllOrdersAdmin(orderPage, limit)
 		]);
-		const products = productsRaw as unknown as {
-			id: number;
-			title: string;
-			price: number;
-			quantity: number;
-			image: string;
-		}[];
-		const orders = ordersRaw as unknown as Order[];
+		const orders = ordersRaw as unknown as { data: Order[], total: number };
 
 		const productForm = await superValidate(zod(productSchema));
 		const editProductForm = await superValidate(zod(editProductSchema));
 		const orderStatusForm = await superValidate(zod(orderStatusSchema));
 		const deleteForm = await superValidate(zod(deleteSchema));
 
-		return { products, orders, productForm, editProductForm, orderStatusForm, deleteForm };
+		return { products: productsRaw as unknown as { data: { id: number; title: string; price: number; quantity: number; image: string; }[], total: number }, orders, productForm, editProductForm, orderStatusForm, deleteForm, productPage, orderPage, search, limit };
 	} catch (error) {
 		logger.error('Failed to load admin data:', error as Error);
 		const productForm = await superValidate(zod(productSchema));
 		const editProductForm = await superValidate(zod(editProductSchema));
 		const orderStatusForm = await superValidate(zod(orderStatusSchema));
 		const deleteForm = await superValidate(zod(deleteSchema));
-		return { products: [], orders: [], productForm, editProductForm, orderStatusForm, deleteForm };
+		return { products: { data: [], total: 0 }, orders: { data: [], total: 0 }, productForm, editProductForm, orderStatusForm, deleteForm, productPage: 1, orderPage: 1, search: undefined, limit: 20 };
 	}
 };
 
