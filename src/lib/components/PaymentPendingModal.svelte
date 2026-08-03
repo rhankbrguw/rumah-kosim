@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { fade, scale } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
-	import { STRINGS } from '$lib/constants/strings';
 
 	export let show = false;
 </script>
@@ -12,7 +11,7 @@
 		transition:fade={{ duration: 300, easing: quintOut }}
 	>
 		<div
-			class="flex max-w-sm flex-col items-center justify-center rounded-2xl bg-surface p-8 text-center shadow-xl border border-gray-200"
+			class="flex max-w-sm flex-col items-center justify-center rounded-2xl border border-gray-200 bg-surface p-8 text-center shadow-xl"
 			transition:scale={{ duration: 400, start: 0.85, opacity: 0, easing: quintOut }}
 		>
 			<div
@@ -33,12 +32,11 @@
 					<polyline points="12 6 12 12 16 14" />
 				</svg>
 			</div>
-			
-			<h2 class="mb-2 text-2xl font-semibold text-text-main">
-				Waiting for Payment
-			</h2>
+
+			<h2 class="mb-2 text-2xl font-semibold text-text-main">Waiting for Payment</h2>
 			<p class="text-sm text-text-muted">
-				Your order has been saved. Redirecting to your order history where you can complete the payment later...
+				Your order has been saved. Redirecting to your order history where you can complete the
+				payment later...
 			</p>
 		</div>
 	</div>

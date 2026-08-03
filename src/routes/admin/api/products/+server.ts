@@ -3,7 +3,7 @@ import { logger } from '$lib/server/utils/logger.js';
 import { checkAdmin } from '$lib/server/admin-guard.js';
 import { ProductService } from '$lib/server/services/productService.js';
 import { jsonResponse, errorResponse } from '$lib/server/utils/response.js';
-import { z } from 'zod';
+
 import type { ResultSetHeader } from 'mysql2';
 import { productCreateSchema } from '$lib/server/validations/product.js';
 
@@ -28,11 +28,19 @@ export async function GET({ request, url, locals }) {
 	}
 }
 
-
-
 function mapDbErrorToResponse(dbError: Record<string, unknown>) {
-	if (dbError.code === 'ER_DUP_ENTRY') return errorResponse('A product with this title already exists', HTTP_STATUS.CONFLICT, ERROR_CODES.CONFLICT);
-	if (dbError.code === 'ER_DATA_TOO_LONG') return errorResponse('One or more fields exceed maximum length', HTTP_STATUS.BAD_REQUEST, ERROR_CODES.VALIDATION_ERROR);
+	if (dbError.code === 'ER_DUP_ENTRY')
+		return errorResponse(
+			'A product with this title already exists',
+			HTTP_STATUS.CONFLICT,
+			ERROR_CODES.CONFLICT
+		);
+	if (dbError.code === 'ER_DATA_TOO_LONG')
+		return errorResponse(
+			'One or more fields exceed maximum length',
+			HTTP_STATUS.BAD_REQUEST,
+			ERROR_CODES.VALIDATION_ERROR
+		);
 	throw dbError;
 }
 

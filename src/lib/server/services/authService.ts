@@ -7,37 +7,12 @@ import { APP_CONFIG } from '$lib/constants/config.js';
 import { sendOTP, sendResetPassword } from '$lib/server/utils/mailer.js';
 import { AuthException, NotFoundException } from '$lib/server/utils/exceptions.js';
 import { ERROR_CODES } from '$lib/constants/errorCodes.js';
-
-const getUserByUsername = async (username: string) => {
-	return await UserRepository.getByUsername(username);
-};
-
 export const getUserById = async (id: number) => {
 	return await UserRepository.getById(id);
 };
 
 export const getUserByResetToken = async (token: string) => {
 	return await UserRepository.getByResetToken(token);
-};
-
-const createUser = async (username: string, hashedPassword: string, email: string) => {
-	return await UserRepository.create(username, hashedPassword, email);
-};
-
-const getUserByEmail = async (email: string) => {
-	return await UserRepository.getByEmail(email);
-};
-
-const setOTP = async (userId: number, otp: string) => {
-	await UserRepository.setOTP(userId, otp);
-};
-
-const verifyOTP = async (userId: number, otp: string) => {
-	return await UserRepository.verifyOTP(userId, otp);
-};
-
-const setResetToken = async (email: string, token: string) => {
-	await UserRepository.setResetToken(email, token);
 };
 
 export const resetPassword = async (token: string, newHashedPassword: string) => {

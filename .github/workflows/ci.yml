@@ -35,6 +35,21 @@ jobs:
   typecheck:
     name: Type Check (SvelteKit)
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: mysql://root:ci_password@127.0.0.1:3306/rumah_kosim
+      JWT_SECRET: ci_test_jwt_secret_not_for_production
+      MIDTRANS_SERVER_KEY: ci_dummy_key
+      PUBLIC_MIDTRANS_CLIENT_KEY: ci_dummy_client_key
+      MIDTRANS_IS_PRODUCTION: 'false'
+      GEMINI_API_KEY: ci_dummy_gemini_key
+      SMTP_HOST: smtp.example.com
+      SMTP_PORT: '465'
+      SMTP_USER: ci@example.com
+      SMTP_PASS: ci_dummy_pass
+      SMTP_SECURE: ssl
+      SMTP_FROM: ci@example.com
+      SMTP_FROM_NAME: CI Test
+      APP_BASE_URL: http://localhost:5173
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

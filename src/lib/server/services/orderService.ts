@@ -97,11 +97,13 @@ export const updateOrderStatus = async (id: number, status: string) => {
 export const updateOrderStatusByTrackingNumber = async (trackingNumber: string, status: string) => {
 	// If changing to Cancelled, we should restore stock
 	if (status === ORDER_STRINGS.STATUS_CANCELLED) {
-		const orderRow = await OrderRepository.getOrderBasicInfoByTrackingNumber(trackingNumber) as { id: number } | null;
+		const orderRow = (await OrderRepository.getOrderBasicInfoByTrackingNumber(trackingNumber)) as {
+			id: number;
+		} | null;
 		if (orderRow) {
 			const items = await OrderRepository.fetchAllOrderItems([orderRow.id]);
 			for (const item of items) {
-				await ProductService.increaseQuantity(item.product_id, item.quantity); 
+				await ProductService.increaseQuantity(item.product_id, item.quantity);
 			}
 		}
 	}

@@ -14,7 +14,9 @@ export function handleMidtransPayment(
 	try {
 		// @ts-expect-error Snap is injected by midtrans script global
 		if (typeof window === 'undefined' || !window.snap) {
-			console.error('Midtrans Snap is not loaded. Please check your connection or disable adblockers.');
+			console.error(
+				'Midtrans Snap is not loaded. Please check your connection or disable adblockers.'
+			);
 			if (callbacks.onError) callbacks.onError();
 			return;
 		}

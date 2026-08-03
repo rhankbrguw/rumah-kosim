@@ -55,7 +55,10 @@ export const load = async ({ url }) => {
 		const deleteForm = await superValidate(zod(deleteSchema));
 
 		return {
-			products: productsRaw as unknown as { data: { id: number; title: string; price: number; quantity: number; image: string }[]; total: number },
+			products: productsRaw as unknown as {
+				data: { id: number; title: string; price: number; quantity: number; image: string }[];
+				total: number;
+			},
 			orders,
 			productForm,
 			editProductForm,
@@ -73,9 +76,16 @@ export const load = async ({ url }) => {
 		const orderStatusForm = await superValidate(zod(orderStatusSchema));
 		const deleteForm = await superValidate(zod(deleteSchema));
 		return {
-			products: { data: [], total: 0 }, orders: { data: [], total: 0 },
-			productForm, editProductForm, orderStatusForm, deleteForm,
-			productPage: 1, orderPage: 1, search: undefined, limit: 20
+			products: { data: [], total: 0 },
+			orders: { data: [], total: 0 },
+			productForm,
+			editProductForm,
+			orderStatusForm,
+			deleteForm,
+			productPage: 1,
+			orderPage: 1,
+			search: undefined,
+			limit: 20
 		};
 	}
 };
@@ -85,7 +95,13 @@ export const actions = {
 		const form = await superValidate(request, zod(productSchema));
 		if (!form.valid) return fail(422, { form });
 		try {
-			await ProductService.create(form.data.title, form.data.price, form.data.image, form.data.description, form.data.quantity);
+			await ProductService.create(
+				form.data.title,
+				form.data.price,
+				form.data.image,
+				form.data.description,
+				form.data.quantity
+			);
 			return message(form, STRINGS.ADMIN.MESSAGES.ADD_SUCCESS);
 		} catch (err) {
 			const error = err as Error;
@@ -96,7 +112,14 @@ export const actions = {
 		const form = await superValidate(request, zod(editProductSchema));
 		if (!form.valid) return fail(422, { form });
 		try {
-			await ProductService.update(form.data.id, form.data.title, form.data.description, form.data.price, form.data.quantity, form.data.image);
+			await ProductService.update(
+				form.data.id,
+				form.data.title,
+				form.data.description,
+				form.data.price,
+				form.data.quantity,
+				form.data.image
+			);
 			return message(form, STRINGS.ADMIN.MESSAGES.STOCK_UPDATED);
 		} catch (err) {
 			const error = err as Error;

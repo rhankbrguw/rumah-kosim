@@ -1,6 +1,6 @@
 import type { ResultSetHeader, FieldPacket } from 'mysql2';
 import { pool } from '$lib/db.js';
-import { ConflictException } from '$lib/server/utils/exceptions.js';
+
 
 interface CartItem {
 	product_id: number;
@@ -31,8 +31,8 @@ export const OrderTransactionRepository = {
 		cartItems: CartItem[]
 	) {
 		for (const item of cartItems) {
-			// NOTE: We DO NOT deduct stock here because it is already securely 
-			// deducted and reserved by the `add_to_cart` stored procedure 
+			// NOTE: We DO NOT deduct stock here because it is already securely
+			// deducted and reserved by the `add_to_cart` stored procedure
 			// when the item is added to the cart. Deducting it here would cause double-deduction.
 
 			await conn.execute(

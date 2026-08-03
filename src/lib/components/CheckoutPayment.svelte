@@ -56,10 +56,23 @@
 					onStart: () => {
 						isRedirecting = true;
 					},
-					onSuccess: () => { isSuccessModalOpen = true; setTimeout(() => goto(CLIENT_ROUTES.HISTORY), 2500); },
-					onPending: () => { isPendingModalOpen = true; setTimeout(() => goto(CLIENT_ROUTES.HISTORY), 2500); },
-					onError: () => { isLoading = false; isRedirecting = false; toast.error(STRINGS.CHECKOUT.MESSAGES.PAYMENT_FAILED || 'Payment failed'); },
-					onClose: () => { isPendingModalOpen = true; setTimeout(() => goto(CLIENT_ROUTES.HISTORY), 2500); }
+					onSuccess: () => {
+						isSuccessModalOpen = true;
+						setTimeout(() => goto(CLIENT_ROUTES.HISTORY), 2500);
+					},
+					onPending: () => {
+						isPendingModalOpen = true;
+						setTimeout(() => goto(CLIENT_ROUTES.HISTORY), 2500);
+					},
+					onError: () => {
+						isLoading = false;
+						isRedirecting = false;
+						toast.error(STRINGS.CHECKOUT.MESSAGES.PAYMENT_FAILED || 'Payment failed');
+					},
+					onClose: () => {
+						isPendingModalOpen = true;
+						setTimeout(() => goto(CLIENT_ROUTES.HISTORY), 2500);
+					}
 				});
 			} else {
 				isLoading = false;

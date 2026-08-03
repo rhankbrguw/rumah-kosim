@@ -51,7 +51,10 @@ export const ProductRepository = {
 	},
 
 	async increaseQuantity(id: number, quantity: number) {
-		return await db.query('UPDATE products SET quantity = quantity + ? WHERE id = ?', [quantity, id]);
+		return await db.query('UPDATE products SET quantity = quantity + ? WHERE id = ?', [
+			quantity,
+			id
+		]);
 	},
 
 	async create(title: string, price: number, image: string, description: string, quantity: number) {

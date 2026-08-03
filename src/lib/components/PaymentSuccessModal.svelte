@@ -12,7 +12,7 @@
 		transition:fade={{ duration: 300, easing: quintOut }}
 	>
 		<div
-			class="flex max-w-sm flex-col items-center justify-center rounded-2xl bg-surface p-8 text-center shadow-xl border border-gray-200"
+			class="flex max-w-sm flex-col items-center justify-center rounded-2xl border border-gray-200 bg-surface p-8 text-center shadow-xl"
 			transition:scale={{ duration: 400, start: 0.85, opacity: 0, easing: quintOut }}
 		>
 			<div
@@ -32,7 +32,7 @@
 					<polyline points="20 6 9 17 4 12" />
 				</svg>
 			</div>
-			
+
 			<h2 class="mb-2 text-2xl font-semibold text-text-main">
 				{STRINGS.CHECKOUT.MESSAGES.PAYMENT_SUCCESS || 'Payment Successful!'}
 			</h2>

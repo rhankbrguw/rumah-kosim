@@ -2,7 +2,6 @@
 	import { goto } from '$app/navigation';
 	import { checkoutStore } from '$lib/stores/checkoutStore';
 	import { toast } from 'svelte-sonner';
-	import { enhance } from '$app/forms';
 	import { STRINGS } from '$lib/constants/strings';
 	import { STORE_CONSTANTS } from '$lib/constants/config';
 	import ShippingSummary from './ShippingSummary.svelte';

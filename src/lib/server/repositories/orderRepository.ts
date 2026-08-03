@@ -103,7 +103,10 @@ export const OrderRepository = {
 	},
 
 	async getOrderBasicInfoByTrackingNumber(trackingNumber: string) {
-		const rows = await db.query('SELECT id, user_id, tracking_number FROM orders WHERE tracking_number = ?', [trackingNumber]);
+		const rows = await db.query(
+			'SELECT id, user_id, tracking_number FROM orders WHERE tracking_number = ?',
+			[trackingNumber]
+		);
 		return Array.isArray(rows) && rows.length > 0 ? rows[0] : null;
 	}
 };
