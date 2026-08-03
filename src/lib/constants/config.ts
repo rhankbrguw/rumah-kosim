@@ -76,7 +76,7 @@ export const UPLOAD = {
 } as const;
 
 export const ANIMATION = {
-	TOAST_DISMISS_MS: 3000,
+	TOAST_DURATION_MS: 3000,
 	REDIRECT_DELAY_MS: 1000,
 	REVIEW_REDIRECT_MS: 2500
 } as const;

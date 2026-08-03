@@ -3,16 +3,17 @@
 	import { Toaster } from 'svelte-sonner';
 	import Header from '$lib/components/Header.svelte';
 	import ChatWidget from '$lib/components/ChatWidget.svelte';
+	import { ANIMATION } from '$lib/constants/config';
 </script>
 
 <Toaster
 	position="top-center"
-	duration={3500}
+	duration={ANIMATION.TOAST_DURATION_MS}
 	richColors
 	toastOptions={{
-		style:
-			'border-radius: 12px; font-family: inherit; box-shadow: var(--shadow-lg, 0 10px 15px -3px var(--color-shadow-lg, rgba(0,0,0,0.1))); border: 1px solid var(--color-surface-alt);',
-		classes: { toast: 'bg-surface text-text-main' }
+		classes: {
+			toast: 'bg-surface text-text-main rounded-xl border border-surface-alt shadow-lg font-sans'
+		}
 	}}
 />
 

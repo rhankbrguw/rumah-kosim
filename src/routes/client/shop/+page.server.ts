@@ -10,7 +10,7 @@ export const load = async ({ url }) => {
 		const limit = APP_CONFIG.DEFAULT_PAGINATION_LIMIT;
 
 		const result = await ProductService.getAll(page, limit, search);
-		const books = result.data as unknown as {
+		const books = result.data as {
 			id: number;
 			title: string;
 			description: string;
@@ -22,6 +22,13 @@ export const load = async ({ url }) => {
 		return { books, total: result.total, page, limit, search, success: true };
 	} catch (error) {
 		logger.error('Failed to load products on server:', error as Error);
-		return { books: [], total: 0, page: 1, limit: APP_CONFIG.DEFAULT_PAGINATION_LIMIT, search: undefined, success: false };
+		return {
+			books: [],
+			total: 0,
+			page: 1,
+			limit: APP_CONFIG.DEFAULT_PAGINATION_LIMIT,
+			search: undefined,
+			success: false
+		};
 	}
 };

@@ -2,7 +2,6 @@
 	import { superForm } from 'sveltekit-superforms';
 	import { toast } from 'svelte-sonner';
 	import { STRINGS } from '$lib/constants/strings';
-	import { STORAGE_KEYS } from '$lib/constants/storageKeys';
 	import { Save } from 'lucide-svelte';
 	import { invalidateAll } from '$app/navigation';
 	import ProfileCover from '../components/ProfileCover.svelte';
@@ -19,33 +18,21 @@
 			if (result.type === 'success') {
 				toast.success(STRINGS.PROFILE.MESSAGES.UPDATE_SUCCESS);
 				avatarPreview = null;
-				localStorage.removeItem(STORAGE_KEYS.PROFILE_FORM);
+				profileFormStore.clear();
 				await invalidateAll();
 			}
 		}
 	});
 
 	import { onMount } from 'svelte';
+	import { profileFormStore } from '$lib/stores/uiStore';
+
 	onMount(() => {
-		if (typeof window !== 'undefined') {
-			const saved = localStorage.getItem(STORAGE_KEYS.PROFILE_FORM);
-			if (saved) {
-				try {
-					const parsedStorage = JSON.parse(saved);
-					delete parsedStorage.password;
-					delete parsedStorage.confirmPassword;
-					Object.assign($form, parsedStorage);
-				} catch {
-					// Ignore JSON parse errors, fallback to empty profile form
-				}
-			}
-		}
+		profileFormStore.load(form);
 	});
 
-	$: if ($form && typeof window !== 'undefined') {
-		const formPayload = { ...$form };
-		delete formPayload.password;
-		localStorage.setItem(STORAGE_KEYS.PROFILE_FORM, JSON.stringify(formPayload));
+	$: if ($form) {
+		profileFormStore.save($form);
 	}
 </script>
 

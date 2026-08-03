@@ -7,7 +7,12 @@
 
 	export let order: Order;
 	export let isExpanded = false;
-	export let openReviewModal: (productData: any) => void;
+	export let openReviewModal: (productData: {
+		id: number;
+		title: string;
+		image: string;
+		orderId: number;
+	}) => void;
 
 	const dispatch = createEventDispatcher<{ toggle: void }>();
 
@@ -17,13 +22,17 @@
 		Delivered: 'bg-secondary text-text-inverse border-secondary',
 		Cancelled: 'bg-danger-light text-danger-hover border-danger-light'
 	};
-	
+
 	const getStatusColor = (s: string) =>
 		statusColors[s] || 'bg-surface-alt text-text-main border-secondary';
 </script>
 
-<div class="overflow-hidden rounded-2xl border border-secondary/10 bg-surface shadow-sm transition-all hover:shadow-md">
-	<div class="flex flex-col gap-4 border-l-4 border-l-primary bg-gradient-to-r from-primary/5 to-transparent p-6 sm:flex-row sm:items-center sm:justify-between">
+<div
+	class="overflow-hidden rounded-2xl border border-secondary/10 bg-surface shadow-sm transition-all hover:shadow-md"
+>
+	<div
+		class="flex flex-col gap-4 border-l-4 border-l-primary bg-gradient-to-r from-primary/5 to-transparent p-6 sm:flex-row sm:items-center sm:justify-between"
+	>
 		<div class="flex-1 space-y-1.5">
 			<p class="text-sm font-medium text-text-muted">
 				{new Date(order.date).toLocaleString([], {
@@ -33,10 +42,16 @@
 			</p>
 			<p class="flex items-center gap-2 text-sm text-text-main">
 				<span class="text-text-muted">{STRINGS.ORDER_HISTORY.TRACKING}</span>
-				<span class="rounded-md bg-primary/10 px-2 py-0.5 font-mono font-bold text-primary">{order.tracking_number}</span>
+				<span class="rounded-md bg-primary/10 px-2 py-0.5 font-mono font-bold text-primary"
+					>{order.tracking_number}</span
+				>
 			</p>
 			<div class="pt-1">
-				<span class={`inline-block rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${getStatusColor(order.status)}`}>
+				<span
+					class={`inline-block rounded-full border px-2.5 py-0.5 text-xs font-bold uppercase tracking-wide ${getStatusColor(
+						order.status
+					)}`}
+				>
 					{order.status}
 				</span>
 			</div>
@@ -61,11 +76,15 @@
 					</h4>
 					<div class="space-y-4 text-sm text-text-muted">
 						<div>
-							<span class="mb-1 block font-semibold text-text-main">{STRINGS.ORDER_HISTORY.METHOD}</span>
+							<span class="mb-1 block font-semibold text-text-main"
+								>{STRINGS.ORDER_HISTORY.METHOD}</span
+							>
 							<span>{order.shipping_method}</span>
 						</div>
 						<div>
-							<span class="mb-1 block font-semibold text-text-main">{STRINGS.ORDER_HISTORY.ADDRESS}</span>
+							<span class="mb-1 block font-semibold text-text-main"
+								>{STRINGS.ORDER_HISTORY.ADDRESS}</span
+							>
 							<span class="block leading-relaxed">{order.shipping_address}</span>
 						</div>
 					</div>
@@ -77,12 +96,7 @@
 					<div class="divide-y divide-secondary/10">
 						{#each order.items as item}
 							<div class="flex w-full py-4 first:pt-0 last:pb-0">
-								<OrderItem
-									{item}
-									orderStatus={order.status}
-									orderId={order.id}
-									openReviewModal={openReviewModal}
-								/>
+								<OrderItem {item} orderStatus={order.status} orderId={order.id} {openReviewModal} />
 							</div>
 						{/each}
 					</div>

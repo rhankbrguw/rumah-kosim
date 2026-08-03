@@ -8,11 +8,11 @@ export const productIdSchema = z.object({
 });
 
 export const productCreateSchema = z.object({
-	title: z.string().min(1, 'Title is required'),
-	price: z.number().positive('Price must be positive'),
-	image: z.string().url('Invalid image URL').or(z.string().startsWith('/', 'Invalid local path')),
-	description: z.string().min(1, 'Description is required'),
-	quantity: z.number().int().min(0, 'Quantity cannot be negative')
+	title: z.string().min(1, 'Title is required').trim(),
+	price: z.coerce.number().positive('Valid price is required'),
+	image: z.string().min(1, 'Image is required').trim(),
+	description: z.string().min(1, 'Description is required').max(255, 'Description must be less than 255 characters').trim(),
+	quantity: z.coerce.number().int().min(0, 'Valid quantity is required')
 });
 
 export const productUpdateSchema = productCreateSchema.partial().extend({

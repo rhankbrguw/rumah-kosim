@@ -4,6 +4,7 @@ import { APP_CONFIG } from '$lib/constants/config.js';
 import { ProductRepository } from '../repositories/productRepository.js';
 import { logger } from '../utils/logger.js';
 import type { RowDataPacket } from 'mysql2';
+import { InternalException } from '../utils/exceptions.js';
 
 const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 
@@ -88,6 +89,6 @@ export async function chatWithAI(
 		return response.text;
 	} catch (error) {
 		logger.error('AI Chat Error', error as Error);
-		return 'I apologize, but I am currently experiencing technical difficulties connecting to our systems. Please try again later.';
+		throw new InternalException('AI Chat Service is currently unavailable.');
 	}
 }

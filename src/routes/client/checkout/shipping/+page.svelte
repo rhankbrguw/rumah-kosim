@@ -8,6 +8,7 @@
 	import ShippingSummary from './ShippingSummary.svelte';
 	import ShippingOptionsForm from './ShippingOptionsForm.svelte';
 	import CheckoutProgressBar from '$lib/components/CheckoutProgressBar.svelte';
+	import { validateShippingCoupon, calculateOrderTotal } from '$lib/utils/coupon';
 
 	export let data: { cartItems: { price: number; quantity: number; [key: string]: unknown }[] };
 
@@ -65,11 +66,8 @@
 	}
 
 	function validateCoupon(code: string) {
-		isValidCoupon = code.toUpperCase() === STORE_CONSTANTS.PROMO_SHIPPING_CODE;
-		if (isValidCoupon && selectedShipping) {
-			const currentShipping = shippingOptions.find((opt) => opt.id === selectedShipping);
-			checkoutStore.setShipping({ ...currentShipping, price: 0 });
-		}
+		const currentShipping = shippingOptions.find((opt) => opt.id === selectedShipping);
+		isValidCoupon = validateShippingCoupon(code, currentShipping || null);
 		return isValidCoupon;
 	}
 
@@ -83,10 +81,7 @@
 	}
 
 	function calculateTotal() {
-		const shipping = selectedShipping
-			? shippingOptions.find((opt) => opt.id === selectedShipping)?.price || 0
-			: 0;
-		return subtotal + (isValidCoupon ? 0 : shipping);
+		return calculateOrderTotal(subtotal, selectedShipping, shippingOptions, isValidCoupon);
 	}
 
 	async function handleContinue() {
@@ -115,23 +110,13 @@
 					{handleShippingSelect}
 				/>
 
-				<form method="POST" action="?/saveShipping" use:enhance>
-					<input type="hidden" name="shippingMethod" value={selectedShipping} />
-					<input
-						type="hidden"
-						name="shippingPrice"
-						value={isValidCoupon
-							? 0
-							: shippingOptions.find((o) => o.id === selectedShipping)?.price || 0}
-					/>
-					<button
-						type="submit"
-						on:click={handleContinue}
-						class="mt-6 w-full rounded-xl bg-primary py-3 font-bold text-text-inverse transition-colors hover:bg-primary-hover"
-					>
-						{STRINGS.CHECKOUT.SHIPPING.CONTINUE}
-					</button>
-				</form>
+				<button
+					type="button"
+					on:click={handleContinue}
+					class="mt-6 w-full rounded-xl bg-primary py-3 font-bold text-text-inverse transition-colors hover:bg-primary-hover"
+				>
+					{STRINGS.CHECKOUT.SHIPPING.CONTINUE}
+				</button>
 			</div>
 
 			<ShippingSummary

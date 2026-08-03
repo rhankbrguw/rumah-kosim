@@ -105,3 +105,10 @@ export const STRINGS = {
 		ERROR_CONNECTION: 'Koneksi terputus. Silakan coba lagi.'
 	}
 };
+
+export const EXTRA_STRINGS = {
+	SHIPPING_PROMO: {
+		ALT: 'Free Shipping Promo',
+		CLOSE: 'Close modal'
+	}
+};

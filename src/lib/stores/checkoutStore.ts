@@ -15,31 +15,33 @@ interface CheckoutState {
 	total?: number;
 }
 
-const createCheckoutStore = () => {
-	const defaultState: CheckoutState = {
-		address: '',
-		addressDetails: null,
-		shipping: null,
-		payment: '',
-		loading: false,
-		error: null,
-		coupon: null
-	};
+const defaultState: CheckoutState = {
+	address: '',
+	addressDetails: null,
+	shipping: null,
+	payment: '',
+	loading: false,
+	error: null,
+	coupon: null
+};
 
-	const { subscribe, set, update } = writable<CheckoutState>(defaultState);
+function loadInitialState(): CheckoutState {
+	if (typeof window === 'undefined') return defaultState;
+	const stored = localStorage.getItem(STORAGE_KEYS.CHECKOUT);
+	if (!stored) return defaultState;
+	try {
+		return JSON.parse(stored);
+	} catch {
+		localStorage.removeItem(STORAGE_KEYS.CHECKOUT);
+		return defaultState;
+	}
+}
+
+const createCheckoutStore = () => {
+	const initialState = loadInitialState();
+	const { subscribe, set, update } = writable<CheckoutState>(initialState);
 
 	if (typeof window !== 'undefined') {
-		const stored = localStorage.getItem(STORAGE_KEYS.CHECKOUT);
-		if (stored) {
-			try {
-				const parsed = JSON.parse(stored);
-				set(parsed);
-			} catch {
-				// Ignore JSON parse errors, fallback to empty object
-				localStorage.removeItem(STORAGE_KEYS.CHECKOUT);
-			}
-		}
-
 		subscribe((state) => {
 			localStorage.setItem(STORAGE_KEYS.CHECKOUT, JSON.stringify(state));
 		});
@@ -47,14 +49,12 @@ const createCheckoutStore = () => {
 
 	return {
 		subscribe,
-		setAddress: (address: string) => update((store) => ({ ...store, address })),
+		setAddress: (address: string) => update((s) => ({ ...s, address })),
 		setAddressDetails: (addressDetails: Record<string, unknown> | null) =>
-			update((store) => ({ ...store, addressDetails })),
-		setShipping: (shipping: Record<string, unknown> | null) =>
-			update((store) => ({ ...store, shipping })),
-		setPayment: (payment: string) => update((store) => ({ ...store, payment })),
-		setCoupon: (coupon: Record<string, unknown> | null) =>
-			update((store) => ({ ...store, coupon })),
+			update((s) => ({ ...s, addressDetails })),
+		setShipping: (shipping: Record<string, unknown> | null) => update((s) => ({ ...s, shipping })),
+		setPayment: (payment: string) => update((s) => ({ ...s, payment })),
+		setCoupon: (coupon: Record<string, unknown> | null) => update((s) => ({ ...s, coupon })),
 		update,
 		reset: () => set(defaultState)
 	};

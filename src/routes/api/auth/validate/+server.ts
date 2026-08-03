@@ -1,5 +1,4 @@
-import jwt from 'jsonwebtoken';
-import { JWT_SECRET } from '$env/static/private';
+import { validateToken } from '$lib/server/services/authService.js';
 import { HTTP_STATUS, ERROR_CODES } from '$lib/constants/config.js';
 import { jsonResponse, errorResponse } from '$lib/server/utils/response.js';
 import { MESSAGES } from '$lib/constants/messages.js';
@@ -22,7 +21,7 @@ export async function POST({ request }) {
 	const { token } = validation.data;
 
 	try {
-		const payload = jwt.verify(token, JWT_SECRET);
+		const payload = validateToken(token) as Record<string, unknown>;
 		return jsonResponse(
 			{
 				user: {

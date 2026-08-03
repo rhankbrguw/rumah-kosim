@@ -3,8 +3,8 @@ import { jsonResponse, errorResponse } from '$lib/server/utils/response.js';
 import { MESSAGES } from '$lib/constants/messages.js';
 import { checkAdmin } from '$lib/server/admin-guard.js';
 import { getAllOrdersAdmin, updateOrderStatus } from '$lib/server/services/orderService.js';
-export async function GET({ request, url }) {
-	if (!(await checkAdmin(request))) {
+export async function GET({ request, url, locals }) {
+	if (locals.user?.role !== 'admin' && !(await checkAdmin(request))) {
 		return errorResponse(
 			MESSAGES.ERROR.UNAUTHORIZED,
 			HTTP_STATUS.UNAUTHORIZED,
@@ -26,8 +26,8 @@ export async function GET({ request, url }) {
 	}
 }
 
-export async function PATCH({ request }) {
-	if (!(await checkAdmin(request))) {
+export async function PATCH({ request, locals }) {
+	if (locals.user?.role !== 'admin' && !(await checkAdmin(request))) {
 		return errorResponse(
 			MESSAGES.ERROR.UNAUTHORIZED,
 			HTTP_STATUS.UNAUTHORIZED,

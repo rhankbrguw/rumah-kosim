@@ -6,7 +6,6 @@
 	import ShopSkeleton from './ShopSkeleton.svelte';
 	import ShippingPromoModal from './ShippingPromoModal.svelte';
 	import { auth } from '$lib/stores/auth';
-	import { STORAGE_KEYS } from '$lib/constants/storageKeys';
 	import { STRINGS } from '$lib/constants/strings.js';
 	import { APP_CONFIG } from '$lib/constants/config.js';
 	import { formatIDR } from '$lib/utils/currency.js';
@@ -24,18 +23,16 @@
 	export let currentPage: number = 1;
 	export let itemsPerPage: number = APP_CONFIG.DEFAULT_PAGINATION_LIMIT;
 	export let searchTerm: string = '';
-	export let loading: boolean = true;
-	
+	export let isLoading: boolean = true;
+
 	let searchInput = searchTerm;
-	let showModal = false;
+	let isModalVisible = false;
+
+	import { shippingModalStore } from '$lib/stores/uiStore';
 
 	onMount(() => {
-		if ($auth.isAuthenticated && !$auth.isAdmin) {
-			const userId = $auth.user?.id;
-			if (!localStorage.getItem(`${STORAGE_KEYS.SHIPPING_MODAL_PREFIX}${userId}`)) {
-				showModal = true;
-				localStorage.setItem(`${STORAGE_KEYS.SHIPPING_MODAL_PREFIX}${userId}`, 'true');
-			}
+		if ($auth.isAuthenticated && !$auth.isAdmin && $auth.user?.id) {
+			isModalVisible = shippingModalStore.checkAndShow($auth.user.id);
 		}
 	});
 
@@ -64,8 +61,8 @@
 	}
 </script>
 
-{#if showModal}
-	<ShippingPromoModal bind:showModal />
+{#if isModalVisible}
+	<ShippingPromoModal bind:isModalVisible />
 {/if}
 
 <section class="mt-16 p-4 sm:mt-20 sm:p-24 sm:px-4 sm:py-4">
@@ -84,7 +81,7 @@
 		</div>
 	</div>
 
-	{#if loading}
+	{#if isLoading}
 		<div class="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-1 sm:gap-8 md:grid-cols-3 lg:grid-cols-4">
 			<ShopSkeleton />
 		</div>
@@ -94,12 +91,9 @@
 				<div
 					class="group flex h-full flex-col overflow-hidden rounded-2xl border border-surface-alt/50 bg-surface/80 shadow-sm backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:bg-surface/95 hover:shadow-xl"
 				>
-					<div
-						class="relative aspect-[4/5] w-full cursor-pointer overflow-hidden bg-surface-alt/50"
+					<button
+						class="relative block aspect-[4/5] w-full cursor-pointer appearance-none overflow-hidden border-none bg-surface-alt/50 p-0 text-left"
 						on:click={() => goToProduct(book.id)}
-						on:keydown={(e) => e.key === 'Enter' && goToProduct(book.id)}
-						role="button"
-						tabindex="0"
 					>
 						<img
 							src={book.image}
@@ -108,7 +102,7 @@
 							on:error={(e) => ((e.target as HTMLImageElement).src = STRINGS.SHOP.FALLBACK_IMAGE)}
 							loading="lazy"
 						/>
-					</div>
+					</button>
 					<div class="flex flex-1 flex-col p-4 sm:p-5">
 						<div class="flex-1">
 							<h3 class="line-clamp-2 text-base font-bold text-text-main sm:text-lg">

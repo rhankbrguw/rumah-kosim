@@ -20,7 +20,7 @@
 		dataType: 'json',
 		onResult: async ({ result }) => {
 			if (result.type === 'success' || result.type === 'redirect') {
-				loading = true;
+				isLoading = true;
 				try {
 					checkoutStore.update((s) => ({
 						...s,
@@ -34,7 +34,7 @@
 				} catch (err) {
 					error = (err as Error).message;
 				} finally {
-					loading = false;
+					isLoading = false;
 				}
 			}
 		}
@@ -43,7 +43,7 @@
 	import { onMount } from 'svelte';
 
 	let shippingCost = 0,
-		loading = false,
+		isLoading = false,
 		error = '';
 
 	onMount(() => {
@@ -77,7 +77,7 @@
 						<AddressFields
 							bind:form={$form as Record<string, unknown> & { city: string; district: string; address: string; saveInfo: boolean; [key: string]: unknown }}
 							userAddresses={userAddresses as { address_text: string; label: string; is_primary: boolean }[]}
-							{loading}
+							{isLoading}
 						/>
 					</form>
 				</div>

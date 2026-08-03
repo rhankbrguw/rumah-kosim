@@ -5,9 +5,10 @@ import { ProductService } from '$lib/server/services/productService.js';
 import { jsonResponse, errorResponse } from '$lib/server/utils/response.js';
 import { z } from 'zod';
 import type { ResultSetHeader } from 'mysql2';
+import { productCreateSchema } from '$lib/server/validations/product.js';
 
-export async function GET({ request, url }) {
-	if (!(await checkAdmin(request))) {
+export async function GET({ request, url, locals }) {
+	if (locals.user?.role !== 'admin' && !(await checkAdmin(request))) {
 		return errorResponse('Unauthorized', HTTP_STATUS.UNAUTHORIZED, ERROR_CODES.UNAUTHORIZED);
 	}
 
@@ -27,26 +28,22 @@ export async function GET({ request, url }) {
 	}
 }
 
-const adminProductSchema = z.object({
-	title: z.string().min(1, 'Title is required').trim(),
-	price: z.coerce.number().positive('Valid price is required'),
-	image: z.string().min(1, 'Image is required').trim(),
-	description: z
-		.string()
-		.min(1, 'Description is required')
-		.max(255, 'Description must be less than 255 characters')
-		.trim(),
-	quantity: z.coerce.number().int().min(0, 'Valid quantity is required')
-});
 
-export async function POST({ request }) {
-	if (!(await checkAdmin(request))) {
+
+function mapDbErrorToResponse(dbError: Record<string, unknown>) {
+	if (dbError.code === 'ER_DUP_ENTRY') return errorResponse('A product with this title already exists', HTTP_STATUS.CONFLICT, ERROR_CODES.CONFLICT);
+	if (dbError.code === 'ER_DATA_TOO_LONG') return errorResponse('One or more fields exceed maximum length', HTTP_STATUS.BAD_REQUEST, ERROR_CODES.VALIDATION_ERROR);
+	throw dbError;
+}
+
+export async function POST({ request, locals }) {
+	if (locals.user?.role !== 'admin' && !(await checkAdmin(request))) {
 		return errorResponse('Unauthorized', HTTP_STATUS.UNAUTHORIZED, ERROR_CODES.UNAUTHORIZED);
 	}
 
 	try {
 		const payload = await request.json();
-		const validation = adminProductSchema.safeParse(payload);
+		const validation = productCreateSchema.safeParse(payload);
 
 		if (!validation.success) {
 			return errorResponse(
@@ -66,21 +63,7 @@ export async function POST({ request }) {
 				'Product added successfully'
 			);
 		} catch (dbError) {
-			if ((dbError as { code?: string }).code === 'ER_DUP_ENTRY') {
-				return errorResponse(
-					'A product with this title already exists',
-					HTTP_STATUS.CONFLICT,
-					ERROR_CODES.CONFLICT
-				);
-			}
-			if ((dbError as { code?: string }).code === 'ER_DATA_TOO_LONG') {
-				return errorResponse(
-					'One or more fields exceed maximum length',
-					HTTP_STATUS.BAD_REQUEST,
-					ERROR_CODES.VALIDATION_ERROR
-				);
-			}
-			throw dbError;
+			return mapDbErrorToResponse(dbError as Record<string, unknown>);
 		}
 	} catch (error) {
 		logger.error('POST product error:', error as Error);
@@ -92,8 +75,8 @@ export async function POST({ request }) {
 	}
 }
 
-export async function PATCH({ request }) {
-	if (!(await checkAdmin(request))) {
+export async function PATCH({ request, locals }) {
+	if (locals.user?.role !== 'admin' && !(await checkAdmin(request))) {
 		return errorResponse('Unauthorized', HTTP_STATUS.UNAUTHORIZED, ERROR_CODES.UNAUTHORIZED);
 	}
 
@@ -119,8 +102,8 @@ export async function PATCH({ request }) {
 	}
 }
 
-export async function DELETE({ request }) {
-	if (!(await checkAdmin(request))) {
+export async function DELETE({ request, locals }) {
+	if (locals.user?.role !== 'admin' && !(await checkAdmin(request))) {
 		return errorResponse('Unauthorized', HTTP_STATUS.UNAUTHORIZED, ERROR_CODES.UNAUTHORIZED);
 	}
 

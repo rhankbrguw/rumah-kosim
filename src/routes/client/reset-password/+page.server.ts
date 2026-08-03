@@ -2,8 +2,7 @@ import { superValidate, message } from 'sveltekit-superforms';
 import { zod4 as zod } from 'sveltekit-superforms/adapters';
 import { z } from 'zod';
 import { fail, redirect, isRedirect } from '@sveltejs/kit';
-import { resetPassword, getUserByResetToken } from '$lib/server/services/authService.js';
-import bcrypt from 'bcrypt';
+import { handleResetPassword } from '$lib/services/authHelper.server.js';
 import { logger } from '$lib/server/utils/logger.js';
 
 const resetPasswordSchema = z
@@ -32,23 +31,10 @@ export const actions = {
 		if (!form.valid) return fail(422, { form });
 
 		try {
-			const user = await getUserByResetToken(form.data.token);
-			if (!user || new Date() > new Date(user.reset_expires_at)) {
-				return message(form, 'Invalid or expired token', { status: 400 });
-			}
+			const result = await handleResetPassword(form.data.token, form.data.password);
 
-			const isSamePassword = await bcrypt.compare(form.data.password, user.password);
-			if (isSamePassword) {
-				return message(form, 'New password cannot be the same as your old password', {
-					status: 400
-				});
-			}
-
-			const hashedPassword = await bcrypt.hash(form.data.password, 10);
-			const success = await resetPassword(form.data.token, hashedPassword);
-
-			if (!success) {
-				return message(form, 'Invalid or expired token', { status: 400 });
+			if (!result.success) {
+				return message(form, result.error as string, { status: result.status as 400 | 500 });
 			}
 
 			throw redirect(303, '/client/auth');

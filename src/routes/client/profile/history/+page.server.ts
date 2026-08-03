@@ -25,7 +25,18 @@ export const load = async ({ locals, url }: RequestEvent) => {
 	const limit = APP_CONFIG.DEFAULT_PAGINATION_LIMIT;
 
 	const historyRaw = await getOrders(locals.user.id, page, limit);
-	const history = historyRaw.data as unknown as Order[];
+
+	const history: Order[] = historyRaw.data.map((item) => {
+		const orderItem = item as Record<string, unknown>;
+		return {
+			...orderItem,
+			id: orderItem.id,
+			user_id: orderItem.user_id,
+			total: orderItem.total,
+			shipping_address: orderItem.shipping_address
+		} as Order;
+	});
+
 	const total = historyRaw.total;
 
 	const reviewForm = await superValidate(zod(reviewSchema));
@@ -51,10 +62,10 @@ export const actions = {
 				reviewForm.data.comment as string
 			);
 			return message(reviewForm, STRINGS.PROFILE.MESSAGES.REVIEW_SUCCESS);
-		} catch (err) {
-			const error = err as Error & { code?: string };
-			logger.error('Error submitting review:', error);
-			if (error.code === 'ER_DUP_ENTRY') {
+		} catch (error) {
+			const typedError = error as Error & { code?: string };
+			logger.error('Error submitting review:', typedError);
+			if (typedError.code === 'ER_DUP_ENTRY') {
 				return message(reviewForm, STRINGS.PROFILE.MESSAGES.REVIEW_DUPLICATE, { status: 409 });
 			}
 			return message(reviewForm, STRINGS.PROFILE.MESSAGES.REVIEW_FAILED, { status: 500 });

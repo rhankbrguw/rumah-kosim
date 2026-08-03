@@ -1,12 +1,9 @@
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
-import { JWT_SECRET } from '$env/static/private';
+import { registerUser } from '$lib/server/services/authService.js';
 import { APP_CONFIG, HTTP_STATUS, ERROR_CODES } from '$lib/constants/config.js';
 import { logger } from '$lib/server/utils/logger.js';
 import { jsonResponse, errorResponse } from '$lib/server/utils/response.js';
 import { MESSAGES } from '$lib/constants/messages.js';
 import { registerSchema } from '$lib/server/validations/auth.js';
-import { createUser } from '$lib/server/services/authService.js';
 
 export async function POST({ request, cookies }) {
 	const body = await request.json();
@@ -22,10 +19,26 @@ export async function POST({ request, cookies }) {
 	}
 
 	const { username, password, email } = validation.data;
-	const hashedPassword = await bcrypt.hash(password, 10);
 
 	try {
-		await createUser(username, hashedPassword, email);
+		const result = await registerUser(username, password, email);
+
+		if (result.isFirstUser && result.token) {
+			cookies.set('authToken', result.token, {
+				path: '/',
+				httpOnly: true,
+				secure: process.env.NODE_ENV === 'production',
+				sameSite: 'strict',
+				maxAge: APP_CONFIG.COOKIE_MAX_AGE
+			});
+			return jsonResponse({ user: result.user }, MESSAGES.SUCCESS.CREATE, HTTP_STATUS.CREATED);
+		} else {
+			return jsonResponse(
+				{ user: result.user, message: 'OTP sent to email.' },
+				MESSAGES.SUCCESS.CREATE,
+				HTTP_STATUS.CREATED
+			);
+		}
 	} catch (error) {
 		logger.error('Database error during registration:', error as Error);
 		return errorResponse(
@@ -35,23 +48,4 @@ export async function POST({ request, cookies }) {
 			ERROR_CODES.INTERNAL_ERROR
 		);
 	}
-
-	const payload = { username, email, role: 'user' }; // defaults to user
-	const token = jwt.sign(payload, JWT_SECRET, {
-		expiresIn: APP_CONFIG.JWT_EXPIRES_IN
-	});
-
-	cookies.set('authToken', token, {
-		path: '/',
-		httpOnly: true,
-		secure: process.env.NODE_ENV === 'production',
-		sameSite: 'strict',
-		maxAge: 60 * 60 * 24 // 1 day
-	});
-
-	return jsonResponse(
-		{ user: { username, email, role: 'user' } },
-		MESSAGES.SUCCESS.CREATE,
-		HTTP_STATUS.CREATED
-	);
 }

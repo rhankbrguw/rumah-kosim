@@ -11,7 +11,7 @@
 		[key: string]: unknown;
 	};
 	export let userAddresses: { address_text: string; label: string; is_primary: boolean }[] = [];
-	export let loading: boolean;
+	export let isLoading: boolean;
 
 	$: districts = Object.keys(
 		(locationsData as Record<string, Record<string, string[]>>)[form.city] || {}
@@ -106,10 +106,10 @@
 
 <button
 	type="submit"
-	disabled={loading}
+	disabled={isLoading}
 	class="mt-6 w-full rounded-xl bg-primary py-4 text-center font-bold text-secondary shadow-lg transition-transform hover:-translate-y-1 hover:bg-primary-hover active:translate-y-0 disabled:opacity-70"
 >
-	{loading ? STRINGS.COMMON.LOADING : STRINGS.CHECKOUT.ADDRESS.CONTINUE}
+	{isLoading ? STRINGS.COMMON.LOADING : STRINGS.CHECKOUT.ADDRESS.CONTINUE}
 </button>
 
 {#if !useNewAddress}

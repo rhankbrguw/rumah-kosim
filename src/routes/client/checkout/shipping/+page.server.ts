@@ -8,7 +8,7 @@ export const load = async ({ locals }: RequestEvent) => {
 	}
 
 	const cartItemsRaw = await getCartItems(locals.user.id);
-	const cartItems = cartItemsRaw as unknown as {
+	const cartItems = cartItemsRaw as {
 		price: number;
 		quantity: number;
 		title?: string;

@@ -25,10 +25,10 @@ export const ProductRepository = {
 			params.push(limit, offset);
 		}
 
-		const data = await db.query(sql, params) as RowDataPacket[];
+		const data = (await db.query(sql, params)) as RowDataPacket[];
 		const countParams = search ? [params[0], params[1]] : [];
-		const [countRow] = await db.query(countSql, countParams) as RowDataPacket[];
-		
+		const [countRow] = (await db.query(countSql, countParams)) as RowDataPacket[];
+
 		return { data, total: countRow.total as number };
 	},
 
@@ -48,6 +48,10 @@ export const ProductRepository = {
 
 	async updateQuantity(id: number, quantity: number) {
 		return await db.query('UPDATE products SET quantity = ? WHERE id = ?', [quantity, id]);
+	},
+
+	async increaseQuantity(id: number, quantity: number) {
+		return await db.query('UPDATE products SET quantity = quantity + ? WHERE id = ?', [quantity, id]);
 	},
 
 	async create(title: string, price: number, image: string, description: string, quantity: number) {

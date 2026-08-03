@@ -58,7 +58,7 @@
 		<div
 			in:scale={{ duration: 300, start: 0.9 }}
 			out:scale={{ duration: 200, start: 0.9 }}
-			class="mb-4 flex h-[70dvh] max-h-[600px] w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-2xl border border-surface-alt/50 bg-surface/90 shadow-2xl backdrop-blur-xl sm:h-[500px] sm:w-[400px]"
+			class="mb-4 flex max-h-screen w-full max-w-sm flex-col overflow-hidden rounded-2xl border border-surface-alt/50 bg-surface/90 shadow-2xl backdrop-blur-xl"
 		>
 			<!-- Header -->
 			<ChatHeader {toggleChat} />

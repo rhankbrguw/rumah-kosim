@@ -1,5 +1,4 @@
 <script lang="ts">
-	// Renders exactly 8 skeleton cards for the shop grid
 </script>
 
 {#each Array(8) as i}

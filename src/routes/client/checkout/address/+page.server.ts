@@ -30,9 +30,9 @@ export const load = async ({ locals }) => {
 	if (!locals.user) throw redirect(303, '/client/auth');
 
 	const cartItemsRaw = await getCartItems(locals.user.id);
-	const cartItems = (cartItemsRaw as unknown as CartItem[]).map((item) => ({
+	const cartItems = (cartItemsRaw as CartItem[]).map((item) => ({
 		...item,
-		image: `/images/${item.image?.split('/').pop() || `buku${item.product_id}.jpg`}`
+		image: item.image || `/images/placeholder.jpg`
 	}));
 
 	const userAddresses = await getUserAddresses(locals.user.id);

@@ -18,8 +18,8 @@
 			price: number;
 			quantity: number;
 			image: string;
-		}[],
-		total: number
+		}[];
+		total: number;
 	};
 	export let searchTerm: string = '';
 	export let currentPage: number = 1;
@@ -132,5 +132,10 @@
 	</div>
 
 	<ProductTableDesktop products={products.data} on:uploadImage on:editStock />
-	<Pagination {currentPage} totalItems={products.total} {itemsPerPage} on:pageChange={handlePageChange} />
+	<Pagination
+		{currentPage}
+		totalItems={products.total}
+		{itemsPerPage}
+		on:pageChange={handlePageChange}
+	/>
 </div>

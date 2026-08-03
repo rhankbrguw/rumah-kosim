@@ -63,7 +63,12 @@
 			{/each}
 		</div>
 		<div class="mt-8">
-			<Pagination currentPage={reviewPage} totalItems={totalReviews} itemsPerPage={limit} on:pageChange={handlePageChange} />
+			<Pagination
+				currentPage={reviewPage}
+				totalItems={totalReviews}
+				itemsPerPage={limit}
+				on:pageChange={handlePageChange}
+			/>
 		</div>
 	{/if}
 </div>

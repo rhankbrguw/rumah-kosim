@@ -23,7 +23,7 @@ export const load = async ({ locals }: RequestEvent) => {
 	}
 
 	const cartItemsRaw = await getCartItems(locals.user.id);
-	const cartItems = cartItemsRaw as unknown as CartItem[];
+	const cartItems = cartItemsRaw as CartItem[];
 
 	const paymentForm = await superValidate(zod(paymentFormSchema));
 
@@ -39,16 +39,29 @@ export const actions = {
 		const paymentForm = await superValidate(request, zod(paymentFormSchema));
 		if (!paymentForm.valid) return fail(422, { paymentForm });
 
-		const { cartItemsJson, total, shippingAddress, shippingPrice, shippingMethod } =
-			paymentForm.data;
+		const { shippingAddress, shippingPrice, shippingMethod } = paymentForm.data;
 
 		try {
-			const cartItems = JSON.parse(cartItemsJson as string);
+			// SECURITY: Always fetch cart from DB, don't trust client JSON payload
+			const cartItemsRaw = await getCartItems(locals.user.id);
+			const serverCartItems = cartItemsRaw as CartItem[];
+
+			if (!serverCartItems || serverCartItems.length === 0) {
+				// IDEMPOTENCY: If cart is empty, they already checked out or have no items.
+				throw new Error('Your cart is empty or the order has already been processed.');
+			}
+
+			// Calculate total securely on server
+			let calculatedSubtotal = 0;
+			for (const item of serverCartItems) {
+				calculatedSubtotal += item.price * item.quantity;
+			}
+			const calculatedTotal = calculatedSubtotal + Number(shippingPrice);
 
 			const result = await processPayment(
 				locals.user.id,
-				cartItems,
-				total as number,
+				serverCartItems,
+				calculatedTotal,
 				shippingAddress as string,
 				shippingPrice as number,
 				shippingMethod as string

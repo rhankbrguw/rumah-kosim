@@ -2,12 +2,9 @@ import { superValidate, message } from 'sveltekit-superforms';
 import { zod4 as zod } from 'sveltekit-superforms/adapters';
 import { profileSchema } from '$lib/server/validations/auth.js';
 import { getUserById } from '$lib/server/services/authService.js';
-import { updateProfile, getUserAddresses } from '$lib/server/services/profileService.js';
+import { getUserAddresses } from '$lib/server/services/profileService.js';
 import { redirect, fail } from '@sveltejs/kit';
-import bcrypt from 'bcrypt';
-import fs from 'fs';
-import jwt from 'jsonwebtoken';
-import { JWT_SECRET } from '$env/static/private';
+import { handleProfileUpdate } from '$lib/services/authHelper.server.js';
 import { logger } from '$lib/server/utils/logger.js';
 
 export const load = async ({ locals }) => {
@@ -52,50 +49,12 @@ export const actions = {
 		}
 
 		try {
-			let finalPhone = form.data.phone ? form.data.phone.replace(/\D/g, '') : null;
-			if (finalPhone) {
-				if (finalPhone.startsWith('62')) finalPhone = finalPhone.substring(2);
-				else if (finalPhone.startsWith('0')) finalPhone = finalPhone.substring(1);
-				finalPhone = '+62' + finalPhone;
-			}
-
-			const dataToUpdate: Record<string, unknown> = {
-				username: form.data.username,
-				email: form.data.email,
-				full_name: form.data.full_name || null,
-				phone: finalPhone,
-				address: form.data.address || null
-			};
-
-			const avatarFile = formData.get('avatar') as File;
-			if (avatarFile && avatarFile.size > 0) {
-				const ext = avatarFile.name.split('.').pop() || 'png';
-				const filename = `avatar_${locals.user.id}_${Date.now()}.${ext}`;
-				const uploadDir = 'static/uploads/avatars';
-				if (!fs.existsSync(uploadDir)) {
-					fs.mkdirSync(uploadDir, { recursive: true });
-				}
-				const arrayBuffer = await avatarFile.arrayBuffer();
-				const buffer = Buffer.from(arrayBuffer);
-				fs.writeFileSync(`${uploadDir}/${filename}`, buffer);
-				dataToUpdate.avatar = `/uploads/avatars/${filename}`;
-			}
-
-			if (form.data.password && form.data.password.length >= 6) {
-				dataToUpdate.password = await bcrypt.hash(form.data.password, 10);
-			}
-
-			await updateProfile(locals.user.id, dataToUpdate as Parameters<typeof updateProfile>[1]);
-
-			const newAvatar = dataToUpdate.avatar || locals.user.avatar;
-			const payload = {
-				id: locals.user.id,
-				username: dataToUpdate.username,
-				email: dataToUpdate.email,
-				role: locals.user.role,
-				avatar: newAvatar
-			};
-			const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '1d' });
+			const token = await handleProfileUpdate(
+				locals.user.id,
+				formData,
+				locals.user.avatar || '',
+				locals.user.role
+			);
 
 			cookies.set('authToken', token, {
 				path: '/',

@@ -86,11 +86,7 @@
 				}}
 			/>
 		{:else}
-			<OrderTable
-				orders={data.orders}
-				currentPage={data.orderPage}
-				itemsPerPage={data.limit}
-			/>
+			<OrderTable orders={data.orders} currentPage={data.orderPage} itemsPerPage={data.limit} />
 		{/if}
 
 		<AdminModals

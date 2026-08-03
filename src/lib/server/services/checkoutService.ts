@@ -30,7 +30,11 @@ interface CartItem {
 
 import { sendOrderConfirmationEmail } from '$lib/server/utils/mailer.js';
 
-async function generateMidtransToken(trackingNumber: string, total: number, user: Record<string, unknown> | null) {
+async function generateMidtransToken(
+	trackingNumber: string,
+	total: number,
+	user: Record<string, unknown> | null
+) {
 	const { snap } = await import('$lib/server/utils/midtrans.js');
 	const transaction = await snap.createTransaction({
 		transaction_details: {
@@ -45,11 +49,17 @@ async function generateMidtransToken(trackingNumber: string, total: number, user
 	return transaction.token;
 }
 
-async function dispatchOrderEmails(user: Record<string, unknown> | null, total: number, trackingNumber: string, orderId: number) {
+async function dispatchOrderEmails(
+	user: Record<string, unknown> | null,
+	total: number,
+	trackingNumber: string,
+	orderId: number
+) {
 	if (!user?.email || typeof user.email !== 'string') return;
 	const userEmail = user.email;
-	const username = typeof user.username === 'string' ? user.username : STORE_CONSTANTS.DEFAULT_CUSTOMER_NAME;
-	
+	const username =
+		typeof user.username === 'string' ? user.username : STORE_CONSTANTS.DEFAULT_CUSTOMER_NAME;
+
 	sendOrderConfirmationEmail(userEmail, total, trackingNumber).catch((e) => {
 		logger.error('Failed to send invoice email:', e);
 	});

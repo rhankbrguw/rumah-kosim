@@ -1,5 +1,6 @@
 import { OrderRepository } from '$lib/server/repositories/orderRepository.js';
 import { UserRepository } from '$lib/server/repositories/userRepository.js';
+import { ProductService } from '$lib/server/services/productService.js';
 import { sendStatusUpdateEmail } from '$lib/server/utils/mailer.js';
 import { logger } from '$lib/server/utils/logger.js';
 import { STRINGS } from '$lib/constants/strings.js';
@@ -64,6 +65,13 @@ export const getAllOrdersAdmin = async (page?: number, limit?: number) => {
 };
 
 export const updateOrderStatus = async (id: number, status: string) => {
+	// If changing to Cancelled, we should restore stock
+	if (status === ORDER_STRINGS.STATUS_CANCELLED) {
+		const items = await OrderRepository.fetchAllOrderItems([id]);
+		for (const item of items) {
+			await ProductService.increaseQuantity(item.product_id, item.quantity);
+		}
+	}
 	const result = await OrderRepository.updateStatus(id, status);
 
 	try {
@@ -87,6 +95,16 @@ export const updateOrderStatus = async (id: number, status: string) => {
 };
 
 export const updateOrderStatusByTrackingNumber = async (trackingNumber: string, status: string) => {
+	// If changing to Cancelled, we should restore stock
+	if (status === ORDER_STRINGS.STATUS_CANCELLED) {
+		const orderRow = await OrderRepository.getOrderBasicInfoByTrackingNumber(trackingNumber) as { id: number } | null;
+		if (orderRow) {
+			const items = await OrderRepository.fetchAllOrderItems([orderRow.id]);
+			for (const item of items) {
+				await ProductService.increaseQuantity(item.product_id, item.quantity); 
+			}
+		}
+	}
 	const result = await OrderRepository.updateStatusByTrackingNumber(trackingNumber, status);
 	return result;
 };

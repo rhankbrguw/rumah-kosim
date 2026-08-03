@@ -9,7 +9,7 @@
 {#if product}
 	<ProductDetail {product} reviews={reviews || []} {totalReviews} {reviewPage} {limit} />
 {:else}
-	<div class="flex min-h-[400px] items-center justify-center">
+	<div class="flex min-h-96 items-center justify-center">
 		<p>Product not found</p>
 	</div>
 {/if}

@@ -68,8 +68,8 @@
 			required
 		>
 			<option value="">Select City</option>
-			{#each Object.keys(locationsData) as c (c)}
-				<option value={c}>{c}</option>
+			{#each Object.keys(locationsData) as cityName (cityName)}
+				<option value={cityName}>{cityName}</option>
 			{/each}
 		</select>
 		<select
@@ -80,8 +80,8 @@
 			required
 		>
 			<option value="">Select District</option>
-			{#each districts as d (d)}
-				<option value={d}>{d}</option>
+			{#each districts as districtName (districtName)}
+				<option value={districtName}>{districtName}</option>
 			{/each}
 		</select>
 	</div>
@@ -89,8 +89,8 @@
 	<div class="grid grid-cols-2 gap-3 sm:gap-4">
 		<select name="subdistrict" bind:value={form.subdistrict} class={selectClass} required>
 			<option value="">Select Subdistrict</option>
-			{#each subdistricts as s (s)}
-				<option value={s}>{s}</option>
+			{#each subdistricts as subdistrictName (subdistrictName)}
+				<option value={subdistrictName}>{subdistrictName}</option>
 			{/each}
 		</select>
 		<input

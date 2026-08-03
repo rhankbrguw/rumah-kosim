@@ -7,7 +7,7 @@ export const load = async ({ locals }: RequestEvent) => {
 
 	const cartItemsRaw = await getCartItems(locals.user.id);
 	const cartItems = (
-		cartItemsRaw as unknown as {
+		cartItemsRaw as {
 			product_id: number;
 			price: number;
 			quantity: number;
@@ -16,7 +16,7 @@ export const load = async ({ locals }: RequestEvent) => {
 		}[]
 	).map((item) => ({
 		...item,
-		image: `/images/${item.image?.split('/').pop() || `buku${item.product_id}.jpg`}`
+		image: item.image || `/images/placeholder.jpg`
 	}));
 	return { cartItems };
 };
@@ -30,8 +30,8 @@ export const actions = {
 		try {
 			await addToCart(locals.user.id, productId, delta);
 			return { success: true };
-		} catch (err) {
-			return fail(500, { error: (err as Error).message });
+		} catch (error) {
+			return fail(500, { error: (error as Error).message });
 		}
 	},
 	remove: async ({ request, locals }) => {
@@ -41,8 +41,8 @@ export const actions = {
 		try {
 			await deleteFromCart(locals.user.id, productId);
 			return { success: true };
-		} catch (err) {
-			return fail(500, { error: (err as Error).message });
+		} catch (error) {
+			return fail(500, { error: (error as Error).message });
 		}
 	}
 };

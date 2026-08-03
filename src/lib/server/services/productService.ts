@@ -14,6 +14,9 @@ export const ProductService = {
 	updateQuantity: async (id: number, quantity: number) => {
 		return await ProductRepository.updateQuantity(id, quantity);
 	},
+	increaseQuantity: async (id: number, quantity: number) => {
+		return await ProductRepository.increaseQuantity(id, quantity);
+	},
 	create: async (
 		title: string,
 		price: number,

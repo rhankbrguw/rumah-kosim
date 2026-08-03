@@ -8,7 +8,7 @@ import { sendOTP, sendResetPassword } from '$lib/server/utils/mailer.js';
 import { AuthException, NotFoundException } from '$lib/server/utils/exceptions.js';
 import { ERROR_CODES } from '$lib/constants/errorCodes.js';
 
-export const getUserByUsername = async (username: string) => {
+const getUserByUsername = async (username: string) => {
 	return await UserRepository.getByUsername(username);
 };
 
@@ -20,23 +20,23 @@ export const getUserByResetToken = async (token: string) => {
 	return await UserRepository.getByResetToken(token);
 };
 
-export const createUser = async (username: string, hashedPassword: string, email: string) => {
+const createUser = async (username: string, hashedPassword: string, email: string) => {
 	return await UserRepository.create(username, hashedPassword, email);
 };
 
-export const getUserByEmail = async (email: string) => {
+const getUserByEmail = async (email: string) => {
 	return await UserRepository.getByEmail(email);
 };
 
-export const setOTP = async (userId: number, otp: string) => {
+const setOTP = async (userId: number, otp: string) => {
 	await UserRepository.setOTP(userId, otp);
 };
 
-export const verifyOTP = async (userId: number, otp: string) => {
+const verifyOTP = async (userId: number, otp: string) => {
 	return await UserRepository.verifyOTP(userId, otp);
 };
 
-export const setResetToken = async (email: string, token: string) => {
+const setResetToken = async (email: string, token: string) => {
 	await UserRepository.setResetToken(email, token);
 };
 
@@ -112,4 +112,8 @@ export const processForgotPassword = async (email: string) => {
 		await UserRepository.setResetToken(email, token);
 		await sendResetPassword(email, token);
 	}
+};
+
+export const validateToken = (token: string) => {
+	return jwt.verify(token, JWT_SECRET);
 };

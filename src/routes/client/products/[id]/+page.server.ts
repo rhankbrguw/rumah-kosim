@@ -14,7 +14,7 @@ export const load = async ({ params, url }) => {
 		const productRaw = await ProductService.getById(productId);
 		const reviewsRaw = await getProductReviews(productId, reviewPage, limit);
 
-		const product = productRaw as unknown as {
+		const product = productRaw as {
 			id: number;
 			title: string;
 			description: string;
@@ -26,14 +26,14 @@ export const load = async ({ params, url }) => {
 			editorialReview?: { headline: string; body: string };
 		} | null;
 
-		const reviews = reviewsRaw.data as unknown as {
+		const reviews = reviewsRaw.data as {
 			id: number;
 			user_name: string;
 			rating: number;
 			comment: string;
 			created_at: string;
 		}[];
-		
+
 		const totalReviews = reviewsRaw.total as number;
 
 		return { product, reviews, totalReviews, reviewPage, limit };

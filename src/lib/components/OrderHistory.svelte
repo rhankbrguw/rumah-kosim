@@ -51,7 +51,7 @@
 						{order}
 						isExpanded={expandedOrderId === order.id}
 						on:toggle={() => (expandedOrderId = expandedOrderId === order.id ? null : order.id)}
-						openReviewModal={(productData) => {
+						openReviewModal={(productData: { id: number; title: string; image: string; orderId: number }) => {
 							selectedProduct = productData;
 							showReviewModal = true;
 						}}
@@ -59,7 +59,12 @@
 				{/each}
 			</div>
 			<div class="mt-8">
-				<Pagination currentPage={data.page} totalItems={data.total} itemsPerPage={APP_CONFIG.DEFAULT_PAGINATION_LIMIT} on:pageChange={handlePageChange} />
+				<Pagination
+					currentPage={data.page}
+					totalItems={data.total}
+					itemsPerPage={APP_CONFIG.DEFAULT_PAGINATION_LIMIT}
+					on:pageChange={handlePageChange}
+				/>
 			</div>
 		{/if}
 	</div>

@@ -33,7 +33,7 @@
 
 	let user: { role: string } | null = null;
 	let isSubmitting = false;
-	auth.subscribe(({ user: u }) => (user = u));
+	auth.subscribe(({ user: currentUser }) => (user = currentUser));
 
 	$: isOutOfStock = product?.quantity === 0;
 	$: isAdmin = user?.role === 'admin';
@@ -52,7 +52,7 @@
 			<img
 				src={product.image ? product.image.replace('../', '/') : STRINGS.SHOP.FALLBACK_IMAGE}
 				alt={product.title}
-				class="max-h-[28rem] object-contain transition-transform duration-500 hover:scale-105"
+				class="max-h-96 object-contain transition-transform duration-500 hover:scale-105"
 			/>
 		</div>
 

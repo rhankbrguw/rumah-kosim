@@ -44,7 +44,7 @@
 				class="flex h-10 w-10 items-center justify-center rounded-xl border border-secondary/20 bg-surface-alt text-text-main transition-colors hover:border-primary disabled:opacity-50"
 				>-</button
 			>
-			<span class="min-w-[2rem] text-center text-lg font-medium text-text-main"
+			<span class="min-w-8 text-center text-lg font-medium text-text-main"
 				>{isOutOfStock ? 0 : quantity}</span
 			>
 			<button

@@ -13,7 +13,8 @@ export async function uploadImage(file: File): Promise<{ imagePath: string }> {
 		throw new Error('Upload failed');
 	}
 
-	return await res.json();
+	const payload = await res.json();
+	return payload.data;
 }
 
 export async function updateProductImage(productId: number, image: string): Promise<void> {

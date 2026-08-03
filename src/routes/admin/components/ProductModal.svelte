@@ -56,11 +56,11 @@
 </script>
 
 <div
-	class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 pb-6 pt-24 backdrop-blur-sm"
+	class="bg-surface-backdrop fixed inset-0 z-50 flex items-center justify-center px-4 pb-6 pt-24 backdrop-blur-sm"
 	transition:fade={{ duration: 200 }}
 >
 	<div
-		class="w-full max-w-[500px] overflow-hidden rounded-2xl bg-surface/95 shadow-2xl backdrop-blur-md"
+		class="w-full max-w-lg overflow-hidden rounded-2xl bg-surface/95 shadow-2xl backdrop-blur-md"
 		transition:scale={{ duration: 200, start: 0.95 }}
 	>
 		<div class="flex items-center justify-between border-b border-secondary/30 px-6 py-4">

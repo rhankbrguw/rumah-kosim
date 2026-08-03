@@ -30,7 +30,7 @@
 		class="relative z-10 flex items-center justify-center gap-3 rounded-xl bg-surface/50 py-3 backdrop-blur-md"
 	>
 		<span class="font-bold text-primary">Powered by Midtrans</span>
-		<div class="bg-border-color h-4 w-[1px]"></div>
+		<div class="bg-border-color h-4 w-px"></div>
 		<span class="text-xs font-semibold uppercase tracking-wider text-text-main"
 			>Global Security Standard</span
 		>

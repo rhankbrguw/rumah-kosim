@@ -127,7 +127,7 @@ export const UserRepository = {
 			updates.push('password = ?');
 			values.push(data.password);
 		}
-		
+
 		values.push(userId);
 		await pool.query(`UPDATE users SET ${updates.join(', ')} WHERE id = ?`, values);
 	}

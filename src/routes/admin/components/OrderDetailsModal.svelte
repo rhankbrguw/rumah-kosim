@@ -11,7 +11,7 @@
 </script>
 
 <div
-	class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 pb-6 pt-24 backdrop-blur-sm"
+	class="bg-surface-backdrop fixed inset-0 z-50 flex items-center justify-center px-4 pb-6 pt-24 backdrop-blur-sm"
 	transition:fade={{ duration: 200 }}
 >
 	<div
@@ -28,7 +28,7 @@
 			</button>
 		</div>
 
-		<div class="max-h-[60vh] overflow-y-auto p-6">
+		<div class="max-h-screen overflow-y-auto p-6">
 			<h3 class="mb-3 text-sm font-bold uppercase tracking-wide text-text-muted">
 				Purchased Items
 			</h3>
