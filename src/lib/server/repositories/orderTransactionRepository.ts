@@ -1,7 +1,6 @@
 import type { ResultSetHeader, FieldPacket } from 'mysql2';
 import { pool } from '$lib/db.js';
 
-
 interface CartItem {
 	product_id: number;
 	quantity: number;
