@@ -1,0 +1,111 @@
+<script lang="ts">
+	import { MapPin, Lock } from 'lucide-svelte';
+	import { STRINGS } from '$lib/constants/strings';
+
+	export let form: Record<string, unknown>;
+	export let errors: Record<string, string[]>;
+	export let constraints: Record<string, Record<string, unknown> | undefined>;
+	export let userAddresses: Record<string, unknown>[] = [];
+
+	let selectedAddress = '';
+
+	function handleAddressSelect(e: Event) {
+		const target = e.target as HTMLSelectElement;
+		if (target.value) {
+			try {
+				const parsed = JSON.parse(target.value);
+				form.address = `${parsed.address}, ${parsed.subdistrict}, ${parsed.district}, ${parsed.city}, ${parsed.province} ${parsed.postalCode}`;
+			} catch {
+				form.address = target.value;
+			}
+		}
+	}
+</script>
+
+<div class="mt-5 rounded-xl border border-surface-alt bg-surface/50 p-3.5 sm:mt-6 sm:p-5 lg:p-6">
+	<h2
+		class="mb-3.5 flex items-center gap-2 border-b border-surface-alt pb-2.5 text-sm font-semibold text-text-main sm:text-base"
+	>
+		<MapPin size={18} class="text-primary" />
+		Location
+	</h2>
+	<div class="space-y-3.5">
+		{#if userAddresses.length > 0}
+			<div class="space-y-1">
+				<label for="saved_address" class="block text-xs font-semibold text-text-muted"
+					>{STRINGS.PROFILE.ADDRESS_BOOK.SAVED_ADDRESS}</label
+				>
+				<select
+					id="saved_address"
+					bind:value={selectedAddress}
+					on:change={handleAddressSelect}
+					class="w-full rounded-lg border border-surface-alt/80 bg-surface px-3 py-2 text-xs text-text-main focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:text-sm"
+				>
+					<option value="">{STRINGS.PROFILE.ADDRESS_BOOK.SELECT_PLACEHOLDER}</option>
+					{#each userAddresses as addr, idx (idx)}
+						<option value={addr.address_text}
+							>{addr.label}
+							{#if addr.is_primary}({STRINGS.PROFILE.ADDRESS_BOOK.MAIN}){/if}</option
+						>
+					{/each}
+				</select>
+			</div>
+		{/if}
+
+		<div class="space-y-1">
+			<label for="address" class="block text-xs font-semibold text-text-muted"
+				>{STRINGS.PROFILE.FIELDS.ADDRESS}</label
+			>
+			<div class="relative">
+				<div
+					class="pointer-events-none absolute left-0 top-2.5 z-10 flex items-center pl-3 text-text-muted"
+				>
+					<MapPin size={16} />
+				</div>
+				<textarea
+					id="address"
+					name="address"
+					rows="3"
+					bind:value={form.address}
+					{...constraints.address}
+					class="w-full rounded-lg border border-surface-alt/80 bg-surface px-3 py-2 pl-9 text-xs text-text-main transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:text-sm"
+					placeholder={STRINGS.PROFILE.FIELDS.ADDRESS_PLACEHOLDER}
+				></textarea>
+			</div>
+			{#if errors.address}<span class="text-micro text-danger">{errors.address}</span>{/if}
+		</div>
+	</div>
+</div>
+
+<div
+	class="mb-6 mt-5 rounded-xl border border-surface-alt bg-surface/50 p-3.5 sm:mt-6 sm:p-5 lg:p-6"
+>
+	<h2
+		class="mb-3.5 flex items-center gap-2 border-b border-surface-alt pb-2.5 text-sm font-semibold text-text-main sm:text-base"
+	>
+		<Lock size={18} class="text-primary" />
+		Security
+	</h2>
+	<div class="space-y-1">
+		<label for="password" class="block text-xs font-semibold text-text-muted"
+			>{STRINGS.PROFILE.FIELDS.PASSWORD}</label
+		>
+		<div class="relative">
+			<div
+				class="pointer-events-none absolute inset-y-0 left-0 z-10 flex items-center pl-3 text-text-muted"
+			>
+				<Lock size={16} />
+			</div>
+			<input
+				type="password"
+				id="password"
+				name="password"
+				bind:value={form.password}
+				{...constraints.password}
+				class="w-full rounded-lg border border-surface-alt/80 bg-surface px-3 py-2 pl-9 text-xs text-text-main transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:text-sm"
+				placeholder={STRINGS.PROFILE.FIELDS.PASSWORD_PLACEHOLDER}
+			/>
+		</div>
+		{#if errors.password}<span class="text-micro text-danger">{errors.password}</span>{/if}
+	</div>
+</div>

@@ -1,0 +1,198 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+@layer base {
+	:root {
+		/* Premium Vintage Bookstore Theme (Yellow / Amber & Dark Stone) */
+		--color-primary: 43 96% 56%; /* Amber 400 */
+		--color-primary-hover: 43 96% 46%;
+		--color-primary-light: 43 100% 90%;
+
+		--color-secondary: 24 10% 10%; /* Stone 900 */
+		--color-secondary-hover: 24 10% 0%;
+
+		--color-danger: 0 84% 60%; /* Red 500 */
+		--color-danger-hover: 0 74% 50%;
+		--color-danger-light: 0 100% 95%;
+
+		/* Backgrounds & Surfaces */
+		--color-surface: 0 0% 100%;
+		--color-surface-alt: 30 20% 98%; /* Warm off-white */
+		--color-surface-dark: 222 47% 11%;
+
+		/* Typography */
+		--color-text-main: 222 47% 11%; /* Very dark blue gray */
+		--color-text-muted: 215 16% 47%; /* Slate 500 */
+		--color-text-inverse: 0 0% 100%;
+
+		--motion-fast: 150ms;
+		--motion-base: 220ms;
+		--motion-slow: 300ms;
+		--type-micro: 0.6875rem;
+		--type-compact: 0.75rem;
+		--tracking-display: 0.16em;
+		--shadow-glow-primary: 0 0 40px -15px hsl(var(--color-primary) / 0.3);
+	}
+}
+
+@font-face {
+	font-family: 'Playfair Display';
+	src: url('/fonts/PlayfairDisplay-VariableFont_wght.ttf') format('truetype');
+	font-weight: 100 900;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'Inter';
+	src: url('/fonts/Inter-VariableFont_opsz,wght.ttf') format('truetype');
+	font-weight: 100 900;
+	font-display: swap;
+}
+
+body {
+	font-family: 'Inter', system-ui, sans-serif;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	background-color: hsl(var(--color-surface-alt));
+	color: hsl(var(--color-text-main));
+	text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	font-family: 'Playfair Display', serif;
+	letter-spacing: -0.02em;
+}
+
+.page-enter {
+	animation: page-enter var(--motion-slow) ease-out both;
+}
+
+.reveal-up {
+	animation: reveal-up var(--motion-slow) ease-out both;
+}
+
+.interactive-lift {
+	transition:
+		transform var(--motion-base) ease-out,
+		box-shadow var(--motion-base) ease-out;
+}
+
+.interactive-lift:hover {
+	transform: translateY(-4px);
+}
+
+.text-micro {
+	font-size: var(--type-micro);
+}
+
+.text-compact {
+	font-size: var(--type-compact);
+}
+
+.tracking-display {
+	letter-spacing: var(--tracking-display);
+}
+
+.select-clean {
+	background-image: none;
+}
+
+.shadow-glow-primary {
+	box-shadow: var(--shadow-glow-primary);
+}
+
+.app-background {
+	background-image: url('/images/bg-ruko.png');
+	background-size: cover;
+	background-position: center;
+	background-repeat: no-repeat;
+	opacity: 0.05;
+}
+
+.hero-overlay {
+	background-image: linear-gradient(
+		to top,
+		hsl(var(--color-secondary)),
+		hsl(var(--color-secondary) / 0.8),
+		hsl(var(--color-secondary) / 0.4)
+	);
+	backdrop-filter: blur(2px);
+}
+
+.cart-badge {
+	position: absolute;
+	top: -4px;
+	right: -6px;
+	display: flex;
+	height: 1rem;
+	min-width: 1rem;
+	align-items: center;
+	justify-content: center;
+	border-radius: 9999px;
+	background: hsl(var(--color-primary));
+	padding: 0 0.25rem;
+	font-size: var(--type-micro);
+	font-weight: 700;
+	color: hsl(var(--color-text-inverse));
+	box-shadow: 0 1px 2px rgb(15 23 42 / 0.1);
+}
+
+button,
+a,
+input,
+textarea,
+select {
+	-webkit-tap-highlight-color: transparent;
+}
+
+:focus-visible {
+	outline: 3px solid hsl(var(--color-primary) / 0.65);
+	outline-offset: 3px;
+}
+
+::selection {
+	background: hsl(var(--color-primary) / 0.28);
+	color: hsl(var(--color-text-main));
+}
+
+@keyframes page-enter {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+@keyframes reveal-up {
+	from {
+		opacity: 0;
+		transform: translateY(12px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		animation-delay: 0ms !important;
+	}
+
+	.page-enter,
+	.reveal-up {
+		animation: none !important;
+	}
+}

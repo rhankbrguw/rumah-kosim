@@ -1,0 +1,27 @@
+export const CART_STRINGS = {
+	TITLE: 'Shopping Bag',
+	SUBTITLE: 'Curated Editions & Reading Selection',
+	EMPTY: 'Your reading bag is currently empty',
+	EMPTY_SUBTITLE:
+		'Discover your next favorite story, timeless classic, or thought-provoking read in our sanctuary catalog.',
+	DISCOVER_BOOKS: 'Explore Bookstore',
+	TOTAL: 'Total',
+	CHECKOUT: 'Proceed to Checkout',
+	REMOVE: 'Remove item from bag',
+	ORDER_SUMMARY: 'Order Summary',
+	SUBTOTAL: 'Items Subtotal',
+	ITEM: 'book',
+	ITEMS: 'books',
+	ESTIMATED_SHIPPING: 'Estimated Shipping',
+	ESTIMATED_TAX: 'Taxes & Handling',
+	CALCULATED_AT_CHECKOUT: 'Calculated at checkout',
+	CHECKOUT_NOTE: 'Standard courier rates and promos applied at next step',
+	DECREASE_QUANTITY: 'Decrease quantity',
+	INCREASE_QUANTITY: 'Increase quantity',
+	QUANTITY: 'Qty',
+	CONTINUE_SHOPPING: 'Back to Catalog',
+	TRUST_AUTHENTIC: '100% Authentic Editions',
+	TRUST_PACKAGING: 'Curated Protective Wrap',
+	TRUST_DISPATCH: 'Fast Sanctuary Dispatch',
+	PRICE_PER_COPY: '/ copy'
+} as const;
