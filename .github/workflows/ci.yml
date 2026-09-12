@@ -1,0 +1,186 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  lint:
+    name: Lint & Format (SvelteKit)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check formatting (Prettier)
+        run: npx prettier --check .
+
+      - name: Run ESLint
+        run: npx eslint .
+
+  typecheck:
+    name: Type Check (SvelteKit)
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: mysql://root:ci_password@127.0.0.1:3306/rumah_kosim
+      JWT_SECRET: ci_test_jwt_secret_not_for_production
+      MIDTRANS_SERVER_KEY: ci_dummy_key
+      PUBLIC_MIDTRANS_CLIENT_KEY: ci_dummy_client_key
+      MIDTRANS_IS_PRODUCTION: 'false'
+      GEMINI_API_KEY: ci_dummy_gemini_key
+      RESEND_API_KEY: ci_dummy_resend_key
+      RESEND_FROM: noreply@rhankbrguw.xyz
+      RESEND_FROM_NAME: Rumah Kosim
+      EMAIL_FROM: noreply@rhankbrguw.xyz
+      EMAIL_FROM_NAME: Rumah Kosim
+      APP_URL: http://localhost:5173
+      APP_BASE_URL: http://localhost:5173
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Sync SvelteKit
+        run: npx svelte-kit sync
+
+      - name: Run svelte-check
+        run: npx svelte-check --tsconfig ./tsconfig.json
+
+  build:
+    name: Build (SvelteKit)
+    runs-on: ubuntu-latest
+    needs: [lint, typecheck]
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: ci_password
+          MYSQL_DATABASE: rumah_kosim
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+    env:
+      DATABASE_URL: mysql://root:ci_password@127.0.0.1:3306/rumah_kosim
+      JWT_SECRET: ci_test_jwt_secret_not_for_production
+      MIDTRANS_SERVER_KEY: ci_dummy_key
+      PUBLIC_MIDTRANS_CLIENT_KEY: ci_dummy_client_key
+      MIDTRANS_IS_PRODUCTION: 'false'
+      GEMINI_API_KEY: ci_dummy_gemini_key
+      RESEND_API_KEY: ci_dummy_resend_key
+      RESEND_FROM: noreply@rhankbrguw.xyz
+      RESEND_FROM_NAME: Rumah Kosim
+      EMAIL_FROM: noreply@rhankbrguw.xyz
+      EMAIL_FROM_NAME: Rumah Kosim
+      APP_URL: http://localhost:5173
+      APP_BASE_URL: http://localhost:5173
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Initialize database schema
+        run: mysql -h 127.0.0.1 -u root -pci_password rumah_kosim < schema.sql
+
+      - name: Build production bundle
+        run: npm run build
+
+      - name: Verify build output exists
+        run: |
+          if [ ! -d "build" ]; then
+            echo "::error::Build output directory not found"
+            exit 1
+          fi
+          echo "Build output verified successfully"
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: build/
+          retention-days: 7
+
+  security:
+    name: Security Audit (SvelteKit)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run npm audit
+        run: npm audit --audit-level=high
+        continue-on-error: true
+
+      - name: Check for secrets in codebase
+        run: |
+          echo "Scanning for potential hardcoded secrets..."
+          PATTERNS=(
+            "PRIVATE.KEY"
+            "password.*=.*['\"][^'\"]*['\"]"
+            "secret.*=.*['\"][^'\"]*['\"]"
+            "api.key.*=.*['\"][^'\"]*['\"]"
+          )
+          FOUND=0
+          for pattern in "${PATTERNS[@]}"; do
+            if grep -rn --include="*.ts" --include="*.js" --include="*.svelte" \
+              -E "$pattern" src/ --exclude-dir=node_modules 2>/dev/null | \
+              grep -v ".env" | grep -v "example" | grep -v "config.ts" | \
+              grep -v "\.d\.ts" | head -5; then
+              FOUND=1
+            fi
+          done
+          if [ "$FOUND" -eq 1 ]; then
+            echo "::warning::Potential hardcoded secrets detected. Review the matches above."
+          else
+            echo "No obvious hardcoded secrets found."
+          fi
+
+      - name: Verify .env is gitignored
+        run: |
+          if git ls-files --cached .env | grep -q ".env"; then
+            echo "::error::.env file is tracked by git! This is a security risk."
+            exit 1
+          fi
+          echo ".env is properly gitignored"
