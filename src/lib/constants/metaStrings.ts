@@ -1,0 +1,22 @@
+export const META_STRINGS = {
+	APP_NAME: 'Rumah Kosim',
+	DEFAULT_TITLE: 'Rumah Kosim',
+	HOME: 'Rumah Kosim',
+	SHOP: 'Catalog',
+	PRODUCT_DETAIL: 'Book Details',
+	CART: 'Cart',
+	CHECKOUT_ADDRESS: 'Shipping Address',
+	CHECKOUT_SHIPPING: 'Delivery Method',
+	CHECKOUT_PAYMENT: 'Payment',
+	AUTH_LOGIN: 'Sign In',
+	AUTH_REGISTER: 'Create Account',
+	AUTH_OTP: 'Verify OTP',
+	PROFILE: 'Profile',
+	ORDER_HISTORY: 'Order History',
+	ABOUT: 'About',
+	RESET_PASSWORD: 'Reset Password',
+	ADMIN_DASHBOARD: 'Admin Dashboard',
+	ADMIN_ORDERS: 'Orders Management',
+	ERROR_404: 'Page Not Found',
+	ERROR_500: 'Server Error'
+};
